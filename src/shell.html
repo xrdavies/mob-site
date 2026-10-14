@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f6f2">
+  <title>{{TITLE}}</title>
+  <meta name="description" content="{{DESCRIPTION}}">
+  <meta property="og:title" content="{{TITLE}}">
+  <meta property="og:description" content="{{DESCRIPTION}}">
+  <meta property="og:type" content="website">
+  {{CANONICAL}}
+  {{OG_IMAGE}}
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/site.js"></script>
+</head>
+<body data-page="{{PAGE}}">
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="mob 首页"><img src="/assets/logo.svg" width="44" height="44" alt=""><span>mob<span class="brand-dot">.</span></span></a>
+    <nav aria-label="主导航"><a href="/#how">如何工作</a><a href="/start/">快速开始</a><a href="/changelog/">更新日志</a></nav>
+    <a class="button small dark" href="/download/">下载 mob <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="main">{{BODY}}<noscript><p class="wrap download-notice">版本信息和下载链接需要启用 JavaScript。产品介绍和安装指南可以直接阅读。</p></noscript></main>
+  <footer class="site-footer">
+    <div><a class="brand" href="/">mob<span class="brand-dot">.</span></a><p>你的桌面，有了一个小搭档。</p></div>
+    <div class="footer-links"><a href="/download/">下载</a><a href="/start/">使用指南</a><a href="/changelog/">更新日志</a></div>
+    <p class="footer-note">Made for your Mac.<br>macOS 13+ · Apple Silicon</p>
+  </footer>
+</body>
+</html>

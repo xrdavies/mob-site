@@ -1,0 +1,16 @@
+{
+  "name": "mob-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "npm run build && wrangler dev --port 4321",
+    "preview": "wrangler dev --port 4321",
+    "test": "node --test test/*.test.mjs",
+    "deploy": "npm run build && wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "4.151.0"
+  }
+}
