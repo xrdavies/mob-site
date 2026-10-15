@@ -341,6 +341,7 @@ h1 .gradient-text { white-space: nowrap; }
 .guide-content .command { margin-top: 18px; }
 .steps { margin: 18px 0 0; padding: 0; list-style: none; counter-reset: step; }
 .steps li { position: relative; padding: 0 0 18px 46px; line-height: 1.8; color: var(--ink-2); counter-increment: step; }
+.steps[start="3"] { counter-reset: step 2; }
 .steps li::before { content: counter(step); position: absolute; left: 0; top: 0; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--card); border: 1px solid var(--line); color: var(--purple); font-size: 13px; font-weight: 700; }
 .guide-note { margin-top: 22px; padding: 18px 22px; border: 1px solid #ddd6fa; border-left: 4px solid var(--purple); border-radius: 14px; background: #f6f3ff; }
 .guide-note.warn { border-color: #f2d3bd; border-left-color: #e08a4a; background: #fff6ef; }

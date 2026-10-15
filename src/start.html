@@ -7,7 +7,7 @@
     <a href="#config">02 配置</a>
     <a href="#permissions">03 系统权限</a>
     <a href="#run">04 启动服务</a>
-    <a href="#connect">05 连接客户端</a>
+    <a href="#connect">05 配对客户端</a>
     <a href="#remote">从家里连接</a>
     <a href="#upgrade">更新与卸载</a>
     <a href="#commands">命令速查</a>
@@ -46,7 +46,7 @@ codesign --verify --strict --verbose=2 ~/.local/bin/mobd</code></pre></details>
 <section id="config"><span class="step-label">02 / CONFIGURE</span><h2>创建并编辑配置。</h2>
 <pre><code>mobd init      # 创建 ~/.mobd/config.json，已有配置不会被覆盖
 open -e ~/.mobd/config.json</code></pre>
-<p><code>mobd init</code> 默认只监听本机（loopback）。要让局域网或 VPN 中的设备直接连接，把 <code>listen</code> 改为 <code>0.0.0.0:8080</code>。用 <code>command -v codex</code> 或 <code>command -v claude</code> 查找 Agent 的绝对路径。</p>
+<p><code>mobd init</code> 默认监听 <code>0.0.0.0:8080</code>，局域网和 VPN 中的设备可以直接连接；只通过 Tailscale Serve 访问时改为 <code>127.0.0.1:8080</code>。用 <code>command -v codex</code> 或 <code>command -v claude</code> 查找 Agent 的绝对路径。</p>
 <div class="tabs" data-tabs>
   <div class="tab-list" role="tablist"><button type="button" role="tab" aria-selected="true" aria-controls="cfg-codex" id="tab-codex">Codex</button><button type="button" role="tab" aria-selected="false" aria-controls="cfg-claude" id="tab-claude" tabindex="-1">Claude Code</button></div>
   <div class="tab-panel" role="tabpanel" id="cfg-codex" aria-labelledby="tab-codex"><pre><code>{
@@ -68,7 +68,7 @@ open -e ~/.mobd/config.json</code></pre>
 </div>
 <p><code>"approve"</code> 让 Agent 在执行命令或修改文件前询问你，问题会出现在客户端的审批卡片中。两个 Agent 都安装时，可以同时启用：<code>"runners": ["codex", "claude"]</code>。</p>
 <div class="guide-note"><strong>JSON 中只使用绝对路径</strong><p><code>~</code> 和 <code>$HOME</code> 不会展开。修改配置后执行 <code>mobd restart</code> 生效。</p></div>
-<div class="guide-note warn"><strong>只在受信任的网络中开放</strong><p><code>0.0.0.0:8080</code> 允许其他设备连接。请使用内网、VPN 或 Tailscale，并限制访问来源；不要设置公网端口转发。可选的 <code>sharedSecret</code> 只保护写操作，读取、截图和实时桌面仍依赖网络访问控制。</p></div>
+<div class="guide-note warn"><strong>只在受信任的网络中开放</strong><p><code>0.0.0.0:8080</code> 允许其他设备连接。请使用内网、VPN 或 Tailscale，并限制访问来源；不要设置公网端口转发。所有客户端都必须先配对才能访问，但 HTTP 地址不加密：没有 VPN 或 Tailscale 时，能监听网络的人可能取得凭据和内容。</p></div>
 </section>
 
 <section id="permissions"><span class="step-label">03 / PERMISSIONS</span><h2>授予系统权限。</h2>
@@ -90,14 +90,21 @@ mobd start --login</code></pre>
 <p><code>mobd status</code> 中的检查项应全部通过。缺少的权限或 Agent 也会在客户端的设置页显示为提醒。日志位于 <code>~/.mobd/mobd.log</code>，用 <code>mobd logs</code> 跟随查看。</p>
 </section>
 
-<section id="connect"><span class="step-label">05 / CONNECT</span><h2>打开 MOB，连接你的搭档。</h2>
+<section id="connect"><span class="step-label">05 / PAIR</span><h2>配对 MOB，连接你的搭档。</h2>
+<p>每台客户端设备都要先配对一次。配对后凭据保存在设备的系统安全存储中，之后自动连接。</p>
 <ol class="steps">
   <li>安装客户端：<a href="/download/#mac">macOS</a>（把 <strong>mob.app</strong> 拖入“应用程序”）、<a href="/download/#android">Android</a>（APK）；iPhone 版即将上线。</li>
-  <li>进入 <strong>Settings → Machines</strong>，添加办公室 Mac 的地址，例如 <code>http://192.168.1.100:8080</code>，替换为实际的内网、VPN 或 Tailscale 地址。</li>
+  <li>在办公室 Mac 上用客户端能访问的地址生成配对链接，替换为实际的内网、VPN 或 Tailscale 地址：</li>
+</ol>
+<pre><code>mobd link --url http://192.168.1.100:8080</code></pre>
+<p>终端会显示二维码和链接，<strong>10 分钟内有效，只能使用一次</strong>。使用 HTTP 地址时会提示传输未加密，仍可正常配对。</p>
+<ol class="steps" start="3">
+  <li>在 MOB 中进入 <strong>Settings → Machines → Add machine</strong>：手机扫描二维码，或在任意设备上粘贴完整链接。核对显示的办公室地址，点击 <strong>Pair</strong>。</li>
   <li>在 Desktop sign-in 中填写办公室 Mac 的 macOS 用户名和密码，用于屏幕共享登录。点击 <strong>Test connection</strong>。</li>
   <li>新建对话，先试一个简单任务：“查看当前屏幕，并告诉我你看到了什么。”</li>
 </ol>
 <p>实时桌面默认只查看。需要自己操作时，打开全屏并切换到 <strong>Control</strong>。手机上点按即点击、长按为右键、双指滚动、捏合缩放。</p>
+<p>用 <code>mobd clients list</code> 查看已配对的设备；设备丢失时执行 <code>mobd clients revoke CLIENT_ID</code>，它会立即断开，其他设备不受影响。</p>
 </section>
 
 <section id="remote"><span class="step-label">AWAY FROM THE OFFICE</span><h2>从家里连接：Tailscale Serve。</h2>
@@ -110,7 +117,7 @@ mobd start --login</code></pre>
 <pre><code>tailscale serve status
 tailscale serve --bg --https=443 http://127.0.0.1:8080
 tailscale serve status   # 确认显示 Available within your tailnet</code></pre>
-<p>在客户端填写输出中的完整地址，例如 <code>https://office-mac.your-tailnet.ts.net</code>，不要追加 <code>:8080</code>。不要使用 Tailscale Funnel 把 mobd 公开到互联网。</p>
+<p>用输出中的完整地址生成配对链接，例如 <code>mobd link --url https://office-mac.your-tailnet.ts.net</code>，不要追加 <code>:8080</code>。不要使用 Tailscale Funnel 把 mobd 公开到互联网。</p>
 <p>完整步骤与排查见 <a href="https://github.com/xrdavies/mobd/blob/main/docs/remote-access.md" rel="noreferrer">远程访问指南</a>。</p>
 </section>
 
@@ -136,6 +143,9 @@ mobd start            # 或 mobd start --login 恢复登录启动</code></pre>
     <tr><td><code>mobd restart</code></td><td>重新加载配置，保留登录启动设置</td></tr>
     <tr><td><code>mobd stop</code></td><td>停止服务，并取消登录启动</td></tr>
     <tr><td><code>mobd serve</code></td><td>在前台运行，Ctrl-C 停止</td></tr>
+    <tr><td><code>mobd link --url URL</code></td><td>生成一次性配对二维码和链接，10 分钟有效</td></tr>
+    <tr><td><code>mobd clients list</code></td><td>列出已配对的设备</td></tr>
+    <tr><td><code>mobd clients revoke ID</code></td><td>撤销一台设备并立即断开它</td></tr>
   </tbody>
 </table></div>
 <p>完整配置项见 <a href="https://github.com/xrdavies/mobd#configuration-reference" rel="noreferrer">mobd 配置参考</a>。</p>
@@ -143,6 +153,7 @@ mobd start            # 或 mobd start --login 恢复登录启动</code></pre>
 
 <section id="faq"><span class="step-label">A FEW GOOD QUESTIONS</span><h2>常见问题。</h2>
 <details><summary>为什么连接不上办公室 Mac？</summary><p>确认 <code>mobd status</code> 正常，<code>listen</code> 允许来自你的网络（loopback 只能本机访问），两端处于可互通的内网、VPN 或 tailnet，并检查防火墙。然后在客户端使用 Test connection 查看具体项目。</p></details>
+<details><summary>客户端提示需要重新配对？</summary><p>这台设备的凭据已被撤销，或办公室执行了认证重置。在办公室 Mac 上重新运行 <code>mobd link --url …</code>，在客户端对该办公室选择 <strong>Pair again</strong> 并扫描或粘贴新链接，对话会保留。配对链接过期或已被使用时，同样重新生成即可。</p></details>
 <details><summary>为什么只能聊天，看不到桌面？</summary><p>检查办公室 Mac 的屏幕共享和屏幕录制权限，核对 Machines 中的 macOS 用户名和密码。没有桌面登录信息时，客户端只显示截图快照。</p></details>
 <details><summary>安装器提示 mobd 正在运行？</summary><p>先结束任务并执行 <code>mobd stop</code>（前台运行的 <code>mobd serve</code> 需手动停止），再重新运行安装命令。</p></details>
 <details><summary>我的内容会发送到哪里？</summary><p>桌面运行在办公室 Mac，客户端直接连接 mobd。任务内容、截图等是否发送给模型服务取决于你使用的 Agent 和模型配置，请查看对应服务的数据政策。</p></details>
