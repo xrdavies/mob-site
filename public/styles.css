@@ -330,6 +330,7 @@ h1 .gradient-text { white-space: nowrap; }
 .guide-content > section { padding-bottom: 64px; margin-bottom: 64px; border-bottom: 1px solid var(--line); }
 .guide-content > section:last-child { border-bottom: 0; }
 .guide-content h2 { margin-bottom: 22px; font-size: clamp(26px, 2.6vw, 34px); }
+.guide-content h3 { margin-top: 28px; }
 .guide-content p { margin-top: 16px; color: var(--ink-2); }
 .guide-content a:not(.button) { color: var(--purple); border-bottom: 1px solid rgb(101 89 232 / 30%); }
 .guide-content a:not(.button):hover { border-color: var(--purple); }
@@ -359,6 +360,9 @@ th, td { padding: 12px 18px; border-bottom: 1px solid var(--line); text-align: l
 th { background: #faf8f4; font-size: 12px; letter-spacing: .08em; color: var(--muted); }
 tr:last-child td { border-bottom: 0; }
 td:first-child { white-space: nowrap; }
+#remote table, #tailscale-help table { table-layout: fixed; }
+#remote td:first-child, #tailscale-help td:first-child { white-space: normal; }
+#tailscale-help th:first-child { width: 30%; }
 .guide-content details:not(.hint) { margin-top: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
 .guide-content details:not(.hint) summary { padding: 16px 20px; cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
 .guide-content details:not(.hint) summary::after { content: "+"; color: var(--purple); font-size: 20px; line-height: 1; transition: transform .2s; }
