@@ -1,81 +1,115 @@
-import { fetchReleases } from './releases.js';
+// Progressive enhancement only: every page and download link works without JavaScript.
+const header = document.querySelector('.site-header');
+const toggle = document.querySelector('.menu-toggle');
+const nav = document.getElementById('site-nav');
 
-const page = document.body.dataset.page;
-for (const link of document.querySelectorAll('.site-header a')) {
-  if (new URL(link.href).pathname === location.pathname && !link.hash) link.setAttribute('aria-current', 'page');
+for (const link of nav.querySelectorAll('a')) {
+  if (!link.hash && new URL(link.href).pathname === location.pathname) link.setAttribute('aria-current', 'page');
+  link.addEventListener('click', () => setMenu(false));
 }
 
-function notice(text) {
-  const element = document.querySelector('[data-download-notice]');
-  if (element) element.textContent = text;
+function setMenu(open) {
+  toggle.setAttribute('aria-expanded', String(open));
+  toggle.querySelector('.sr-only').textContent = open ? '关闭菜单' : '打开菜单';
+  nav.classList.toggle('open', open);
 }
+toggle.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
+document.addEventListener('keydown', event => { if (event.key === 'Escape') setMenu(false); });
 
-function empty(product, text) {
-  const status = document.querySelector(`[data-status="${product}"]`);
-  const history = document.querySelector(`[data-releases="${product}"]`);
-  if (status) status.textContent = text;
-  if (history) {
-    const p = document.createElement('p'); p.className = 'empty-release'; p.textContent = text; history.replaceChildren(p);
-  }
-}
+const onScroll = () => header.classList.toggle('scrolled', scrollY > 8);
+addEventListener('scroll', onScroll, { passive: true });
+onScroll();
 
-function showDownload(product, release, base) {
-  document.querySelector(`[data-status="${product}"]`).textContent = `v${release.version} · ${new Date(release.date).toLocaleDateString('zh-CN')}`;
-  const link = document.querySelector(`[data-download="${product}"]`);
-  link.href = release.url; link.removeAttribute('aria-disabled');
-  const checksum = document.querySelector(`[data-checksum="${product}"]`);
-  checksum.href = release.checksums; checksum.hidden = false;
-  if (product === 'mobd') {
-    const command = `curl -fsSL ${base}/mobd/install.sh | sh`;
-    document.querySelector('[data-install-command]').textContent = command;
-    const button = document.querySelector('[data-copy]'); button.disabled = false;
-    button.addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(command); button.textContent = '已复制'; }
-      catch { notice('请选中安装命令，手动复制到办公室 Mac 的终端。'); }
-    });
-  }
-}
-
-function showHistory(product, releases) {
-  const root = document.querySelector(`[data-releases="${product}"]`);
-  root.replaceChildren();
-  for (const release of releases) {
-    const article = document.createElement('article'); article.className = 'release-entry';
-    const title = document.createElement('h3'); title.textContent = `v${release.version}`;
-    const time = document.createElement('time'); time.dateTime = release.date; time.textContent = new Date(release.date).toLocaleDateString('zh-CN'); title.append(time);
-    const notes = document.createElement('pre'); notes.textContent = release.notes || `${product} ${release.version}`;
-    const download = document.createElement('a'); download.href = release.url; download.textContent = '下载此版本 ↓';
-    const checksums = document.createElement('a'); checksums.href = release.checksums; checksums.textContent = 'SHA-256 ↗';
-    article.append(title, notes, download, checksums); root.append(article);
-  }
-}
-
-async function load() {
-  let base;
+// Copy buttons: explicit [data-copy] next to [data-copy-source], plus one per guide code block.
+async function copy(button, text) {
   try {
-    const response = await fetch('/config.json');
-    if (!response.ok) throw Error('Missing site configuration');
-    base = (await response.json()).downloadBaseURL;
-    if (!base) {
-      for (const product of ['mob', 'mobd']) empty(product, '首个公开版本准备中');
-      notice('下载即将开放。你可以先阅读快速开始指南，了解两端的配置方式。');
-      return;
-    }
+    await navigator.clipboard.writeText(text);
+    button.textContent = '已复制';
+    button.classList.add('copied');
+    setTimeout(() => { button.textContent = '复制'; button.classList.remove('copied'); }, 1800);
   } catch {
-    for (const product of ['mob', 'mobd']) empty(product, '暂时无法获取下载信息，请稍后刷新。');
-    return;
+    button.textContent = '请手动复制';
   }
-  await Promise.all(['mob', 'mobd'].map(async product => {
-    try {
-      const releases = await fetchReleases(base, product, page === 'changelog');
-      if (!releases.length) { empty(product, '尚未发布公开版本'); return; }
-      if (page === 'download') showDownload(product, releases[0], base);
-      else showHistory(product, releases);
-    } catch {
-      empty(product, '暂时无法获取版本信息，请稍后刷新。');
-      notice('下载服务暂时不可用，请稍后再试。');
-    }
-  }));
+}
+for (const button of document.querySelectorAll('[data-copy]')) {
+  const source = button.parentElement.querySelector('[data-copy-source]');
+  button.addEventListener('click', () => copy(button, source.textContent.trim()));
+}
+for (const pre of document.querySelectorAll('.guide-content pre')) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'copy-button';
+  button.textContent = '复制';
+  button.setAttribute('aria-label', '复制代码');
+  // Copy commands without trailing "# comment" annotations.
+  button.addEventListener('click', () => copy(button, pre.querySelector('code').textContent.replace(/[ \t]+#.*$/gm, '').trim()));
+  pre.append(button);
 }
 
-if (page === 'download' || page === 'changelog') void load();
+// Tabs (configuration examples).
+for (const tabs of document.querySelectorAll('[data-tabs]')) {
+  const buttons = [...tabs.querySelectorAll('[role="tab"]')];
+  const select = target => {
+    for (const button of buttons) {
+      const selected = button === target;
+      button.setAttribute('aria-selected', String(selected));
+      button.tabIndex = selected ? 0 : -1;
+      document.getElementById(button.getAttribute('aria-controls')).hidden = !selected;
+    }
+  };
+  buttons.forEach((button, index) => {
+    button.addEventListener('click', () => select(button));
+    button.addEventListener('keydown', event => {
+      const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
+      if (!step) return;
+      const next = buttons[(index + step + buttons.length) % buttons.length];
+      select(next);
+      next.focus();
+    });
+  });
+}
+
+// Highlight the download that fits this device.
+const ua = navigator.userAgent;
+const platform = /android/i.test(ua) ? 'android'
+  : /iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && navigator.maxTouchPoints > 1) ? 'ios'
+  : /macintosh|mac os x/i.test(ua) ? 'mac' : '';
+document.querySelector(`[data-platform="${platform}"]`)?.classList.add('is-recommended');
+
+// Seamless marquee: the track scrolls by half its width.
+const track = document.querySelector('.marquee-track');
+if (track) {
+  for (const item of [...track.children]) {
+    const clone = item.cloneNode(true);
+    clone.setAttribute('aria-hidden', 'true');
+    track.append(clone);
+  }
+}
+
+// Guide table of contents follows the section in view.
+const guideLinks = [...document.querySelectorAll('.guide-nav a')];
+if (guideLinks.length && 'IntersectionObserver' in window) {
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      for (const link of guideLinks) link.classList.toggle('active', link.hash === `#${entry.target.id}`);
+    }
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  for (const link of guideLinks) {
+    const section = document.querySelector(link.hash);
+    if (section) observer.observe(section);
+  }
+}
+
+// Gentle reveal on scroll for large blocks.
+if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+    }
+  }, { rootMargin: '0px 0px -10% 0px' });
+  for (const element of document.querySelectorAll('.feature, .app-demo, .phone-stage, .connection, .terminal, .download-card, .requirements > div, .release-entry')) {
+    element.classList.add('reveal');
+    observer.observe(element);
+  }
+}

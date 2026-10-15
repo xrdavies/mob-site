@@ -1,25 +1,153 @@
-<section class="page-intro wrap"><p class="eyebrow">HELLO, SCREEN BUDDY</p><h1>从第一台 Mac，<br><span class="purple">开始协作。</span></h1><p>先准备办公室端，再连接你身边的客户端。<br>两台电脑通过内网或 VPN 保持可达。</p></section>
-<div class="guide wrap"><aside class="guide-nav" aria-label="指南目录"><a href="#office">01 准备办公室</a><a href="#permissions">02 配置与权限</a><a href="#client">03 连接客户端</a><a href="#upgrade">更新与卸载</a><a href="#faq">常见问题</a></aside><div class="guide-content">
-<section id="office"><span class="step-label">01 / OFFICE MAC</span><h2>给办公室 Mac 装上 mobd。</h2><p>确认这是一台运行 macOS 13+ 的 Apple Silicon Mac。先安装并登录你选择的 <a href="https://developers.openai.com/codex/cli/" target="_blank" rel="noreferrer">Codex CLI</a> 或 <a href="https://code.claude.com/docs/en/quickstart" target="_blank" rel="noreferrer">Claude Code</a>。</p><p>从<a href="/download/">下载页</a>复制 mobd 安装命令，在办公室 Mac 的终端中执行。安装使用当前用户，无需 sudo。你也可以下载并查看脚本后再执行。</p><pre><code># 默认安装位置加入 PATH（当前终端）
-export PATH="$HOME/.local/bin:$PATH"
+<section class="page-intro wrap"><p class="eyebrow">HELLO, MOB</p><h1>安装 mobd，<br><span class="gradient-text">开始协作。</span></h1><p>先准备办公室 Mac，再连接你身边的 Mac、iPhone 或 Android。<br>大约十分钟。当前 mobd 版本：{{version:mobd}}。</p></section>
 
-mobd --version
-mobd init</code></pre><p>要在后续终端中使用，将 PATH 配置加入 <code>~/.zshrc</code>。<code>mobd init</code> 创建 <code>~/.mobd/config.json</code>，已有配置不会被覆盖。</p></section>
-<section id="permissions"><span class="step-label">02 / SET THINGS UP</span><h2>配置连接，授予系统权限。</h2><p>编辑 <code>~/.mobd/config.json</code>，设置监听地址、工作目录和 Agent 路径。下面以 Codex 为例，替换用户名和程序路径：</p><pre><code>{
+<div class="guide wrap">
+  <aside class="guide-nav" aria-label="指南目录">
+    <a href="#requirements">准备</a>
+    <a href="#install">01 安装 mobd</a>
+    <a href="#config">02 配置</a>
+    <a href="#permissions">03 系统权限</a>
+    <a href="#run">04 启动服务</a>
+    <a href="#connect">05 连接客户端</a>
+    <a href="#remote">从家里连接</a>
+    <a href="#upgrade">更新与卸载</a>
+    <a href="#commands">命令速查</a>
+    <a href="#faq">常见问题</a>
+  </aside>
+  <div class="guide-content">
+
+<section id="requirements"><span class="step-label">BEFORE YOU BEGIN</span><h2>准备工作。</h2>
+<ul class="check-list">
+  <li>一台 <strong>Apple Silicon</strong> 办公室 Mac，运行 <strong>macOS 13</strong> 或更新版本，保持开机、联网、用户已登录。</li>
+  <li>已安装并登录 <a href="https://developers.openai.com/codex/cli/" rel="noreferrer">Codex CLI</a> 或 <a href="https://code.claude.com/docs/en/quickstart" rel="noreferrer">Claude Code</a>（至少一个）。</li>
+  <li>客户端设备能访问办公室 Mac：同一内网、公司 VPN 或 Tailscale。</li>
+</ul></section>
+
+<section id="install"><span class="step-label">01 / INSTALL</span><h2>在办公室 Mac 上安装 mobd。</h2>
+<p>打开“终端”，以普通用户身份运行（不要加 sudo）：</p>
+<div class="command"><code data-copy-source>{{install}}</code><button type="button" class="copy-button" data-copy>复制</button></div>
+<p>安装器会读取最新的稳定版本，校验 SHA-256 与 Apple 开发者签名，然后只把 <code>mobd</code> 安装到 <code>~/.local/bin</code>。无需 Go、Node.js、Python 或源码。</p>
+<p>把安装目录加入 PATH，并确认安装成功：</p>
+<pre><code>echo 'export PATH="$HOME/.local/bin:$PATH"' &gt;&gt; ~/.zshrc
+export PATH="$HOME/.local/bin:$PATH"
+mobd --version</code></pre>
+<details class="hint"><summary>安装指定版本或自定义目录</summary>
+<pre><code>curl -fsSLO {{base}}/mobd/install.sh
+sh install.sh --version X.Y.Z
+sh install.sh --install-dir /absolute/path</code></pre>
+<p>可以先阅读下载的脚本再执行。历史版本见<a href="/changelog/#mobd">更新日志</a>。</p></details>
+<details class="hint"><summary>不使用安装脚本，手动安装</summary>
+<p>从<a href="/download/#mobd">下载页</a>获取压缩包，对照 SHA256SUMS 校验后解压：</p>
+<pre><code>shasum -a 256 mobd_X.Y.Z_darwin_arm64.tar.gz
+tar -xzf mobd_X.Y.Z_darwin_arm64.tar.gz mobd
+mkdir -p ~/.local/bin &amp;&amp; install -m 755 mobd ~/.local/bin/mobd
+codesign --verify --strict --verbose=2 ~/.local/bin/mobd</code></pre></details>
+</section>
+
+<section id="config"><span class="step-label">02 / CONFIGURE</span><h2>创建并编辑配置。</h2>
+<pre><code>mobd init      # 创建 ~/.mobd/config.json，已有配置不会被覆盖
+open -e ~/.mobd/config.json</code></pre>
+<p><code>mobd init</code> 默认只监听本机（loopback）。要让局域网或 VPN 中的设备直接连接，把 <code>listen</code> 改为 <code>0.0.0.0:8080</code>。用 <code>command -v codex</code> 或 <code>command -v claude</code> 查找 Agent 的绝对路径。</p>
+<div class="tabs" data-tabs>
+  <div class="tab-list" role="tablist"><button type="button" role="tab" aria-selected="true" aria-controls="cfg-codex" id="tab-codex">Codex</button><button type="button" role="tab" aria-selected="false" aria-controls="cfg-claude" id="tab-claude" tabindex="-1">Claude Code</button></div>
+  <div class="tab-panel" role="tabpanel" id="cfg-codex" aria-labelledby="tab-codex"><pre><code>{
   "listen": "0.0.0.0:8080",
   "workdir": "/Users/you/Projects",
   "codexBin": "/absolute/path/to/codex",
   "runners": ["codex"],
   "defaultRunner": "codex",
   "codexPermissions": "approve"
-}</code></pre><p>用 <code>command -v codex</code> 查找路径。使用 Claude Code 时改为 <code>claudeBin</code>、<code>runners: ["claude"]</code> 、<code>defaultRunner: "claude"</code> 和 <code>claudePermissions: "approve"</code>，并删除 Codex 专用设置。JSON 中必须使用绝对路径，<code>~</code> 和 <code>$HOME</code> 不会展开。终端用户通过 JSON 配置即可，无需 .env。</p><div class="guide-note"><strong>仅在受信任网络中连接</strong><p><code>0.0.0.0:8080</code> 允许其他设备连接。请使用内网或 VPN，并通过网络访问控制限制来源；不要设置公网端口转发。当前 mobd API 没有用户认证。</p></div><ol><li>系统设置 → 隐私与安全性：为实际运行桌面操作的程序授予<strong>辅助功能</strong>和<strong>屏幕录制</strong>权限。按 macOS 提示重新启动相关进程。</li><li>系统设置 → 通用 → 共享：启用<strong>屏幕共享</strong>，允许需要使用的 macOS 用户。</li><li>确认办公室 Mac 保持开机、联网，且桌面可用。</li></ol><pre><code>mobd start
-mobd status
+}</code></pre></div>
+  <div class="tab-panel" role="tabpanel" id="cfg-claude" aria-labelledby="tab-claude" hidden><pre><code>{
+  "listen": "0.0.0.0:8080",
+  "workdir": "/Users/you/Projects",
+  "claudeBin": "/absolute/path/to/claude",
+  "runners": ["claude"],
+  "defaultRunner": "claude",
+  "claudePermissions": "approve"
+}</code></pre></div>
+</div>
+<p><code>"approve"</code> 让 Agent 在执行命令或修改文件前询问你，问题会出现在客户端的审批卡片中。两个 Agent 都安装时，可以同时启用：<code>"runners": ["codex", "claude"]</code>。</p>
+<div class="guide-note"><strong>JSON 中只使用绝对路径</strong><p><code>~</code> 和 <code>$HOME</code> 不会展开。修改配置后执行 <code>mobd restart</code> 生效。</p></div>
+<div class="guide-note warn"><strong>只在受信任的网络中开放</strong><p><code>0.0.0.0:8080</code> 允许其他设备连接。请使用内网、VPN 或 Tailscale，并限制访问来源；不要设置公网端口转发。可选的 <code>sharedSecret</code> 只保护写操作，读取、截图和实时桌面仍依赖网络访问控制。</p></div>
+</section>
+
+<section id="permissions"><span class="step-label">03 / PERMISSIONS</span><h2>授予系统权限。</h2>
+<ol class="steps">
+  <li><strong>系统设置 → 隐私与安全性 → 辅助功能</strong>：允许运行 mobd 的程序（终端或 mobd）。</li>
+  <li><strong>系统设置 → 隐私与安全性 → 屏幕与系统录音</strong>：同样授权，按提示重新启动相关进程。</li>
+  <li><strong>系统设置 → 通用 → 共享 → 屏幕共享</strong>：开启，并允许你要登录的 macOS 用户。实时桌面通过 mobd 的 <code>/vnc</code> 转发，无需单独部署 websockify。</li>
+  <li><strong>电源设置</strong>：避免无人值守时自动睡眠。</li>
+</ol>
+</section>
+
+<section id="run"><span class="step-label">04 / START</span><h2>启动服务。</h2>
+<pre><code>mobd start     # 后台运行，直到停止或注销
+mobd status    # 显示监听地址和健康检查
 
 # 可选：登录 macOS 时自动启动
-# 首先停止已有服务，再启用登录启动
 mobd stop
-mobd start --login</code></pre><p><code>mobd status</code> 显示监听地址及健康检查。修改配置后执行 <code>mobd restart</code>。</p></section>
-<section id="client"><span class="step-label">03 / YOUR MAC</span><h2>打开 mob，连接你的搭档。</h2><ol><li>在你身边的 Mac 上下载 mob DMG，将 <strong>mob.app</strong> 拖入 Applications，然后打开。</li><li>进入 <strong>Settings → Machines</strong>，填写办公室端地址，例如 <code>http://192.168.50.86:8080</code>。这个地址要替换成你的办公室 Mac 的实际内网或 VPN 地址。</li><li>填写办公室 Mac 的 macOS 用户名和密码用于屏幕共享登录，点击 <strong>Test connection</strong> 查看状态。</li><li>创建对话，先试一个简单任务：“查看当前屏幕，并告诉我你看到了什么。”</li></ol><p>实时桌面默认只查看。需要自己操作时，打开全屏并切换 <strong>Control</strong>。Agent 的模型服务账号和登录配置保留在办公室 Mac。</p></section>
-<section id="upgrade"><span class="step-label">KEEP YOUR BUDDY CURRENT</span><h2>更新与卸载。</h2><p><strong>mob：</strong>发布版启动时检查更新，也可以在 Settings → About 中手动检查。确认安装后应用会重新启动；先完成当前任务并保存未发送内容。</p><p><strong>mobd：</strong>先结束任务，执行 <code>mobd stop</code>，再运行下载页的安装命令。脚本验证下载和 Apple 签名后替换程序，不改动配置与会话数据。完成后执行 <code>mobd start</code>；需要登录启动时使用 <code>mobd start --login</code>。</p><p>安装特定历史版本时，下载 <code>mobd/install.sh</code>，执行 <code>sh install.sh --version X.Y.Z</code>。版本链接和校验文件可在<a href="/changelog/">更新日志</a>中找到。</p><p>卸载 mobd：执行 <code>mobd stop</code> 后删除 <code>~/.local/bin/mobd</code>。配置在 <code>~/.mobd</code>，默认会话数据在 <code>~/Library/Application Support/mob</code>，按需要另行备份或清理。卸载 mob：退出后从 Applications 移至废纸篓。</p></section>
-<section id="faq"><span class="step-label">A FEW GOOD QUESTIONS</span><h2>常见问题。</h2><details><summary>为什么连接不上办公室 Mac？</summary><p>确认 mobd 正在运行、监听地址允许局域网连接，两端处于可互通的内网或 VPN。检查防火墙，然后在 App 中使用 Test connection 查看具体项目。</p></details><details><summary>为什么只能聊天，看不到桌面？</summary><p>检查办公室 Mac 的屏幕共享和屏幕录制权限，核对 Machines 中的 macOS 用户名和密码。实时画面通过 mobd 的 /vnc 转发，无需单独部署 websockify。</p></details><details><summary>我的内容会发送到哪里？</summary><p>桌面运行在办公室 Mac，客户端直接连接 mobd。任务内容、截图等是否发送给模型服务取决于你使用的 Agent 和模型配置；请查看对应服务的数据政策。</p></details><details><summary>支持 iPhone、Intel Mac 或 Windows 吗？</summary><p>当前只提供 macOS Apple Silicon 的 mob 与 mobd。其他平台尚未发布。</p></details></section>
-</div></div>
+mobd start --login</code></pre>
+<p><code>mobd status</code> 中的检查项应全部通过。缺少的权限或 Agent 也会在客户端的设置页显示为提醒。日志位于 <code>~/.mobd/mobd.log</code>，用 <code>mobd logs</code> 跟随查看。</p>
+</section>
+
+<section id="connect"><span class="step-label">05 / CONNECT</span><h2>打开 MOB，连接你的搭档。</h2>
+<ol class="steps">
+  <li>安装客户端：<a href="/download/#mac">macOS</a>（把 <strong>mob.app</strong> 拖入“应用程序”）、<a href="/download/#android">Android</a>（APK）；iPhone 版即将上线。</li>
+  <li>进入 <strong>Settings → Machines</strong>，添加办公室 Mac 的地址，例如 <code>http://192.168.1.100:8080</code>，替换为实际的内网、VPN 或 Tailscale 地址。</li>
+  <li>在 Desktop sign-in 中填写办公室 Mac 的 macOS 用户名和密码，用于屏幕共享登录。点击 <strong>Test connection</strong>。</li>
+  <li>新建对话，先试一个简单任务：“查看当前屏幕，并告诉我你看到了什么。”</li>
+</ol>
+<p>实时桌面默认只查看。需要自己操作时，打开全屏并切换到 <strong>Control</strong>。手机上点按即点击、长按为右键、双指滚动、捏合缩放。</p>
+</section>
+
+<section id="remote"><span class="step-label">AWAY FROM THE OFFICE</span><h2>从家里连接：Tailscale Serve。</h2>
+<p>家和办公室不在同一网络时，推荐两端都安装 <a href="https://tailscale.com/download" rel="noreferrer">Tailscale</a>。mobd 保持只监听本机，由 Tailscale 提供仅 tailnet 内可访问的 HTTPS 地址，无需公网 IP 或路由器端口转发。</p>
+<ol class="steps">
+  <li>两端登录同一 tailnet，并在访问控制中只允许你的设备访问办公室 Mac 的 TCP 443。</li>
+  <li>在 <code>~/.mobd/config.json</code> 中设置 <code>"listen": "127.0.0.1:8080"</code>，执行 <code>mobd restart</code>。</li>
+  <li>在办公室 Mac 上启用 Serve：</li>
+</ol>
+<pre><code>tailscale serve status
+tailscale serve --bg --https=443 http://127.0.0.1:8080
+tailscale serve status   # 确认显示 Available within your tailnet</code></pre>
+<p>在客户端填写输出中的完整地址，例如 <code>https://office-mac.your-tailnet.ts.net</code>，不要追加 <code>:8080</code>。不要使用 Tailscale Funnel 把 mobd 公开到互联网。</p>
+<p>完整步骤与排查见 <a href="https://github.com/xrdavies/mobd/blob/main/docs/remote-access.md" rel="noreferrer">远程访问指南</a>。</p>
+</section>
+
+<section id="upgrade"><span class="step-label">KEEP MOB CURRENT</span><h2>更新与卸载。</h2>
+<p><strong>更新 mobd：</strong>等当前任务结束，然后：</p>
+<pre><code>mobd stop
+{{install}}
+mobd start            # 或 mobd start --login 恢复登录启动</code></pre>
+<p>配置、会话和附件都会保留。</p>
+<p><strong>更新客户端：</strong>macOS 版启动时自动检查更新，也可在 Settings → About 中手动检查。Android 版下载新 APK 覆盖安装。</p>
+<p><strong>卸载 mobd：</strong>执行 <code>mobd stop</code>，删除 <code>~/.local/bin/mobd</code>。配置位于 <code>~/.mobd</code>，会话数据位于 <code>~/Library/Application Support/mob</code>，按需备份或删除。</p>
+</section>
+
+<section id="commands"><span class="step-label">CHEAT SHEET</span><h2>命令速查。</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>命令</th><th>作用</th></tr></thead>
+  <tbody>
+    <tr><td><code>mobd init</code></td><td>创建 <code>~/.mobd/config.json</code>，不会覆盖已有文件</td></tr>
+    <tr><td><code>mobd start</code></td><td>以当前用户的 LaunchAgent 在后台运行</td></tr>
+    <tr><td><code>mobd start --login</code></td><td>启动并在登录 macOS 时自动运行</td></tr>
+    <tr><td><code>mobd status</code></td><td>监听地址与健康检查</td></tr>
+    <tr><td><code>mobd logs</code></td><td>跟随日志（Ctrl-C 结束）</td></tr>
+    <tr><td><code>mobd restart</code></td><td>重新加载配置，保留登录启动设置</td></tr>
+    <tr><td><code>mobd stop</code></td><td>停止服务，并取消登录启动</td></tr>
+    <tr><td><code>mobd serve</code></td><td>在前台运行，Ctrl-C 停止</td></tr>
+  </tbody>
+</table></div>
+<p>完整配置项见 <a href="https://github.com/xrdavies/mobd#configuration-reference" rel="noreferrer">mobd 配置参考</a>。</p>
+</section>
+
+<section id="faq"><span class="step-label">A FEW GOOD QUESTIONS</span><h2>常见问题。</h2>
+<details><summary>为什么连接不上办公室 Mac？</summary><p>确认 <code>mobd status</code> 正常，<code>listen</code> 允许来自你的网络（loopback 只能本机访问），两端处于可互通的内网、VPN 或 tailnet，并检查防火墙。然后在客户端使用 Test connection 查看具体项目。</p></details>
+<details><summary>为什么只能聊天，看不到桌面？</summary><p>检查办公室 Mac 的屏幕共享和屏幕录制权限，核对 Machines 中的 macOS 用户名和密码。没有桌面登录信息时，客户端只显示截图快照。</p></details>
+<details><summary>安装器提示 mobd 正在运行？</summary><p>先结束任务并执行 <code>mobd stop</code>（前台运行的 <code>mobd serve</code> 需手动停止），再重新运行安装命令。</p></details>
+<details><summary>我的内容会发送到哪里？</summary><p>桌面运行在办公室 Mac，客户端直接连接 mobd。任务内容、截图等是否发送给模型服务取决于你使用的 Agent 和模型配置，请查看对应服务的数据政策。</p></details>
+<details><summary>支持 iPhone、Intel Mac 或 Windows 吗？</summary><p>iPhone 与 iPad 版即将上线；Android 版已可下载。MOB 桌面端和 mobd 目前只支持 macOS Apple Silicon。</p></details>
+</section>
+
+  </div>
+</div>

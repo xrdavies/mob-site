@@ -1,0 +1,49 @@
+name: Build and deploy to GitHub Pages
+on:
+  pull_request:
+  push:
+    branches: [main]
+  # Download links and the changelog are baked in at build time; rebuild to pick up new releases.
+  schedule:
+    - cron: '17 * * * *'
+  repository_dispatch:
+    types: [release-published]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages-${{ github.event_name == 'pull_request' && github.ref || 'deploy' }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - run: npm test
+      - name: Build site
+        env:
+          REQUIRE_PUBLIC_CONFIG: ${{ github.event_name == 'pull_request' && '0' || '1' }}
+          SITE_URL: ${{ vars.SITE_URL }}
+          DOWNLOAD_BASE_URL: ${{ vars.DOWNLOAD_BASE_URL }}
+          IOS_APP_URL: ${{ vars.IOS_APP_URL }}
+        run: npm run build
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
