@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f7f6f2">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="theme-color" content="#f7f5f0">
   <title>{{TITLE}}</title>
   <meta name="description" content="{{DESCRIPTION}}">
   <meta property="og:title" content="{{TITLE}}">
@@ -18,15 +20,27 @@
 <body data-page="{{PAGE}}">
   <a class="skip-link" href="#main">跳到正文</a>
   <header class="site-header">
-    <a class="brand" href="/" aria-label="mob 首页"><img src="/assets/logo.svg" width="44" height="44" alt=""><span>mob<span class="brand-dot">.</span></span></a>
-    <nav aria-label="主导航"><a href="/#how">如何工作</a><a href="/start/">快速开始</a><a href="/changelog/">更新日志</a></nav>
-    <a class="button small dark" href="/download/">下载 mob <span aria-hidden="true">↗</span></a>
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="mob 首页"><img src="/assets/logo.svg" width="40" height="40" alt=""><span>MOB</span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav"><span class="sr-only">打开菜单</span><i></i><i></i></button>
+      <nav id="site-nav" aria-label="主导航">
+        <a href="/#how">如何工作</a>
+        <a href="/#everywhere">多端使用</a>
+        <a href="/start/">安装 mobd</a>
+        <a href="/changelog/">更新日志</a>
+        <a class="button small dark" href="/download/">下载 MOB</a>
+      </nav>
+    </div>
   </header>
-  <main id="main">{{BODY}}<noscript><p class="wrap download-notice">版本信息和下载链接需要启用 JavaScript。产品介绍和安装指南可以直接阅读。</p></noscript></main>
+  <main id="main">{{BODY}}</main>
   <footer class="site-footer">
-    <div><a class="brand" href="/">mob<span class="brand-dot">.</span></a><p>你的桌面，有了一个小搭档。</p></div>
-    <div class="footer-links"><a href="/download/">下载</a><a href="/start/">使用指南</a><a href="/changelog/">更新日志</a></div>
-    <p class="footer-note">Made for your Mac.<br>macOS 13+ · Apple Silicon</p>
+    <div class="wrap footer-grid">
+      <div class="footer-brand"><a class="brand" href="/"><img src="/assets/logo.svg" width="36" height="36" alt=""><span>MOB</span></a><p>你的桌面，有了一个小搭档。</p></div>
+      <div><h2>产品</h2><a href="/download/#mac">MOB for macOS</a><a href="/download/#android">MOB for Android</a><a href="/download/#ios">MOB for iPhone &amp; iPad</a><a href="/download/#mobd">mobd 办公室端</a></div>
+      <div><h2>使用</h2><a href="/start/#install">安装 mobd</a><a href="/start/#config">配置与权限</a><a href="/start/#connect">连接客户端</a><a href="/start/#faq">常见问题</a></div>
+      <div><h2>版本</h2><a href="/changelog/">更新日志</a><a href="/changelog/#mob">桌面客户端</a><a href="/changelog/#mobd">mobd</a><a href="/changelog/#android">Android</a></div>
+    </div>
+    <div class="wrap footer-bottom"><span>© MOB · MIT License</span><span>Made for your Mac. Reachable from your pocket.</span></div>
   </footer>
 </body>
 </html>

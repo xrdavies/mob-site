@@ -1,86 +1,77 @@
-# mob 产品官网
+# MOB 产品官网
 
-Screen Buddy 品牌的静态产品网站：首页、下载、快速开始、更新日志和 404 页面。
-原生 HTML/CSS/ES modules，无前端框架和运行时服务。Cloudflare Workers Static Assets
-负责托管，下载文件由 mob 仓库发布到 R2。源码仓库可以保持私有。
+MOB 品牌的静态产品网站：首页、下载、mobd 安装指南、更新日志和 404 页面。
+原生 HTML/CSS/ES modules，无前端框架、无运行时依赖。由 **GitHub Pages** 托管。
 
 ## 本地预览
 
-需要 Node.js 24+：
+需要 Node.js 24+，无需 `npm install`：
 
 ```sh
-npm ci
 npm test
-npm run dev
-# http://localhost:4321
+npm run dev        # 构建并在 http://localhost:4321 预览（PORT=xxxx 可改端口）
 ```
 
-默认没有下载域名，下载区显示首个公开版本准备中。修改页面后重新执行 `npm run build`，
-预览服务器读取 `dist/`。站点不读取 `.env`，需要时自行导出变量：
+构建时从 R2（默认 `https://mob-releases.0xd.app`）读取发布清单，把版本号、下载链接、
+SHA-256 和更新日志直接写进 HTML。浏览器不需要访问 R2 的 JSON，因此**不需要配置 R2 CORS**。
+离线时本地构建仍会成功，下载区显示“暂时无法获取版本信息”。
 
-```sh
-cp .env.example .env
-# 替换示例域名，填写自己的 SITE_URL 和 DOWNLOAD_BASE_URL
-set -a
-. ./.env
-set +a
-npm run build
-```
+## 构建配置
 
-`.env` 只保存本机的公开构建配置，不要放任何上传密钥。示例域名会被构建拒绝。
-
-## GitHub Actions / Cloudflare
-
-将本目录推送到官网自己的 GitHub 仓库，默认分支为 `main`。
-创建 `production` environment，配置：
-
-| 类型 | 名称 | 内容 |
+| 变量 | 必填 | 内容 |
 | --- | --- | --- |
-| Variable | `SITE_URL` | 官网 HTTPS 根地址，无子路径 |
-| Variable | `DOWNLOAD_BASE_URL` | mob 发布流程使用的 R2 自定义域名根地址 |
-| Variable | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare 账户 ID |
-| Secret | `CLOUDFLARE_API_TOKEN` | 限定目标账户、带 Workers Scripts Edit 的部署令牌 |
+| `SITE_URL` | 部署时必填 | 官网 HTTPS 根地址（自定义域名），用于 canonical、sitemap、og:image |
+| `DOWNLOAD_BASE_URL` | 否 | R2 下载域名，默认 `https://mob-releases.0xd.app` |
+| `IOS_APP_URL` | 否 | App Store 或 TestFlight 链接；未设置时 iOS 卡片显示“即将上线” |
+| `REQUIRE_PUBLIC_CONFIG` | — | 设为 `1` 时要求 `SITE_URL`，且任一清单读取失败即中止构建（CI 部署使用） |
 
-`.github/workflows/deploy.yml` 在 PR 上测试和构建；main 上通过检查后部署 `mob-site` Worker。
-首次部署后，在 Cloudflare Workers → mob-site → Settings → Domains & Routes 中绑定
-`SITE_URL` 对应的域名。也可以本地导出同样的配置后执行 `npm run deploy`。
-工作流要求实际域名，配置缺失时不会部署带占位下载地址的站点。
+## 部署到 GitHub Pages
 
-R2 桶的 CORS 需允许官网 origin 的 GET/HEAD。静态网站没有下载 API 代理：
-浏览器直接请求公开 JSON。HTML 的 CSP 仅允许本站资源和配置的下载源；不使用第三方字体、
-追踪脚本或运行时 CDN。更新 CORS 后清理已有缓存。
+1. 仓库 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**。
+2. **Settings → Pages → Custom domain** 填写官网域名，并按提示在 DNS 中添加 CNAME
+   指向 `xrdavies.github.io`；验证通过后勾选 **Enforce HTTPS**。
+   （Actions 部署会忽略产物中的 `CNAME` 文件，域名只在这里配置。）
+3. **Settings → Secrets and variables → Actions → Variables** 添加 `SITE_URL`
+   （与上一步域名一致，如 `https://mob.0xd.app`），按需添加 `DOWNLOAD_BASE_URL`、`IOS_APP_URL`。
+4. 推送到 `main`。
 
-官网不上传二进制。mob 私有仓库的 `.github/workflows/publish-r2.yml` 才负责构建产物的
-上传与 stable 切换，操作步骤见同级 `../mob/docs/releases.md`。
+`.github/workflows/pages.yml` 在 PR 上测试和构建；在 `main` 推送、每小时定时、手动运行，
+以及收到 `release-published` 事件时构建并部署。R2 不可达时构建失败，Pages 继续提供上一版站点，
+不会把已有下载链接替换成“不可用”。
+
+### 发布后立即更新官网
+
+mob、mobd、mob-android 的 R2 发布工作流最后一步会触发本仓库重建。需要在这三个仓库的
+`release` 环境中添加 Secret `SITE_DISPATCH_TOKEN`：对 `xrdavies/mob-site` 拥有
+**Contents: Read and write** 权限的 fine-grained token。未配置时该步骤跳过，官网在一小时内的
+定时构建中更新。
+
+> GitHub 会在仓库 60 天无活动后暂停定时工作流；届时在 Actions 页面重新启用即可。
 
 ## 下载协议
 
 ```text
-{DOWNLOAD_BASE_URL}/mob/latest.json       当前桌面版本
-{DOWNLOAD_BASE_URL}/mobd/latest.json      当前办公室端版本
-{DOWNLOAD_BASE_URL}/mob/releases.json     桌面版本历史数组
-{DOWNLOAD_BASE_URL}/mobd/releases.json    办公室端版本历史数组
-{DOWNLOAD_BASE_URL}/mobd/install.sh       已填入正式域名和 Apple Team ID 的安装器
+{DOWNLOAD_BASE_URL}/mob/releases.json        桌面客户端版本历史（mob 仓库发布）
+{DOWNLOAD_BASE_URL}/mobd/releases.json       办公室端版本历史（mobd 仓库发布）
+{DOWNLOAD_BASE_URL}/android/releases.json    Android 版本历史（mob-android 仓库发布）
+{DOWNLOAD_BASE_URL}/mobd/install.sh          mobd 安装器
 ```
 
-每条清单包含 `version`、`pub_date`、纯文本 `notes`、`download.url`、`download.sha256`
-和 `checksums_url`。官网仅接受同一下载源、对应产品及版本路径的文件地址，校验失败时不提供
-下载链接。404 显示“尚未发布”；超时、权限或网络错误显示暂不可用。首个版本发布后无需重建
-官网即可显示版本和安装命令。
+每条记录包含 `version`、`pub_date`、`notes`、`download.url`、`download.sha256` 和
+`checksums_url`。官网只接受同一下载源、对应产品及版本路径的文件地址
+（`mob_X.Y.Z_darwin_arm64.dmg`、`mobd_X.Y.Z_darwin_arm64.tar.gz`、`mob-android_X.Y.Z.apk`），
+不合规的条目会被跳过。清单 404 表示尚未发布，对应按钮显示为禁用。
 
-`notes` 作为文本显示，保留原始换行。发布前请填写面向用户的说明，避免直接使用带私有
-GitHub PR 链接的自动生成说明。页面中的工作区是明确标注的功能示意，不是真实用户记录。
+`notes` 以文本显示，只渲染 `**粗体**`、链接和换行。发布前请填写面向用户的说明，
+避免直接使用带私有 PR 链接的自动生成说明。
 
 ## 文件位置
 
-- `src/`：页面和共用 HTML 外壳。
-- `public/`：CSS、浏览器逻辑、品牌资源。
-- `build.mjs`：生成页面、公开配置、CSP、robots 和 sitemap。
-- `test/`：生产配置、下载地址校验和构建测试。
-- `wrangler.jsonc`：静态站点托管配置；没有付费服务或数据库绑定。
+- `src/`：页面和共用 HTML 外壳；`{{download:mob|标签}}` 等标记由构建替换。
+- `public/`：CSS、浏览器增强脚本（菜单、复制按钮、选项卡、设备推荐）、品牌资源。
+- `lib/releases.mjs`：读取和校验发布清单。
+- `build.mjs`：生成页面、CSP（`<meta>`，Pages 不支持自定义响应头）、robots 和 sitemap。
+- `scripts/serve.mjs`：本地预览服务器。
+- `test/`：使用模拟清单的构建与校验测试，不访问真实 R2。
 
 品牌资源复制自 `../mob/apps/mob/public/logo.svg` 和 `app-icon.svg`。修改品牌时同步更新。
-`npm test` 不依赖真实发布服务；真实发布验收需检查跨域清单、DMG 下载及办公室端安装。
-
-官方参考：[Workers 静态资源](https://developers.cloudflare.com/workers/static-assets/)、
-[R2 CORS](https://developers.cloudflare.com/r2/buckets/cors/)。

@@ -3,36 +3,86 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { build, origin } from '../build.mjs';
-import { validateRelease } from '../public/releases.js';
+import { build, iosURL, origin, renderNotes } from '../build.mjs';
+import { fetchReleases, validateRelease } from '../lib/releases.mjs';
 
-test('production requires actual HTTPS domains; preview works before first release', t => {
-  const output = mkdtempSync(join(tmpdir(), 'mob-site-test-'));
-  t.after(() => rmSync(output, { recursive: true, force: true }));
-  assert.throws(() => build(output, { REQUIRE_PUBLIC_CONFIG: '1' }), /required/);
+const base = 'https://download.mob.test';
+const release = (product, version, file) => ({
+  version, pub_date: '2026-10-14T00:00:00Z', notes: `**Full Changelog**: https://github.com/xrdavies/${product}/commits/v${version}`,
+  download: { url: `${base}/${product}/v${version}/${file}`, sha256: 'a'.repeat(64) }, checksums_url: `${base}/${product}/v${version}/SHA256SUMS`,
+});
+const manifests = {
+  mob: [release('mob', '0.2.0', 'mob_0.2.0_darwin_arm64.dmg'), release('mob', '0.1.0', 'mob_0.1.0_darwin_arm64.dmg')],
+  mobd: [release('mobd', '0.0.2', 'mobd_0.0.2_darwin_arm64.tar.gz')],
+};
+// android is unpublished: 404, like R2 before the first APK.
+const fakeFetch = async url => {
+  const product = new URL(url).pathname.split('/')[1];
+  return manifests[product] ? Response.json(manifests[product]) : new Response('missing', { status: 404 });
+};
+const offline = async () => { throw Error('getaddrinfo ENOTFOUND'); };
+
+function output(t) {
+  const directory = mkdtempSync(join(tmpdir(), 'mob-site-test-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  return directory;
+}
+const read = (directory, page) => readFileSync(join(directory, page), 'utf8');
+
+test('configuration rejects unsafe or placeholder values', () => {
   assert.throws(() => origin('https://mob.example.com'), /example domain/);
   assert.throws(() => origin('http://mob.test'), /HTTPS/);
   assert.throws(() => origin('https://mob.test/?key=value'), /HTTPS/);
-  build(output, {});
-  assert.equal(JSON.parse(readFileSync(join(output, 'config.json'))).downloadBaseURL, '');
-  assert.match(readFileSync(join(output, 'robots.txt'), 'utf8'), /Disallow/);
-  for (const page of ['index.html', 'download/index.html', 'start/index.html', 'changelog/index.html', '404.html']) assert.ok(!readFileSync(join(output, page), 'utf8').includes('{{'));
+  assert.throws(() => iosURL('https://evil.test/app'), /apps.apple.com/);
+  assert.equal(iosURL('https://testflight.apple.com/join/abc'), 'https://testflight.apple.com/join/abc');
 });
 
-test('configured build includes sitemap, canonical URL and download origin in CSP', t => {
-  const output = mkdtempSync(join(tmpdir(), 'mob-site-test-'));
-  t.after(() => rmSync(output, { recursive: true, force: true }));
-  build(output, { SITE_URL: 'https://mob.test', DOWNLOAD_BASE_URL: 'https://download.mob.test', REQUIRE_PUBLIC_CONFIG: '1' });
-  assert.match(readFileSync(join(output, 'sitemap.xml'), 'utf8'), /https:\/\/mob.test\/start\//);
-  assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'self' https:\/\/download.mob.test/);
-  assert.match(readFileSync(join(output, 'download/index.html'), 'utf8'), /rel="canonical" href="https:\/\/mob.test\/download\/"/);
+test('deployment requires SITE_URL and reachable release manifests', async t => {
+  await assert.rejects(build(output(t), { REQUIRE_PUBLIC_CONFIG: '1', DOWNLOAD_BASE_URL: base }, fakeFetch), /SITE_URL/);
+  await assert.rejects(build(output(t), { REQUIRE_PUBLIC_CONFIG: '1', SITE_URL: 'https://mob.test', DOWNLOAD_BASE_URL: base }, offline), /release manifests/);
 });
 
-test('download manifests reject external URLs and wrong products while preserving notes as text', () => {
-  const base = 'https://download.mob.test';
-  const data = { version: '1.2.3', pub_date: '2026-10-14T00:00:00Z', notes: '<script>alert(1)</script>', download: { url: `${base}/mob/v1.2.3/mob_1.2.3_darwin_arm64.dmg`, sha256: 'a'.repeat(64) }, checksums_url: `${base}/mob/v1.2.3/SHA256SUMS` };
-  assert.equal(validateRelease(data, 'mob', base).notes, data.notes);
+test('released products get static download links; unreleased ones are disabled', async t => {
+  const directory = output(t);
+  await build(directory, { SITE_URL: 'https://mob.test', DOWNLOAD_BASE_URL: base, REQUIRE_PUBLIC_CONFIG: '1' }, fakeFetch);
+  const download = read(directory, 'download/index.html');
+  assert.match(download, /href="https:\/\/download.mob.test\/mob\/v0.2.0\/mob_0.2.0_darwin_arm64.dmg"/);
+  assert.match(download, /curl -fsSL https:\/\/download.mob.test\/mobd\/install.sh \| sh/);
+  assert.match(download, /下载 APK<\/span>/, 'android button is a disabled span');
+  assert.doesNotMatch(download, /android\/v/);
+  assert.match(download, /即将上线/, 'iOS is coming soon without IOS_APP_URL');
+  assert.match(read(directory, 'index.html'), /MOB v0.2.0 · mobd v0.0.2/);
+  assert.match(read(directory, 'start/index.html'), /curl -fsSL https:\/\/download.mob.test\/mobd\/install.sh/);
+  const changelog = read(directory, 'changelog/index.html');
+  assert.equal(changelog.match(/class="release-entry"/g).length, 3);
+  assert.match(changelog, /<strong>Full Changelog<\/strong>/);
+  assert.match(read(directory, 'sitemap.xml'), /https:\/\/mob.test\/start\//);
+  assert.match(read(directory, 'download/index.html'), /rel="canonical" href="https:\/\/mob.test\/download\/"/);
+  for (const page of ['index.html', 'download/index.html', 'start/index.html', 'changelog/index.html', '404.html']) assert.ok(!read(directory, page).includes('{{'), page);
+});
+
+test('local preview builds offline with a helpful status', async t => {
+  const directory = output(t);
+  const { errors } = await build(directory, {}, offline);
+  assert.equal(errors.length, 3);
+  assert.match(read(directory, 'download/index.html'), /暂时无法获取版本信息/);
+  assert.match(read(directory, 'robots.txt'), /Disallow/);
+});
+
+test('iOS link appears once configured', async t => {
+  const directory = output(t);
+  await build(directory, { DOWNLOAD_BASE_URL: base, IOS_APP_URL: 'https://apps.apple.com/app/id123' }, fakeFetch);
+  assert.match(read(directory, 'download/index.html'), /href="https:\/\/apps.apple.com\/app\/id123"/);
+});
+
+test('manifests reject external URLs and wrong products; notes are escaped', async () => {
+  const data = release('mob', '1.2.3', 'mob_1.2.3_darwin_arm64.dmg');
+  assert.equal(validateRelease(data, 'mob', base).version, '1.2.3');
   assert.throws(() => validateRelease(data, 'mobd', base), /download/);
   assert.throws(() => validateRelease({ ...data, download: { ...data.download, url: 'https://other.test/file.dmg' } }, 'mob', base), /download/);
   assert.throws(() => validateRelease({ ...data, version: '../../bad' }, 'mob', base), /version/);
+  assert.equal(validateRelease(release('android', '0.1.0', 'mob-android_0.1.0.apk'), 'android', base).version, '0.1.0');
+  const { releases } = await fetchReleases(base, 'mob', async () => Response.json([data, { ...data, version: 'bad' }]));
+  assert.equal(releases.length, 1, 'invalid entries are skipped, not fatal');
+  assert.equal(renderNotes('<script>alert(1)</script> $& **x**'), '&lt;script&gt;alert(1)&lt;/script&gt; $&amp; <strong>x</strong>');
 });
