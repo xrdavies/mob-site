@@ -154,7 +154,7 @@ sudo tailscale funnel status</code></pre>
 <section id="tailscale-serve"><span class="step-label">PRIVATE / SERVE</span><h2>Serve：只让自己的设备连接。</h2>
 <p>先完成<a href="#remote">办公室准备</a>。在家里的电脑或手机上安装 <a href="https://tailscale.com/download" rel="noreferrer">Tailscale</a>，按系统提示允许 VPN 连接，登录与办公室相同的 tailnet，并在使用 MOB 时保持连接。</p>
 <h3>1. 限制访问范围</h3>
-<p>在 <a href="https://login.tailscale.com/admin/acls" rel="noreferrer">Tailscale 访问控制</a>中，只允许需要使用 MOB 的设备访问办公室 Mac 的 TCP 443。桌面画面也经过这个入口，不需要另开放 8080 或 5900。</p>
+<p>在 <a href="https://login.tailscale.com/admin/acls" rel="noreferrer">Tailscale 访问控制</a>中，只允许需要使用 MOB 的设备访问办公室 Mac 的 TCP 443，不需要另开放 8080。实时桌面的 WebRTC 画面在 tailnet 内直接连到 mobd 的 UDP 端口；只放行 TCP 443 时，画面自动改用经过这个入口的 WebSocket 方式。</p>
 <details class="hint"><summary>专用两台设备的访问规则示例</summary>
 <p>从设备管理页读取真实 Tailscale IP；办公室也可运行 <code>sudo tailscale ip -4</code>。将下面 <code>src</code> 换为客户端 IP、<code>dst</code> 换为办公室 IP。这个完整示例只适用于专门为这两台设备建立的 tailnet：</p>
 <pre><code>{

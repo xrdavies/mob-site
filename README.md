@@ -74,4 +74,4 @@ mob、mobd、mob-android 的 R2 发布工作流最后一步会触发本仓库重
 - `scripts/serve.mjs`：本地预览服务器。
 - `test/`：使用模拟清单的构建与校验测试，不访问真实 R2。
 
-品牌资源复制自 `../mob/apps/mob/public/logo.svg` 和 `app-icon.svg`。修改品牌时同步更新。
+品牌资源复制自 `../mob/public/logo.svg` 和 `../mob/app-icon.svg`。修改品牌时同步更新。
