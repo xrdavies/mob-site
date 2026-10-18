@@ -79,9 +79,9 @@ open -e ~/.mobd/config.json</code></pre>
 <ol class="steps">
   <li><strong>系统设置 → 隐私与安全性 → 辅助功能</strong>：允许运行 mobd 的程序（终端或 mobd）。</li>
   <li><strong>系统设置 → 隐私与安全性 → 屏幕与系统录音</strong>：同样授权，按提示重新启动相关进程。</li>
-  <li><strong>系统设置 → 通用 → 共享 → 屏幕共享</strong>：开启，并允许你要登录的 macOS 用户。实时桌面通过 mobd 的 <code>/vnc</code> 转发，无需单独部署 websockify。</li>
-  <li><strong>电源设置</strong>：避免无人值守时自动睡眠。</li>
+  <li><strong>电源设置</strong>：避免无人值守时自动睡眠。专用的办公室 Mac 建议关闭自动锁屏：实时桌面在锁屏时也能查看和输入，但截图快照需要解锁、唤醒的屏幕。</li>
 </ol>
+<p>实时桌面由 mobd 直接采集和编码（H.264），<strong>不需要开启“屏幕共享”</strong>，也不需要填写 macOS 登录密码。</p>
 </section>
 
 <section id="run"><span class="step-label">04 / START</span><h2>启动服务。</h2>
@@ -105,10 +105,10 @@ mobd start --login</code></pre>
 <p>终端会显示二维码和链接，<strong>10 分钟内有效，只能使用一次</strong>。使用 HTTP 地址时会提示传输未加密，仍可正常配对。</p>
 <ol class="steps" start="3">
   <li>在 MOB 中进入 <strong>Settings → Machines → Add machine</strong>：手机扫描二维码，或在任意设备上粘贴完整链接。核对显示的办公室地址，点击 <strong>Pair</strong>。</li>
-  <li>在 Desktop sign-in 中填写办公室 Mac 的 macOS 用户名和密码，用于屏幕共享登录。点击 <strong>Test connection</strong>。</li>
+  <li>点击 <strong>Test connection</strong>，确认各项检查通过。可在同一页设置该办公室的实时桌面画质：<strong>Auto</strong>（默认）、<strong>High</strong>，或适合慢速、按流量计费网络的 <strong>Low</strong>。</li>
   <li>新建对话，先试一个简单任务：“查看当前屏幕，并告诉我你看到了什么。”</li>
 </ol>
-<p>实时桌面默认只查看。需要自己操作时，打开全屏并切换到 <strong>Control</strong>。手机上点按即点击、长按为右键、双指滚动、捏合缩放。</p>
+<p>实时桌面默认只查看。需要自己操作时，展开大画面并切换到 <strong>Control</strong>（桌面端也可按 <kbd>⇧⌘C</kbd>）。手机上点按即点击、长按为右键、双指滚动、捏合缩放。画面下方显示分辨率、帧率、流量和连接方式（如 <code>WebRTC · LAN</code>）；静止的桌面几乎不占流量，帧率低是正常的。</p>
 <p>用 <code>mobd clients list</code> 查看已配对的设备；设备丢失时执行 <code>mobd clients revoke CLIENT_ID</code>，它会立即断开，其他设备不受影响。</p>
 </section>
 
@@ -178,16 +178,16 @@ sudo tailscale funnel status</code></pre>
 
 <section id="tailscale-funnel"><span class="step-label">PUBLIC / FUNNEL</span><h2>Funnel：手机不装 Tailscale 也能连接。</h2>
 <p>先完成<a href="#remote">办公室准备</a>，客户端只需安装 MOB 和正常联网。此方式由 Tailscale 提供公网 HTTPS 转发，不需要自备服务器。</p>
-<div class="guide-note warn"><strong>这是公网入口</strong><p>任何人都可能访问这个域名，业务访问由 mobd 配对认证保护，不能依靠私有网络访问规则筛选公网访客。只给可信设备发送邀请，保持 mobd 更新；不要把 8080 或屏幕共享的 5900 直接映射到公网。</p></div>
+<div class="guide-note warn"><strong>这是公网入口</strong><p>任何人都可能访问这个域名，业务访问由 mobd 配对认证保护，不能依靠私有网络访问规则筛选公网访客。只给可信设备发送邀请，保持 mobd 更新；不要把 mobd 的 8080 直接映射到公网。</p></div>
 <p>Funnel 需要 MagicDNS、HTTPS 证书和账号的 Funnel 权限。首次执行后按终端链接启用；权限不足请 tailnet 管理员处理。下面命令使用前文的 Homebrew 版：</p>
 <pre><code>sudo tailscale funnel --bg --https=443 http://127.0.0.1:8080
 sudo tailscale funnel status</code></pre>
 <p>成功后应看到 <strong>Available on the internet</strong> 和实际的 HTTPS 地址。复制这个地址，继续<a href="#tailscale-pair">远程配对与验收</a>。公网 DNS 首次生效可能需要几分钟。</p>
-<p>Funnel 有带宽限制，请用手机流量实测桌面延迟；套餐和办公用途以 <a href="https://tailscale.com/pricing" rel="noreferrer">Tailscale 当前条款</a>为准。要求及限制见 <a href="https://tailscale.com/docs/features/tailscale-funnel" rel="noreferrer">Funnel 官方说明</a>。</p>
+<p>Funnel 只转发 TCP：实时桌面会在约 5 秒后自动改用较慢的 WebSocket 方式（之后连接同一办公室时约 1 秒），画质和延迟不如 Serve / 内网。Funnel 还有带宽限制，请用手机流量实测桌面延迟；套餐和办公用途以 <a href="https://tailscale.com/pricing" rel="noreferrer">Tailscale 当前条款</a>为准。要求及限制见 <a href="https://tailscale.com/docs/features/tailscale-funnel" rel="noreferrer">Funnel 官方说明</a>。</p>
 </section>
 
 <section id="tailscale-pair"><span class="step-label">CONNECT / VERIFY</span><h2>用 HTTPS 地址配对，再测试实际连接。</h2>
-<p>Serve 和 Funnel 使用相同的 MOB 配对流程。下文的 <code>office-mac.your-tailnet.ts.net</code> 是示例，务必换成终端实际输出的域名；保留 <code>https://</code>，不要追加 <code>:8080</code>、<code>/vnc</code> 或其他路径。</p>
+<p>Serve 和 Funnel 使用相同的 MOB 配对流程。下文的 <code>office-mac.your-tailnet.ts.net</code> 是示例，务必换成终端实际输出的域名；保留 <code>https://</code>，不要追加 <code>:8080</code> 或其他路径。</p>
 <h3>1. 从客户端所在网络检查入口</h3>
 <p>Serve 用户保持客户端 Tailscale 在线；Funnel 用户用手机关闭 Wi-Fi、断开 Tailscale，以蜂窝网络测试。在浏览器打开实际域名的 <code>/pair</code> 页面，应看到 mobd 配对提示；仅打开此页不会完成配对。也可在客户端电脑运行：</p>
 <pre><code>curl -i --connect-timeout 10 --max-time 15 https://office-mac.your-tailnet.ts.net/health</code></pre>
@@ -196,7 +196,7 @@ sudo tailscale funnel status</code></pre>
 <pre><code>mobd link --url https://office-mac.your-tailnet.ts.net</code></pre>
 <ol class="steps">
   <li>打开 MOB 的 <strong>Settings → Machines → Add machine</strong>，扫描二维码或粘贴完整邀请链接，核对 HTTPS 地址后点击 <strong>Pair</strong>。每台设备单独生成邀请，邀请 10 分钟内有效且只能使用一次。</li>
-  <li>填写 <strong>Desktop sign-in</strong> 中的办公室 macOS 用户名和密码，并运行 <strong>Test connection</strong>。MOB 配对和屏幕共享登录是两套凭据，两者都要完成。</li>
+  <li>运行 <strong>Test connection</strong>。打开实时桌面后，画面下方应显示 <code>WebRTC · Tailscale</code>（Serve）或 <code>WebSocket</code>（Funnel）。</li>
   <li>发起“查看当前屏幕，并告诉我你看到了什么”，确认任务进度实时更新、截图和桌面能打开；再测试上传图片、打开附件以及断线后重新连接。</li>
 </ol>
 <p>Serve 用户还应确认：客户端断开 Tailscale 后，新请求不再到达；未获准的 tailnet 设备也无法访问。所有配对设备共享同一办公室的会话和桌面，配对不提供用户间的数据隔离。</p>
@@ -215,7 +215,7 @@ sudo tailscale funnel status</code></pre>
     <tr><td>入口返回 502</td><td>在办公室重试本机 <code>/health</code>；确认 mobd 正在运行，转发目标为实际的 HTTP 监听端口。</td></tr>
     <tr><td>证书错误</td><td>使用终端输出的完整 HTTPS 域名，检查 DNS、系统时间和证书启用状态，不要改用 IP 或关闭证书验证。</td></tr>
     <tr><td>配对后客户端仍报 401</td><td>裸 curl 的 401 是预期；MOB 内的 401 则需检查设备是否被撤销，使用新邀请重新配对。</td></tr>
-    <tr><td>聊天正常，桌面打不开或很慢</td><td>检查屏幕共享、系统权限和 Desktop sign-in；用 <code>sudo tailscale status</code> 查看是否经过 relay 中继，并检查办公室上行带宽。Funnel 还有带宽限制。</td></tr>
+    <tr><td>聊天正常，桌面打不开或很慢</td><td>先看客户端显示的原因（屏幕锁定或休眠、缺少屏幕录制权限、“Update mobd”需升级办公室 mobd）；画面慢时看读数中的连接方式和信号格，用 <code>sudo tailscale status</code> 查看是否经过 relay 中继，并检查办公室上行带宽。Funnel 走 WebSocket，还有带宽限制。</td></tr>
   </tbody>
 </table></div>
 <h3>关闭入口或切换方式</h3>
@@ -263,7 +263,8 @@ mobd start            # 或 mobd start --login 恢复登录启动</code></pre>
 <section id="faq"><span class="step-label">A FEW GOOD QUESTIONS</span><h2>常见问题。</h2>
 <details><summary>为什么连接不上办公室 Mac？</summary><p>内网直连需确认 mobd 的监听地址、防火墙和两端网络互通。Tailscale 连接请按<a href="#tailscale-help">排错说明</a>检查 Serve / Funnel 入口，再在客户端使用 Test connection 查看具体项目。</p></details>
 <details><summary>客户端提示需要重新配对？</summary><p>这台设备的凭据已被撤销，或办公室执行了认证重置。在办公室 Mac 上重新运行 <code>mobd link --url …</code>，在客户端对该办公室选择 <strong>Pair again</strong> 并扫描或粘贴新链接，对话会保留。配对链接过期或已被使用时，同样重新生成即可。</p></details>
-<details><summary>为什么只能聊天，看不到桌面？</summary><p>检查办公室 Mac 的屏幕共享和屏幕录制权限，核对 Machines 中的 macOS 用户名和密码。没有桌面登录信息时，客户端只显示截图快照。</p></details>
+<details><summary>为什么只能聊天，看不到桌面？</summary><p>客户端会显示原因：缺少屏幕录制权限时，在办公室 Mac 授予后重启 mobd；提示“Update mobd”时更新办公室的 mobd；截图提示屏幕锁定时，解锁或关闭自动锁屏（实时桌面在锁屏时仍可打开）。不再需要“屏幕共享”或 macOS 登录密码。</p></details>
+<details><summary>实时桌面用什么方式传输？流量大吗？</summary><p>在内网和 Tailscale 下用 WebRTC，H.264 画面按客户端窗口大小编码，并随网络自动调节码率、分辨率和帧率；画面不变时几乎不发送数据。只通 TCP 的入口（Funnel、HTTPS 网关）自动改用 WebSocket。可按办公室选择 Auto / High / Low 画质。</p></details>
 <details><summary>安装器提示 mobd 正在运行？</summary><p>先结束任务并执行 <code>mobd stop</code>（前台运行的 <code>mobd serve</code> 需手动停止），再重新运行安装命令。</p></details>
 <details><summary>我的内容会发送到哪里？</summary><p>桌面运行在办公室 Mac，客户端直接连接 mobd。任务内容、截图等是否发送给模型服务取决于你使用的 Agent 和模型配置，请查看对应服务的数据政策。</p></details>
 <details><summary>支持 iPhone、Intel Mac 或 Windows 吗？</summary><p>iPhone 与 iPad 版即将上线；Android 版已可下载。MOB 桌面端和 mobd 目前只支持 macOS Apple Silicon。</p></details>
