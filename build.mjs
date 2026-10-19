@@ -40,6 +40,9 @@ export function renderNotes(text) {
     .replace(/\n/g, '<br>');
 }
 
+// {{file:...}} tokens: mob's Windows and Linux files by platform key and index in `downloads`.
+const FILES = { 'windows-x64': ['windows-x64', 0], 'linux-x64': ['linux-x64', 0], 'linux-x64-deb': ['linux-x64', 1] };
+
 function renderers({ releases, base, ios }) {
   const latest = product => releases[product].releases[0];
   const pending = product => releases[product].error ? '暂时无法获取版本信息' : '即将推出';
@@ -53,6 +56,24 @@ function renderers({ releases, base, ios }) {
       const release = latest(product);
       if (!release) return `<span class="button primary is-disabled" aria-disabled="true">${escape(label)}</span>`;
       return `<a class="button primary" href="${escape(release.url)}" data-download="${product}">${escape(label)} <span aria-hidden="true">↓</span></a>`;
+    },
+    file: (name, label) => {
+      const [key, index] = FILES[name] ?? [];
+      const release = latest('mob');
+      const f = key && release?.files?.[key]?.[index];
+      if (!f) return `<span class="button ${index ? 'ghost' : 'primary'} is-disabled" aria-disabled="true">${escape(label)}</span>`;
+      return `<a class="button ${index ? 'ghost' : 'primary'}" href="${escape(f.url)}" data-download="${escape(name)}">${escape(label)} <span aria-hidden="true">↓</span></a>`;
+    },
+    filemeta: name => {
+      const release = latest('mob');
+      return release?.files?.[FILES[name]?.[0]]?.length
+        ? `<span class="version-tag">v${release.version}</span><span>${formatDate(release.date)}</span>`
+        : `<span class="version-tag muted">${releases.mob.error ? '暂时无法获取版本信息' : '即将推出'}</span>`;
+    },
+    filesum: name => {
+      const files = latest('mob')?.files?.[FILES[name]?.[0]] ?? [];
+      if (!files.length) return '';
+      return `<details class="checksum"><summary>SHA-256 校验值</summary>${files.map(f => `<code>${f.sha256}</code>`).join('')}<a href="${escape(latest('mob').checksums)}">SHA256SUMS ↗</a></details>`;
     },
     link: (product, label) => {
       const release = latest(product);

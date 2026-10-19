@@ -86,3 +86,26 @@ test('manifests reject external URLs and wrong products; notes are escaped', asy
   assert.equal(releases.length, 1, 'invalid entries are skipped, not fatal');
   assert.equal(renderNotes('<script>alert(1)</script> $& **x**'), '&lt;script&gt;alert(1)&lt;/script&gt; $&amp; <strong>x</strong>');
 });
+
+test('mob releases with Windows and Linux files get those buttons; files outside the release are dropped', async t => {
+  const r = release('mob', '0.3.0', 'mob_0.3.0_darwin_arm64.dmg');
+  const file = name => ({ url: `${base}/mob/v0.3.0/${name}`, sha256: 'b'.repeat(64) });
+  r.downloads = {
+    'macos-arm64': [r.download],
+    'windows-x64': [file('mob_0.3.0_windows_x64-setup.exe')],
+    'linux-x64': [file('mob_0.3.0_linux_x64.AppImage'), file('mob_0.3.0_linux_x64.deb')],
+    evil: [{ url: 'https://evil.test/x.exe', sha256: 'c'.repeat(64) }],
+  };
+  assert.deepEqual(Object.keys(validateRelease(r, 'mob', base).files), ['macos-arm64', 'windows-x64', 'linux-x64']);
+  const directory = output(t);
+  const fetchV3 = async url => new URL(url).pathname.startsWith('/mob/') ? Response.json([r]) : fakeFetch(url);
+  await build(directory, { DOWNLOAD_BASE_URL: base }, fetchV3);
+  const download = read(directory, 'download/index.html');
+  for (const name of ['mob_0.3.0_windows_x64-setup.exe', 'mob_0.3.0_linux_x64.AppImage', 'mob_0.3.0_linux_x64.deb']) assert.match(download, new RegExp(`href="${base}/mob/v0.3.0/${name}"`));
+  assert.doesNotMatch(download, /evil\.test/);
+  // Older manifests without `downloads` leave the buttons disabled.
+  await build(directory, { DOWNLOAD_BASE_URL: base }, fakeFetch);
+  const old = read(directory, 'download/index.html');
+  assert.match(old, /<span class="button primary is-disabled" aria-disabled="true">下载安装程序<\/span>/);
+  assert.equal(old.match(/即将推出/g).length >= 2, true, 'Windows and Linux are coming soon, not tagged with the macOS version');
+});

@@ -12,6 +12,26 @@
       <div class="card-actions">{{download:mob|下载 DMG}}</div>
       {{checksum:mob}}
     </article>
+    <article class="download-card" id="windows" data-platform="windows">
+      <span class="recommended">适合这台设备</span>
+      <div class="card-top"><img class="app-icon" src="/assets/app-icon.svg" width="72" height="72" alt="mob 应用图标"><div class="release-meta">{{filemeta:windows-x64}}</div></div>
+      <h3>MOB for Windows</h3>
+      <p>与 macOS 版相同的桌面客户端。控制办公室 Mac 时，Ctrl 相当于 ⌘。</p>
+      <ul class="spec-list"><li>Windows 10 / 11 · x64</li><li>安装程序，安装到当前用户，无需管理员</li><li>支持应用内自动更新</li></ul>
+      <div class="card-actions">{{file:windows-x64|下载安装程序}}</div>
+      {{filesum:windows-x64}}
+      <details class="hint"><summary>出现“Windows 已保护你的电脑”？</summary><p>安装程序暂未进行 Windows 代码签名。确认文件来自本站且 SHA-256 一致后，点击“更多信息” → “仍要运行”。</p></details>
+    </article>
+    <article class="download-card" id="linux" data-platform="linux">
+      <span class="recommended">适合这台设备</span>
+      <div class="card-top"><img class="app-icon" src="/assets/app-icon.svg" width="72" height="72" alt="mob 应用图标"><div class="release-meta">{{filemeta:linux-x64}}</div></div>
+      <h3>MOB for Linux</h3>
+      <p>与 macOS 版相同的桌面客户端。控制办公室 Mac 时，Ctrl 相当于 ⌘。</p>
+      <ul class="spec-list"><li>Ubuntu 22.04+ 等 x64 发行版</li><li>AppImage（应用内自动更新）或 deb 包</li><li>凭据保存在系统密钥环</li></ul>
+      <div class="card-actions">{{file:linux-x64|下载 AppImage}}{{file:linux-x64-deb|下载 deb}}</div>
+      {{filesum:linux-x64}}
+      <details class="hint"><summary>实时桌面需要什么？</summary><p>deb 包会安装所需的 GStreamer 组件。使用 AppImage 时如实时桌面无法播放，请安装 <code>gstreamer1.0-plugins-bad gstreamer1.0-libav</code>。</p></details>
+    </article>
     <article class="download-card" id="android" data-platform="android">
       <span class="recommended">适合这台设备</span>
       <div class="card-top"><div class="platform-icon android" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 18h4"/></svg></div><div class="release-meta">{{meta:android}}</div></div>

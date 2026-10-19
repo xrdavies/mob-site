@@ -267,7 +267,7 @@ mobd start            # 或 mobd start --login 恢复登录启动</code></pre>
 <details><summary>实时桌面用什么方式传输？流量大吗？</summary><p>在内网和 Tailscale 下用 WebRTC，H.264 画面按客户端窗口大小编码，并随网络自动调节码率、分辨率和帧率；画面不变时几乎不发送数据。只通 TCP 的入口（Funnel、HTTPS 网关）自动改用 WebSocket。可按办公室选择 Auto / High / Low 画质。</p></details>
 <details><summary>安装器提示 mobd 正在运行？</summary><p>先结束任务并执行 <code>mobd stop</code>（前台运行的 <code>mobd serve</code> 需手动停止），再重新运行安装命令。</p></details>
 <details><summary>我的内容会发送到哪里？</summary><p>桌面运行在办公室 Mac，客户端直接连接 mobd。任务内容、截图等是否发送给模型服务取决于你使用的 Agent 和模型配置，请查看对应服务的数据政策。</p></details>
-<details><summary>支持 iPhone、Intel Mac 或 Windows 吗？</summary><p>iPhone 与 iPad 版即将上线；Android 版已可下载。MOB 桌面端和 mobd 目前只支持 macOS Apple Silicon。</p></details>
+<details><summary>支持 iPhone、Intel Mac、Windows 或 Linux 吗？</summary><p>iPhone 与 iPad 版即将上线；Android 版已可下载。MOB 桌面客户端支持 macOS（Apple Silicon）、Windows 10/11 和 Linux（x64），Windows 与 Linux 版随包含它们的首个版本出现在<a href="/download/">下载页</a>。办公室端的 mobd 目前只支持 macOS Apple Silicon，Linux 与 Windows 版在规划中。</p></details>
 </section>
 
   </div>

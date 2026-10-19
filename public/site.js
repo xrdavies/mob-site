@@ -73,7 +73,7 @@ for (const tabs of document.querySelectorAll('[data-tabs]')) {
 const ua = navigator.userAgent;
 const platform = /android/i.test(ua) ? 'android'
   : /iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && navigator.maxTouchPoints > 1) ? 'ios'
-  : /macintosh|mac os x/i.test(ua) ? 'mac' : '';
+  : /macintosh|mac os x/i.test(ua) ? 'mac' : /windows/i.test(ua) ? 'windows' : /linux|x11/i.test(ua) ? 'linux' : '';
 document.querySelector(`[data-platform="${platform}"]`)?.classList.add('is-recommended');
 
 // Seamless marquee: the track scrolls by half its width.
