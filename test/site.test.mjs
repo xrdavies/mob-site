@@ -109,3 +109,27 @@ test('mob releases with Windows and Linux files get those buttons; files outside
   assert.match(old, /<span class="button primary is-disabled" aria-disabled="true">下载安装程序<\/span>/);
   assert.equal(old.match(/即将推出/g).length >= 2, true, 'Windows and Linux are coming soon, not tagged with the macOS version');
 });
+
+test('mobd releases with Linux platforms get .deb buttons per architecture', async t => {
+  const r = release('mobd', '0.4.0', 'mobd_0.4.0_darwin_arm64.tar.gz');
+  const file = name => ({ url: `${base}/mobd/v0.4.0/${name}`, sha256: 'd'.repeat(64) });
+  r.platforms = {
+    'darwin-aarch64': r.download,
+    'linux-x86_64': { ...file('mobd_0.4.0_linux_amd64.tar.gz'), deb: file('mobd_0.4.0_amd64.deb') },
+    'linux-aarch64': { ...file('mobd_0.4.0_linux_arm64.tar.gz'), deb: { url: 'https://evil.test/mobd.deb', sha256: 'e'.repeat(64) } },
+  };
+  const files = validateRelease(r, 'mobd', base).files;
+  assert.equal(files['linux-x86_64'].length, 2);
+  assert.equal(files['linux-aarch64'].length, 1, 'a file outside the release is dropped');
+  const directory = output(t);
+  const fetchLinux = async url => new URL(url).pathname.startsWith('/mobd/') ? Response.json([r]) : fakeFetch(url);
+  await build(directory, { DOWNLOAD_BASE_URL: base }, fetchLinux);
+  const download = read(directory, 'download/index.html');
+  assert.match(download, new RegExp(`href="${base}/mobd/v0.4.0/mobd_0.4.0_amd64.deb"`));
+  assert.match(download, /<span class="button ghost is-disabled" aria-disabled="true">下载 deb \(arm64\)<\/span>/);
+  assert.doesNotMatch(download, /evil\.test/);
+  // Before mobd ships Linux the buttons are disabled and the card says so.
+  await build(directory, { DOWNLOAD_BASE_URL: base }, fakeFetch);
+  assert.match(read(directory, 'download/index.html'), /<span class="button ghost is-disabled" aria-disabled="true">下载 deb \(x86_64\)<\/span>/);
+  assert.match(read(directory, 'start/index.html'), /id="linux"/);
+});

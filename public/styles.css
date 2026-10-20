@@ -303,6 +303,7 @@ h1 .gradient-text { white-space: nowrap; }
 .checksum a { color: var(--purple); }
 .hint p { margin-top: 8px; line-height: 1.7; }
 .download-card.wide { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 48px; padding: 36px; }
+.download-card.wide + .download-card.wide { margin-top: 24px; }
 .wide-install { display: flex; flex-direction: column; justify-content: center; }
 .wide-install .card-actions { margin-top: 18px; }
 .install-label { margin-bottom: 10px; font-size: 13px; font-weight: 600; color: var(--ink-2); }

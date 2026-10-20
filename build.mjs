@@ -23,8 +23,8 @@ export function iosURL(value) {
 
 const pages = [
   ['', '让办公室的 Mac，成为你的远程 AI 搭档', '把任务交给办公室里的 AI 助手。用 MOB 在 Mac、iPhone 或 Android 上发起任务、查看进度，并实时看见远程桌面。'],
-  ['download', '下载 MOB', 'MOB 桌面客户端（macOS）、Android 应用和办公室端 mobd 的下载与版本信息。'],
-  ['start', '安装 mobd 与快速开始', '在办公室 Mac 上安装和配置 mobd，授予系统权限，再从 Mac、iPhone 或 Android 连接。'],
+  ['download', '下载 MOB', 'MOB 桌面客户端（macOS）、Android 应用和办公室端 mobd（macOS、Linux）的下载与版本信息。'],
+  ['start', '安装 mobd 与快速开始', '在办公室 Mac 或 Linux 电脑上安装和配置 mobd，再从 Mac、iPhone 或 Android 连接。'],
   ['changelog', '更新日志', 'MOB、mobd 与 Android 应用的公开版本记录和历史下载。'],
   ['404', '这个页面暂时不在这里', '返回 MOB 首页，继续了解你的远程 AI 搭档。'],
 ];
@@ -40,8 +40,12 @@ export function renderNotes(text) {
     .replace(/\n/g, '<br>');
 }
 
-// {{file:...}} tokens: mob's Windows and Linux files by platform key and index in `downloads`.
-const FILES = { 'windows-x64': ['windows-x64', 0], 'linux-x64': ['linux-x64', 0], 'linux-x64-deb': ['linux-x64', 1] };
+// {{file:...}} tokens: a product's extra files by platform key and index (mob's `downloads`,
+// mobd's Linux `platforms`: 0 the tarball, 1 the .deb).
+const FILES = {
+  'windows-x64': ['mob', 'windows-x64', 0], 'linux-x64': ['mob', 'linux-x64', 0], 'linux-x64-deb': ['mob', 'linux-x64', 1],
+  'mobd-linux-amd64-deb': ['mobd', 'linux-x86_64', 1], 'mobd-linux-arm64-deb': ['mobd', 'linux-aarch64', 1],
+};
 
 function renderers({ releases, base, ios }) {
   const latest = product => releases[product].releases[0];
@@ -58,22 +62,24 @@ function renderers({ releases, base, ios }) {
       return `<a class="button primary" href="${escape(release.url)}" data-download="${product}">${escape(label)} <span aria-hidden="true">↓</span></a>`;
     },
     file: (name, label) => {
-      const [key, index] = FILES[name] ?? [];
-      const release = latest('mob');
+      const [product, key, index] = FILES[name] ?? [];
+      const release = product && latest(product);
       const f = key && release?.files?.[key]?.[index];
       if (!f) return `<span class="button ${index ? 'ghost' : 'primary'} is-disabled" aria-disabled="true">${escape(label)}</span>`;
       return `<a class="button ${index ? 'ghost' : 'primary'}" href="${escape(f.url)}" data-download="${escape(name)}">${escape(label)} <span aria-hidden="true">↓</span></a>`;
     },
     filemeta: name => {
-      const release = latest('mob');
-      return release?.files?.[FILES[name]?.[0]]?.length
+      const [product = 'mob', key] = FILES[name] ?? [];
+      const release = latest(product);
+      return release?.files?.[key]?.length
         ? `<span class="version-tag">v${release.version}</span><span>${formatDate(release.date)}</span>`
-        : `<span class="version-tag muted">${releases.mob.error ? '暂时无法获取版本信息' : '即将推出'}</span>`;
+        : `<span class="version-tag muted">${releases[product].error ? '暂时无法获取版本信息' : '即将推出'}</span>`;
     },
     filesum: name => {
-      const files = latest('mob')?.files?.[FILES[name]?.[0]] ?? [];
+      const [product = 'mob', key] = FILES[name] ?? [];
+      const files = latest(product)?.files?.[key] ?? [];
       if (!files.length) return '';
-      return `<details class="checksum"><summary>SHA-256 校验值</summary>${files.map(f => `<code>${f.sha256}</code>`).join('')}<a href="${escape(latest('mob').checksums)}">SHA256SUMS ↗</a></details>`;
+      return `<details class="checksum"><summary>SHA-256 校验值</summary>${files.map(f => `<code>${f.sha256}</code>`).join('')}<a href="${escape(latest(product).checksums)}">SHA256SUMS ↗</a></details>`;
     },
     link: (product, label) => {
       const release = latest(product);

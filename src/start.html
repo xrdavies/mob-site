@@ -1,4 +1,4 @@
-<section class="page-intro wrap"><p class="eyebrow">HELLO, MOB</p><h1>安装 mobd，<br><span class="gradient-text">开始协作。</span></h1><p>先准备办公室 Mac，再连接你身边的 Mac、iPhone 或 Android。<br>大约十分钟。当前 mobd 版本：{{version:mobd}}。</p></section>
+<section class="page-intro wrap"><p class="eyebrow">HELLO, MOB</p><h1>安装 mobd，<br><span class="gradient-text">开始协作。</span></h1><p>先准备办公室 Mac 或 Linux 电脑，再连接你身边的 Mac、iPhone 或 Android。<br>大约十分钟。当前 mobd 版本：{{version:mobd}}。</p></section>
 
 <div class="guide wrap">
   <aside class="guide-nav" aria-label="指南目录">
@@ -8,6 +8,7 @@
     <a href="#permissions">03 系统权限</a>
     <a href="#run">04 启动服务</a>
     <a href="#connect">05 配对客户端</a>
+    <a href="#linux">办公室是 Linux 电脑</a>
     <a href="#remote">Tailscale 准备</a>
     <a href="#tailscale-serve">私有连接 · Serve</a>
     <a href="#tailscale-funnel">公网连接 · Funnel</a>
@@ -21,13 +22,13 @@
 
 <section id="requirements"><span class="step-label">BEFORE YOU BEGIN</span><h2>准备工作。</h2>
 <ul class="check-list">
-  <li>一台 <strong>Apple Silicon</strong> 办公室 Mac，运行 <strong>macOS 13</strong> 或更新版本，保持开机、联网、用户已登录。</li>
+  <li>一台 <strong>Apple Silicon</strong> 办公室 Mac，运行 <strong>macOS 13</strong> 或更新版本，保持开机、联网、用户已登录。办公室用 Linux 电脑时，先看 <a href="#linux">Linux 一节</a>：安装和启动不同，配对与远程连接相同。</li>
   <li>已安装并登录 <a href="https://developers.openai.com/codex/cli/" rel="noreferrer">Codex CLI</a> 或 <a href="https://code.claude.com/docs/en/quickstart" rel="noreferrer">Claude Code</a>（至少一个）。</li>
   <li>客户端设备能访问办公室 Mac：同一内网、公司 VPN，或按下文配置 <a href="#remote">Tailscale Serve / Funnel</a>。</li>
 </ul></section>
 
 <section id="install"><span class="step-label">01 / INSTALL</span><h2>在办公室 Mac 上安装 mobd。</h2>
-<p>打开“终端”，以普通用户身份运行（不要加 sudo）：</p>
+<p>打开“终端”，以普通用户身份运行（不要加 sudo）。Linux 电脑请按 <a href="#linux">Linux 一节</a>安装。</p>
 <div class="command"><code data-copy-source>{{install}}</code><button type="button" class="copy-button" data-copy>复制</button></div>
 <p>安装器会读取最新的稳定版本，校验 SHA-256 与 Apple 开发者签名，然后只把 <code>mobd</code> 安装到 <code>~/.local/bin</code>。无需 Go、Node.js、Python 或源码。</p>
 <p>把安装目录加入 PATH，并确认安装成功：</p>
@@ -110,6 +111,40 @@ mobd start --login</code></pre>
 </ol>
 <p>实时桌面默认只查看。需要自己操作时，展开大画面并切换到 <strong>Control</strong>（桌面端也可按 <kbd>⇧⌘C</kbd>）。手机上点按即点击、长按为右键、双指滚动、捏合缩放。画面下方显示分辨率、帧率、流量和连接方式（如 <code>WebRTC · LAN</code>）；静止的桌面几乎不占流量，帧率低是正常的。</p>
 <p>用 <code>mobd clients list</code> 查看已配对的设备；设备丢失时执行 <code>mobd clients revoke CLIENT_ID</code>，它会立即断开，其他设备不受影响。</p>
+</section>
+
+<section id="linux"><span class="step-label">OFFICE LINUX</span><h2>办公室是 Linux 电脑。</h2>
+<p>在 Linux 上，mobd 为<strong>每个对话</strong>启动一个独立的虚拟桌面（Xvfb + openbox）。Agent 在这个桌面里打开应用和浏览器，你在客户端实时查看该对话的桌面；不同对话的任务可以同时运行。它不会操作你自己登录的 Linux 桌面。</p>
+<h3>1. 准备</h3>
+<ul class="check-list">
+  <li><strong>Ubuntu 22.04 / 24.04</strong> 或 <strong>Debian 12 / 13</strong>，x86_64 或 arm64；实体机或虚拟机均可，但需要 <strong>systemd</strong>（普通的 Docker 容器不行）。其他发行版见 <a href="https://github.com/xrdavies/mobd/blob/main/docs/linux-build.md" rel="noreferrer">源码构建指南</a>。</li>
+  <li>以运行 mobd 的普通用户安装并登录 Codex CLI 或 Claude Code。</li>
+  <li>需要浏览器时安装软件包版本：Debian 的 <code>chromium</code> / <code>firefox-esr</code>、Google Chrome，或 Mozilla APT 源的 Firefox。<strong>Snap 版浏览器无法使用对话各自的浏览器配置。</strong></li>
+</ul>
+<h3>2. 安装</h3>
+<p>从<a href="/download/#mobd-linux">下载页</a>下载对应架构的 <code>.deb</code>，它会一并安装 Xvfb、openbox、dbus 和 GStreamer：</p>
+<pre><code>sudo apt install ./mobd_X.Y.Z_amd64.deb     # arm64 电脑用 _arm64.deb
+mobd --version</code></pre>
+<details class="hint"><summary>不用 .deb，使用安装脚本</summary>
+<p>与 Mac 相同的安装命令也能在 Linux 上运行：它安装对应架构的压缩包到 <code>~/.local/bin</code>（只校验 SHA-256），并打印需要用 <code>apt install</code> 安装的软件包。</p>
+<div class="command"><code data-copy-source>{{install}}</code><button type="button" class="copy-button" data-copy>复制</button></div></details>
+<h3>3. 配置并启动</h3>
+<pre><code>mobd init                 # 然后编辑 ~/.mobd/config.json，与 Mac 相同
+mobd start                # 作为当前用户的 systemd 服务运行
+mobd desktops doctor      # 每一行都应为 ok</code></pre>
+<p>配置项与上文 <a href="#config">02 配置</a>相同，路径改为 Linux 的绝对路径（如 <code>/home/you/Projects</code>）。Linux 不需要授予系统权限。<code>mobd start</code> 会为当前用户开启 linger，注销或重启后 mobd 和桌面仍会运行；如提示无权限，执行一次 <code>sudo loginctl enable-linger $USER</code>。<code>mobd start --login</code> 让它开机自动启动。</p>
+<p><code>doctor</code> 检查 Xvfb、openbox、dbus、cgroup v2、编码器、浏览器、内存和磁盘，失败的项目会给出修复命令。</p>
+<h3>4. 配对与网络</h3>
+<p>配对方式与 <a href="#connect">05 配对客户端</a>相同。实时桌面的 WebRTC 使用 UDP 9527，Linux 防火墙需要放行，例如 <code>sudo ufw allow 9527/udp</code>；未放行时客户端会自动改用较慢的 WebSocket。<a href="#remote">Tailscale</a> 同样可用，Linux 上按 <a href="https://tailscale.com/download/linux" rel="noreferrer">官方 Linux 安装方法</a>安装后，<code>tailscale serve</code> / <code>funnel</code> 命令与下文一致。</p>
+<h3>5. 每个对话的桌面</h3>
+<ul class="check-list">
+  <li><strong>随首次任务启动</strong>：新对话的第一个任务启动它的桌面；在客户端打开该对话即可实时查看。</li>
+  <li><strong>空闲时休眠</strong>：没有任务、没人查看、没有 CPU 占用和画面变化 10 分钟后自动冻结，几乎不占 CPU；下一个任务或打开实时桌面时立即恢复，窗口保持原样。</li>
+  <li><strong>何时关闭</strong>：归档或删除对话、在客户端选择“关闭桌面”，或运行 <code>mobd desktops close</code>。关闭后打开的窗口会丢失，文件和浏览器登录状态保留。</li>
+  <li><strong>浏览器登录</strong>：每个对话有自己的浏览器配置和 <code>Downloads</code> 目录。在某个对话里登录常用网站并关闭浏览器后，运行 <code>mobd desktops seed 会话ID</code>，之后的新对话会以已登录的状态开始。</li>
+  <li><strong>内存与磁盘</strong>：内存或磁盘不足时，客户端会提醒你关闭桌面；低于下限时新对话的任务会等待，已有桌面的对话不受影响。</li>
+</ul>
+<div class="guide-note warn"><strong>对话之间没有隔离</strong><p>所有桌面、Agent 和 mobd 都以同一个 Linux 用户运行，Agent 可以读取该用户的文件以及其他对话的浏览器配置。请在专用的用户或机器上运行，不要放入不希望 Agent 读到的数据。</p></div>
 </section>
 
 <section id="remote"><span class="step-label">AWAY FROM THE OFFICE</span><h2>用 Tailscale，从外面连接办公室。</h2>
@@ -238,6 +273,7 @@ mobd start            # 或 mobd start --login 恢复登录启动</code></pre>
 <p>配置、会话和附件都会保留。</p>
 <p><strong>更新客户端：</strong>macOS 版启动时自动检查更新，也可在 Settings → About 中手动检查。Android 版下载新 APK 覆盖安装。</p>
 <p><strong>卸载 mobd：</strong>执行 <code>mobd stop</code>，删除 <code>~/.local/bin/mobd</code>。配置位于 <code>~/.mobd</code>，会话数据位于 <code>~/Library/Application Support/mob</code>，按需备份或删除。</p>
+<p><strong>Linux：</strong>用新的 <code>.deb</code> 执行 <code>sudo apt install ./mobd_X.Y.Z_amd64.deb</code> 即可更新，正在运行的桌面会保留，执行 <code>mobd restart</code> 后重新连接。<code>sudo apt remove mobd</code>（或 <code>mobd uninstall</code>）会关闭所有桌面并移除服务；配置位于 <code>~/.mobd</code>，会话、桌面文件和浏览器配置位于 <code>~/.local/share/mob</code>，按需删除。</p>
 </section>
 
 <section id="commands"><span class="step-label">CHEAT SHEET</span><h2>命令速查。</h2>
@@ -245,16 +281,20 @@ mobd start            # 或 mobd start --login 恢复登录启动</code></pre>
   <thead><tr><th>命令</th><th>作用</th></tr></thead>
   <tbody>
     <tr><td><code>mobd init</code></td><td>创建 <code>~/.mobd/config.json</code>，不会覆盖已有文件</td></tr>
-    <tr><td><code>mobd start</code></td><td>以当前用户的 LaunchAgent 在后台运行</td></tr>
-    <tr><td><code>mobd start --login</code></td><td>启动并在登录 macOS 时自动运行</td></tr>
+    <tr><td><code>mobd start</code></td><td>以当前用户的后台服务运行（macOS LaunchAgent，Linux systemd 用户服务）</td></tr>
+    <tr><td><code>mobd start --login</code></td><td>启动并在登录 macOS 或 Linux 开机时自动运行</td></tr>
     <tr><td><code>mobd status</code></td><td>监听地址与健康检查</td></tr>
     <tr><td><code>mobd logs</code></td><td>跟随日志（Ctrl-C 结束）</td></tr>
     <tr><td><code>mobd restart</code></td><td>重新加载配置，保留登录启动设置</td></tr>
-    <tr><td><code>mobd stop</code></td><td>停止服务，并取消登录启动</td></tr>
+    <tr><td><code>mobd stop</code></td><td>停止服务，并取消登录启动；Linux 上会询问是否关闭各对话的桌面</td></tr>
     <tr><td><code>mobd serve</code></td><td>在前台运行，Ctrl-C 停止</td></tr>
     <tr><td><code>mobd link --url URL</code></td><td>生成一次性配对二维码和链接，10 分钟有效</td></tr>
     <tr><td><code>mobd clients list</code></td><td>列出已配对的设备</td></tr>
     <tr><td><code>mobd clients revoke ID</code></td><td>撤销一台设备并立即断开它</td></tr>
+    <tr><td><code>mobd desktops list</code></td><td>Linux：列出各对话的桌面、状态、内存与磁盘占用</td></tr>
+    <tr><td><code>mobd desktops close ID</code></td><td>Linux：关闭一个对话的桌面（会话 ID 前 4 位以上即可）</td></tr>
+    <tr><td><code>mobd desktops doctor</code></td><td>Linux：检查桌面所需的软件包和系统设置</td></tr>
+    <tr><td><code>mobd desktops seed ID</code></td><td>Linux：以该对话的浏览器登录状态作为新对话的起点</td></tr>
   </tbody>
 </table></div>
 <p>完整配置项见 <a href="https://github.com/xrdavies/mobd#configuration-reference" rel="noreferrer">mobd 配置参考</a>。</p>
@@ -267,7 +307,8 @@ mobd start            # 或 mobd start --login 恢复登录启动</code></pre>
 <details><summary>实时桌面用什么方式传输？流量大吗？</summary><p>在内网和 Tailscale 下用 WebRTC，H.264 画面按客户端窗口大小编码，并随网络自动调节码率、分辨率和帧率；画面不变时几乎不发送数据。只通 TCP 的入口（Funnel、HTTPS 网关）自动改用 WebSocket。可按办公室选择 Auto / High / Low 画质。</p></details>
 <details><summary>安装器提示 mobd 正在运行？</summary><p>先结束任务并执行 <code>mobd stop</code>（前台运行的 <code>mobd serve</code> 需手动停止），再重新运行安装命令。</p></details>
 <details><summary>我的内容会发送到哪里？</summary><p>桌面运行在办公室 Mac，客户端直接连接 mobd。任务内容、截图等是否发送给模型服务取决于你使用的 Agent 和模型配置，请查看对应服务的数据政策。</p></details>
-<details><summary>支持 iPhone、Intel Mac、Windows 或 Linux 吗？</summary><p>iPhone 与 iPad 版即将上线；Android 版已可下载。MOB 桌面客户端支持 macOS（Apple Silicon）、Windows 10/11 和 Linux（x64），Windows 与 Linux 版随包含它们的首个版本出现在<a href="/download/">下载页</a>。办公室端的 mobd 目前只支持 macOS Apple Silicon，Linux 与 Windows 版在规划中。</p></details>
+<details><summary>支持 iPhone、Intel Mac、Windows 或 Linux 吗？</summary><p>iPhone 与 iPad 版即将上线；Android 版已可下载。MOB 桌面客户端支持 macOS（Apple Silicon）、Windows 10/11 和 Linux（x64），Windows 与 Linux 版随包含它们的首个版本出现在<a href="/download/">下载页</a>。办公室端的 mobd 支持 macOS Apple Silicon 和 <a href="#linux">Linux</a>（Ubuntu、Debian，x86_64 与 arm64）；Windows 版在规划中。</p></details>
+<details><summary>Linux 上为什么看不到对话的桌面？</summary><p>桌面随对话的第一个任务启动，之前客户端会显示“还没有桌面”。显示“休眠”时，打开实时桌面会立即唤醒它。仍有问题时，在办公室运行 <code>mobd desktops doctor</code>；常见原因是缺少 systemd 用户服务（在容器中运行）、没有放行 UDP 9527，或缺少 H.264 编码器。</p></details>
 </section>
 
   </div>
