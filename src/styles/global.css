@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dark, technical: zinc neutrals, one cyan accent, mono for labels and code. */
+@layer base {
+  :root { color-scheme: dark; }
+  html { scroll-padding-top: 5rem; -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  body { @apply bg-zinc-950 font-sans text-zinc-300 antialiased; }
+  h1, h2, h3, h4 { @apply font-semibold tracking-tight text-zinc-50; }
+  :focus-visible { @apply rounded outline outline-2 outline-offset-2 outline-cyan-400; }
+  ::selection { @apply bg-cyan-400/30 text-white; }
+}
+
+@layer components {
+  .container-x { @apply mx-auto w-full max-w-6xl px-6; }
+  .eyebrow { @apply font-mono text-xs uppercase tracking-[0.2em] text-cyan-400; }
+  .section-title { @apply mt-3 text-3xl sm:text-4xl; }
+  .section-lead { @apply mt-4 max-w-2xl text-lg leading-relaxed text-zinc-400; }
+
+  .btn { @apply inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-5 text-sm font-medium transition; }
+  .btn-primary { @apply btn bg-cyan-400 text-zinc-950 hover:bg-cyan-300; }
+  .btn-secondary { @apply btn border border-zinc-700 bg-zinc-900 text-zinc-100 hover:border-zinc-500 hover:bg-zinc-800; }
+  .btn-disabled { @apply btn cursor-default border border-zinc-800 bg-zinc-900 text-zinc-500; }
+  .link { @apply text-cyan-400 underline-offset-4 hover:underline; }
+
+  .card { @apply rounded-2xl border border-zinc-800 bg-zinc-900/40; }
+  .tag { @apply inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wider; }
+  .tag-live { @apply tag border-emerald-500/30 bg-emerald-500/10 text-emerald-300; }
+  .tag-soon { @apply tag border-zinc-700 bg-zinc-800/60 text-zinc-400; }
+  .tag-accent { @apply tag border-cyan-400/30 bg-cyan-400/10 text-cyan-300; }
+
+  /* Terminal and code */
+  .term { @apply overflow-hidden rounded-xl border border-zinc-800 bg-black/60 font-mono text-[13px] leading-6; }
+  .term-bar { @apply flex items-center gap-1.5 border-b border-zinc-800 bg-zinc-900/80 px-3 py-2; }
+  .term-bar i { @apply block size-2.5 rounded-full bg-zinc-700; }
+  .term-body { @apply overflow-x-auto px-4 py-3 text-zinc-300; }
+  .prompt { @apply select-none text-cyan-400; }
+  .muted { @apply text-zinc-500; }
+
+  /* Screenshot frames */
+  .window { @apply overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-2xl shadow-black/60 ring-1 ring-white/5; }
+  .window-bar { @apply flex items-center gap-1.5 border-b border-zinc-800 bg-zinc-900 px-3 py-2.5; }
+  .window-bar i { @apply block size-2.5 rounded-full; }
+  .phone { @apply overflow-hidden rounded-[2.2rem] border border-zinc-700 bg-black p-1.5 shadow-2xl shadow-black/70 ring-1 ring-white/5; }
+  .phone img { @apply rounded-[1.8rem]; }
+
+  /* Folds (<details>) */
+  .fold { @apply rounded-lg border border-zinc-800 bg-zinc-950/60; }
+  .fold > summary { @apply flex cursor-pointer list-none items-center gap-2 px-4 py-2.5 text-sm text-zinc-400 hover:text-zinc-200; }
+  .fold > summary::-webkit-details-marker { display: none; }
+  .fold > summary::before { content: "+"; @apply w-3 font-mono text-cyan-400; }
+  .fold[open] > summary::before { content: "−"; }
+  .fold > :not(summary) { @apply px-4 pb-3 text-sm leading-relaxed text-zinc-400; }
+
+  /* Long-form text: docs and privacy */
+  .doc { @apply text-[15px] leading-7 text-zinc-300; }
+  .doc section + section { @apply mt-16 border-t border-zinc-800 pt-12; }
+  .doc section { @apply scroll-mt-24; }
+  .doc h2 { @apply mb-4 text-2xl; }
+  .doc h3 { @apply mb-2 mt-8 text-lg; }
+  .doc p { @apply my-4; }
+  .doc ul { @apply my-4 list-disc space-y-2 pl-5 marker:text-zinc-600; }
+  .doc ol { @apply my-4 list-decimal space-y-2 pl-5 marker:font-mono marker:text-cyan-400; }
+  .doc a:not(.btn) { @apply link; }
+  .doc strong { @apply font-semibold text-zinc-100; }
+  .doc :not(pre) > code { @apply rounded border border-zinc-800 bg-zinc-900 px-1.5 py-0.5 font-mono text-[0.85em] text-cyan-200; }
+  .doc pre { @apply my-4 overflow-x-auto rounded-xl border border-zinc-800 bg-black/60 px-4 py-3 font-mono text-[13px] leading-6 text-zinc-300; }
+  .doc table { @apply my-4 w-full border-collapse text-sm; }
+  .doc th { @apply border-b border-zinc-700 py-2 pr-4 text-left font-medium text-zinc-100; }
+  .doc td { @apply border-b border-zinc-800 py-2 pr-4 align-top; }
+  .doc .fold { @apply my-3; }
+  .callout { @apply my-5 rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-100/90; }
+}
+
+@layer utilities {
+  .bg-grid {
+    background-image: linear-gradient(to right, rgb(255 255 255 / .04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / .04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+  }
+  .glow { background: radial-gradient(ellipse 50% 40% at 50% 0%, rgb(34 211 238 / .16), transparent 70%); }
+}

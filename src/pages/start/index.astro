@@ -1,0 +1,201 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Command from '../../components/Command.astro';
+import { base, install, latest } from '../../data/site.mjs';
+
+const steps = [['requirements', 'Requirements'], ['install', 'Install mobd'], ['config', 'Configure agents'], ['permissions', 'Grant permissions'], ['run', 'Start mobd'], ['connect', 'Pair a device']];
+const more = [['remote', 'Remote access'], ['upgrade', 'Upgrade & uninstall'], ['commands', 'Command reference'], ['faq', 'FAQ']];
+const mobd = latest('mobd');
+const commands = [
+  ['mobd init', 'Create ~/.mobd/config.json; never overwrites an existing file'],
+  ['mobd start / stop / restart', 'Start, stop, or reload the configuration'],
+  ['mobd start --login', 'Start, and start again at every login'],
+  ['mobd status', 'Listening address and readiness checks'],
+  ['mobd logs', 'Follow the log (Ctrl-C to stop)'],
+  ['mobd serve', 'Run in the foreground'],
+  ['mobd link --url URL', 'Print a one-time pairing link and QR code'],
+  ['mobd link --close', 'Cancel invitations that were not used yet'],
+  ['mobd clients list', 'List paired devices'],
+  ['mobd clients revoke ID', 'Revoke a device and disconnect it now'],
+  ['mobd connections', 'List active authenticated requests and streams'],
+  ['mobd auth reset --yes', 'Revoke every device and invitation'],
+  ['mobd uninstall', 'Stop mobd and remove its service; keeps settings and data'],
+];
+---
+<Layout title="Get started · Mob" description="Install mobd on your office computer, configure Codex or Claude Code, and pair your devices with Mob.">
+  <div class="container-x grid grid-cols-1 gap-12 pt-12 lg:grid-cols-[220px_minmax(0,1fr)] lg:pt-16">
+    <details data-mobile-toc class="fold sticky top-16 z-30 -mx-6 rounded-none border-x-0 bg-zinc-950/95 backdrop-blur lg:hidden">
+      <summary>Contents</summary>
+      <nav aria-label="Guide (mobile)" class="grid gap-1 pb-3 text-sm">
+        {[...steps, ...more].map(([id, label]) => <a href={`#${id}`} class="py-1 text-zinc-300">{label}</a>)}
+      </nav>
+    </details>
+
+    <aside class="hidden lg:block">
+      <nav data-doc-nav aria-label="Guide" class="sticky top-24 text-sm">
+        <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">Quick start</p>
+        <div class="mt-3 grid gap-0.5">
+          {steps.map(([id, label], i) => <a href={`#${id}`} class="flex items-center gap-3 rounded-md px-2 py-1.5 text-zinc-400 hover:text-zinc-100 data-[active]:bg-zinc-900 data-[active]:text-zinc-50"><span class="font-mono text-xs text-cyan-400">{String(i + 1).padStart(2, '0')}</span>{label}</a>)}
+        </div>
+        <p class="mt-8 font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">More</p>
+        <div class="mt-3 grid gap-0.5">
+          {more.map(([id, label]) => <a href={`#${id}`} class="rounded-md px-2 py-1.5 text-zinc-400 hover:text-zinc-100 data-[active]:bg-zinc-900 data-[active]:text-zinc-50">{label}</a>)}
+        </div>
+      </nav>
+    </aside>
+
+    <article class="doc max-w-3xl">
+      <header class="mb-14">
+        <p class="eyebrow">Docs</p>
+        <h1 class="mt-3 text-4xl">Get started</h1>
+        <p class="mt-4 text-lg text-zinc-400">About ten minutes: prepare the office computer, then pair your first device.{mobd && <> This guide matches mobd <span class="font-mono text-zinc-200">{mobd.version}</span>.</>}</p>
+      </header>
+
+      <section id="requirements">
+        <h2><span class="mr-3 font-mono text-cyan-400">01</span>Requirements</h2>
+        <ul>
+          <li>An office Mac with <strong>Apple Silicon</strong> and <strong>macOS 13</strong> or later that stays on, online and logged in. mobd for Linux and Windows is coming.</li>
+          <li><a href="https://developers.openai.com/codex/cli/" rel="noreferrer">Codex CLI</a> or <a href="https://code.claude.com/docs/en/quickstart" rel="noreferrer">Claude Code</a> installed and signed in on it. More agent harnesses are coming.</li>
+          <li>Your devices can reach that Mac: the same LAN, a company VPN, or <a href="#remote">remote access</a> as described below.</li>
+          <li>A client: <a href="/download/#mac">Mob for macOS</a>, <a href="/download/#ios">iPhone and iPad (iOS 17+)</a> or <a href="/download/#android">Android 8.0+</a>.</li>
+        </ul>
+      </section>
+
+      <section id="install">
+        <h2><span class="mr-3 font-mono text-cyan-400">02</span>Install mobd</h2>
+        <p>In Terminal on the office Mac, as your normal user (no sudo):</p>
+        <Command command={install} />
+        <p>The installer checks the SHA-256 and the Apple developer signature and puts only <code>mobd</code> in <code>~/.local/bin</code>. Add that to your PATH and check:</p>
+        <pre>echo 'export PATH="$HOME/.local/bin:$PATH"' &gt;&gt; ~/.zshrc
+export PATH="$HOME/.local/bin:$PATH"
+mobd --version</pre>
+        <details class="fold"><summary>A specific version, another directory, or a manual install</summary>
+          <pre>curl -fsSLO {base}/mobd/install.sh
+sh install.sh --version X.Y.Z
+sh install.sh --install-dir /absolute/path</pre>
+          <p>Or download the archive from the <a href="/download/#mobd">download page</a>, check it against SHA256SUMS, unpack it and put <code>mobd</code> in a directory on your PATH.</p>
+        </details>
+      </section>
+
+      <section id="config">
+        <h2><span class="mr-3 font-mono text-cyan-400">03</span>Configure agents</h2>
+        <pre>mobd init      # creates ~/.mobd/config.json, never overwrites
+open -e ~/.mobd/config.json</pre>
+        <div data-tabs class="my-4 overflow-hidden rounded-xl border border-zinc-800">
+          <div role="tablist" class="flex border-b border-zinc-800 bg-zinc-900/60 text-sm">
+            <button type="button" role="tab" id="tab-codex" aria-controls="cfg-codex" aria-selected="true" class="px-4 py-2 text-zinc-400 aria-selected:border-b-2 aria-selected:border-cyan-400 aria-selected:text-zinc-50">Codex</button>
+            <button type="button" role="tab" id="tab-claude" aria-controls="cfg-claude" aria-selected="false" tabindex="-1" class="px-4 py-2 text-zinc-400 aria-selected:border-b-2 aria-selected:border-cyan-400 aria-selected:text-zinc-50">Claude Code</button>
+          </div>
+          <div role="tabpanel" id="cfg-codex" aria-labelledby="tab-codex"><pre class="!my-0 !rounded-none !border-0">{`{
+  "listen": "0.0.0.0:8080",
+  "workdir": "/Users/you/Projects",
+  "codexBin": "codex",
+  "runners": ["codex"],
+  "defaultRunner": "codex",
+  "codexPermissions": "approve"
+}`}</pre></div>
+          <div role="tabpanel" id="cfg-claude" aria-labelledby="tab-claude" hidden><pre class="!my-0 !rounded-none !border-0">{`{
+  "listen": "0.0.0.0:8080",
+  "workdir": "/Users/you/Projects",
+  "claudeBin": "claude",
+  "runners": ["claude"],
+  "defaultRunner": "claude",
+  "claudePermissions": "approve"
+}`}</pre></div>
+        </div>
+        <ul>
+          <li><code>codexBin</code> / <code>claudeBin</code>: a command name is enough when it is on your PATH; otherwise find the full path with <code>command -v codex</code>.</li>
+          <li><code>"approve"</code>: the agent asks you before commands and file edits. Without it the default is <code>"bypass"</code>, which never asks.</li>
+          <li><code>listen</code> defaults to <code>0.0.0.0:8080</code> so devices on your LAN and VPN can connect. With Tailscale only, use <code>127.0.0.1:8080</code>.</li>
+          <li>JSON does not expand <code>~</code> or <code>$HOME</code>; write full paths. Run <code>mobd restart</code> after a change.</li>
+        </ul>
+        <p class="callout"><strong>Open it on trusted networks only.</strong> Every device must pair, but plain HTTP is not encrypted. Never forward port 8080 to the internet; use a VPN or Tailscale across networks.</p>
+      </section>
+
+      <section id="permissions">
+        <h2><span class="mr-3 font-mono text-cyan-400">04</span>Grant permissions</h2>
+        <p>mobd asks for missing permissions the first time it starts. You can also grant them in <strong>System Settings → Privacy & Security</strong>.</p>
+        <div class="overflow-x-auto"><table>
+          <thead><tr><th scope="col">Permission</th><th scope="col">Used for</th></tr></thead>
+          <tbody>
+            <tr><td>Screen & System Audio Recording</td><td>Screenshots and the live view</td></tr>
+            <tr><td>Accessibility</td><td>Controlling the mouse and keyboard from your device</td></tr>
+          </tbody>
+        </table></div>
+        <p>mobd captures the screen itself; Screen Sharing does not need to be on. Keep the office Mac from sleeping while nobody is at it.</p>
+      </section>
+
+      <section id="run">
+        <h2><span class="mr-3 font-mono text-cyan-400">05</span>Start mobd</h2>
+        <pre>mobd start                        # run in the background
+mobd status                       # address and readiness checks
+mobd stop && mobd start --login   # optional: also start at login</pre>
+        <p>Every check in <code>mobd status</code> should pass. <code>mobd logs</code> follows the log.</p>
+      </section>
+
+      <section id="connect">
+        <h2><span class="mr-3 font-mono text-cyan-400">06</span>Pair a device</h2>
+        <p>Each device pairs once. Its credential is kept in the Keychain or Android Keystore and it reconnects on its own afterwards. On the office Mac, create an invitation with an address your device can reach:</p>
+        <pre>mobd link --url http://192.168.1.100:8080</pre>
+        <p>Terminal shows a QR code and a link, <strong>valid for 10 minutes and for one use</strong>. Run <code>mobd link</code> again if it expires.</p>
+        <ol>
+          <li>In Mob, open <strong>Settings → Machines → Add machine</strong>.</li>
+          <li>Scan the QR code with your phone, or paste the whole link. Check the address and tap <strong>Pair</strong>.</li>
+          <li>Start a conversation and try something simple, such as “Look at the screen and tell me what you see.”</li>
+        </ol>
+        <p><code>mobd clients list</code> shows paired devices. If one is lost, <code>mobd clients revoke CLIENT_ID</code> disconnects it immediately.</p>
+      </section>
+
+      <section id="remote">
+        <h2>Remote access</h2>
+        <p>Away from the office network, use <a href="https://tailscale.com/" rel="noreferrer">Tailscale Serve</a>: only your tailnet can reach it, there is no public IP or port forwarding, and the live view still uses WebRTC. Install and sign in to Tailscale on the office Mac and on your devices.</p>
+        <p>Set <code>listen</code> to <code>127.0.0.1:8080</code> first, then:</p>
+        <pre>mobd restart
+sudo tailscale serve --bg --https=443 http://127.0.0.1:8080
+mobd link --url https://office-mac.your-tailnet.ts.net</pre>
+        <p>Use the address that <code>tailscale serve</code> prints, without <code>:8080</code>.</p>
+        <details class="fold"><summary>Public access with Funnel (devices without Tailscale)</summary>
+          <pre>sudo tailscale funnel --bg --https=443 http://127.0.0.1:8080
+sudo tailscale funnel status</pre>
+          <p>This is a public entry point: pairing still applies, but invite trusted devices only and keep mobd up to date. The live view falls back to the slower WebSocket stream. Serve and Funnel cannot share a port. See <a href="https://tailscale.com/docs/features/tailscale-funnel" rel="noreferrer">Tailscale Funnel</a>.</p>
+        </details>
+        <details class="fold"><summary>Access control (ACLs)</summary>
+          <p>In <a href="https://login.tailscale.com/admin/acls" rel="noreferrer">access controls</a>, allow only your devices to reach TCP 443 and UDP 9527 on the office Mac. 443 carries conversations and pairing; 9527 carries the live view over WebRTC. With 443 only, the live view uses WebSocket.</p>
+        </details>
+        <details class="fold"><summary>Can't connect?</summary>
+          <ul>
+            <li>On the office Mac: <code>mobd status</code>, <code>mobd logs</code>, and <code>curl -i http://127.0.0.1:8080/health</code> (401 without a credential is expected).</li>
+            <li>Both ends are online in the same tailnet, and <code>sudo tailscale serve status</code> shows the entry.</li>
+            <li>A 502 means mobd isn't running, or Serve forwards to a different port than mobd listens on.</li>
+            <li>Turn the entry off with <code>sudo tailscale serve --bg --https=443 off</code>. Paired devices stay paired.</li>
+          </ul>
+        </details>
+      </section>
+
+      <section id="upgrade">
+        <h2>Upgrade & uninstall</h2>
+        <p><strong>Upgrade mobd:</strong> let running tasks finish, run <code>mobd stop</code>, run the <a href="#install">install command</a> again, then <code>mobd start</code>. Settings and conversations are kept.</p>
+        <p><strong>Upgrade the apps:</strong> the macOS app updates itself; on Android install the new APK over the old one; iPhone and iPad update through the App Store.</p>
+        <p><strong>Uninstall mobd:</strong> run <code>mobd uninstall</code>, then delete <code>~/.local/bin/mobd</code>. Settings live in <code>~/.mobd</code> and conversations in <code>~/Library/Application Support/mob</code>; delete them if you no longer need them.</p>
+      </section>
+
+      <section id="commands">
+        <h2>Command reference</h2>
+        <div class="overflow-x-auto"><table>
+          <thead><tr><th scope="col">Command</th><th scope="col">What it does</th></tr></thead>
+          <tbody>{commands.map(([c, d]) => <tr><td class="whitespace-nowrap"><code>{c}</code></td><td>{d}</td></tr>)}</tbody>
+        </table></div>
+        <p>Every setting is listed in the <a href="https://github.com/xrdavies/mobd#configuration-reference" rel="noreferrer">mobd configuration reference</a>.</p>
+      </section>
+
+      <section id="faq">
+        <h2>FAQ</h2>
+        <details class="fold"><summary>Does the office Mac have to stay on?</summary><p>Yes. mobd and the agents run on it; while it sleeps or is off, devices can't connect and tasks pause.</p></details>
+        <details class="fold"><summary>Is my data uploaded anywhere?</summary><p>Mob uses no third-party server; your devices connect straight to mobd. Whether task content goes to a model service depends on the agent and model you use. See the <a href="/privacy/">privacy policy</a>.</p></details>
+        <details class="fold"><summary>Mob says the machine needs pairing</summary><p>This device's credential was revoked, or the office reset authentication. Run <code>mobd link --url …</code> again, choose <strong>Pair again</strong> in Mob and scan or paste the new link. Conversations are kept.</p></details>
+        <details class="fold"><summary>I can chat, but there is no live view</summary><p>Mob shows the reason. Without Screen Recording permission, grant it and restart mobd; if it says “Update mobd”, upgrade the office computer.</p></details>
+        <details class="fold"><summary>Intel Macs, Linux, Windows?</summary><p>mobd and the macOS app currently need Apple Silicon and macOS 13 or later. mobd for Linux and Windows, and Mob for Windows and Linux, are on the way.</p></details>
+      </section>
+    </article>
+  </div>
+</Layout>

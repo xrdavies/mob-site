@@ -1,0 +1,10 @@
+---
+import { formatDate } from '../../lib/config.mjs';
+import { latest, pending } from '../data/site.mjs';
+
+interface Props { product: string }
+const release = latest(Astro.props.product);
+---
+{release
+  ? <span class="tag-live normal-case">v{release.version}</span><time class="font-mono text-xs text-zinc-500" datetime={release.date}>{formatDate(release.date)}</time>
+  : <span class="tag-soon">{pending(Astro.props.product)}</span>}

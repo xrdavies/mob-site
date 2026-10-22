@@ -1,0 +1,63 @@
+---
+// The Mob desktop app drawn in HTML (English, crisp at any size), modelled on the real UI.
+const chats = [['Fix login error', 'now', true], ['Deploy to staging', '2m', false], ['Upgrade dependencies', '14m', false], ['Review recent commits', '1h', false]];
+---
+<div class="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 text-left shadow-2xl shadow-black/60 ring-1 ring-white/5" aria-hidden="true">
+  <div class="flex items-center gap-1.5 border-b border-zinc-800 bg-zinc-900 px-3 py-2.5">
+    <i class="size-2.5 rounded-full bg-[#ff5f57]"></i><i class="size-2.5 rounded-full bg-[#febc2e]"></i><i class="size-2.5 rounded-full bg-[#28c840]"></i>
+    <span class="ml-4 flex items-center gap-1.5 text-xs text-zinc-400"><img src="/assets/logo.svg" width="14" height="14" alt="">Mob</span>
+    <span class="ml-auto flex items-center gap-1.5 text-xs text-zinc-400"><span class="size-1.5 rounded-full bg-emerald-400"></span>Office Mac <span class="text-zinc-600">ready</span></span>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-[180px_minmax(0,1fr)] lg:grid-cols-[180px_minmax(0,1fr)_300px]">
+    <!-- Sidebar -->
+    <div class="hidden border-r border-zinc-800 bg-zinc-900/50 p-3 md:block">
+      <div class="rounded-md border border-zinc-800 px-2.5 py-1.5 text-xs text-zinc-300">+ New chat</div>
+      <p class="mt-4 px-1 text-[10px] uppercase tracking-wider text-zinc-600">Office Mac</p>
+      <ul class="mt-1.5 space-y-0.5 text-xs">
+        {chats.map(([title, ago, active]) => (
+          <li class={`flex items-center gap-2 rounded-md px-2 py-1.5 ${active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400'}`}>
+            <span class={`size-1.5 shrink-0 rounded-full ${active ? 'bg-amber-400' : 'bg-emerald-500/70'}`}></span>
+            <span class="truncate">{title}</span><span class="ml-auto font-mono text-[10px] text-zinc-600">{ago}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <!-- Conversation -->
+    <div class="flex min-h-[380px] flex-col p-5 text-[13px]">
+      <p class="ml-auto max-w-[80%] rounded-2xl bg-zinc-800 px-3.5 py-2 text-zinc-100">Fix the login error and run the tests.</p>
+      <div class="mt-4 space-y-1.5 font-mono text-xs text-zinc-400">
+        <p class="flex items-center gap-2"><span class="text-rose-400">✕</span>npm test -- login <span class="text-zinc-600">· 1 failed</span></p>
+        <p class="flex items-center gap-2"><span class="text-emerald-400">✓</span>Edited src/pages/login.ts <span class="text-emerald-400/80">+3</span><span class="text-rose-400/80">−1</span></p>
+        <p class="flex items-center gap-2"><span class="text-emerald-400">✓</span>npm test <span class="text-zinc-600">· 48 passed</span></p>
+      </div>
+      <p class="mt-4 text-zinc-300"><span class="font-medium text-zinc-100">Mob</span> <span class="text-zinc-500">Codex</span><br>Fixed: an empty password no longer throws in <code class="font-mono text-cyan-200">validate()</code>. All 48 tests pass.</p>
+      <div class="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/[0.06] p-3.5">
+        <p class="font-mono text-[10px] uppercase tracking-wider text-amber-300">The agent asks</p>
+        <p class="mt-1 text-zinc-100">Tests pass. Deploy this build?</p>
+        <div class="mt-2.5 flex flex-wrap gap-2 text-xs">
+          <span class="rounded-md border border-zinc-700 bg-zinc-900 px-2.5 py-1 text-zinc-200">Staging</span>
+          <span class="rounded-md border border-zinc-700 bg-zinc-900 px-2.5 py-1 text-zinc-200">Production</span>
+          <span class="rounded-md border border-zinc-700 bg-zinc-900 px-2.5 py-1 text-zinc-200">Not yet</span>
+        </div>
+      </div>
+      <div class="mt-auto pt-5"><div class="rounded-xl border border-zinc-700 px-3.5 py-2.5 text-zinc-500">Ask Mob to do something on Office Mac…</div></div>
+    </div>
+    <!-- Live view -->
+    <div class="hidden border-l border-zinc-800 bg-zinc-900/30 p-3 lg:block">
+      <div class="flex items-center gap-2 text-xs"><span class="size-1.5 rounded-full bg-emerald-400"></span><span class="text-zinc-200">Live</span><span class="rounded bg-zinc-800 px-1.5 text-[10px] text-zinc-400">View only</span><span class="ml-auto font-mono text-[10px] text-zinc-500">WebRTC · LAN</span></div>
+      <div class="mt-2.5 overflow-hidden rounded-lg border border-zinc-800 bg-[#1e1f29]">
+        <div class="h-3 bg-zinc-800/80"></div>
+        <div class="space-y-1 p-2.5 font-mono text-[9px] leading-tight">
+          <p class="text-zinc-400">$ npm test</p>
+          <p><span class="bg-emerald-500 px-0.5 text-black">PASS</span> <span class="text-zinc-400">src/pages/login.test.ts</span></p>
+          <p><span class="bg-emerald-500 px-0.5 text-black">PASS</span> <span class="text-zinc-400">src/api/session.test.ts</span></p>
+          <p><span class="bg-emerald-500 px-0.5 text-black">PASS</span> <span class="text-zinc-400">src/utils/format.test.ts</span></p>
+          <p class="pt-1 text-zinc-400">Tests: <span class="text-emerald-400">48 passed</span>, 48 total</p>
+          <p class="text-zinc-400">$ <span class="inline-block h-2 w-1 animate-pulse bg-zinc-300 align-middle"></span></p>
+        </div>
+      </div>
+      <p class="mt-4 text-[10px] uppercase tracking-wider text-zinc-600">Steps · this turn</p>
+      <ul class="mt-1.5 space-y-1 text-[11px] text-zinc-400"><li>Thinking</li><li>Plan · 3/3</li><li class="text-rose-300/80">npm test -- login</li><li>Edited 2 files</li><li>npm test</li></ul>
+    </div>
+  </div>
+</div>

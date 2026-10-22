@@ -3,7 +3,7 @@ on:
   pull_request:
   push:
     branches: [main]
-  # Download links and the changelog are baked in at build time; rebuild to pick up new releases.
+  # Download links and release notes are baked in at build time; rebuild to pick up new releases.
   schedule:
     - cron: '17 * * * *'
   repository_dispatch:
@@ -22,6 +22,8 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
+          cache: npm
+      - run: npm ci
       - run: npm test
       - name: Build site
         env:

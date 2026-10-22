@@ -1,33 +1,37 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { build, iosURL, origin, renderNotes } from '../build.mjs';
+import { iosURL, origin, renderNotes } from '../lib/config.mjs';
 import { fetchReleases, validateRelease } from '../lib/releases.mjs';
 
 const base = 'https://download.mob.test';
-const release = (product, version, file) => ({
-  version, pub_date: '2026-10-14T00:00:00Z', notes: `**Full Changelog**: https://github.com/xrdavies/${product}/commits/v${version}`,
+const release = (product, version, file, notes = `**Full Changelog**: https://github.com/xrdavies/${product}/commits/v${version}`) => ({
+  version, pub_date: '2026-10-14T00:00:00Z', notes,
   download: { url: `${base}/${product}/v${version}/${file}`, sha256: 'a'.repeat(64) }, checksums_url: `${base}/${product}/v${version}/SHA256SUMS`,
 });
+// android is unpublished, like R2 before the first APK.
 const manifests = {
-  mob: [release('mob', '0.2.0', 'mob_0.2.0_darwin_arm64.dmg'), release('mob', '0.1.0', 'mob_0.1.0_darwin_arm64.dmg')],
+  mob: [release('mob', '0.2.0', 'mob_0.2.0_darwin_arm64.dmg', '**New** live view'), release('mob', '0.1.0', 'mob_0.1.0_darwin_arm64.dmg')],
   mobd: [release('mobd', '0.0.2', 'mobd_0.0.2_darwin_arm64.tar.gz')],
 };
-// android is unpublished: 404, like R2 before the first APK.
-const fakeFetch = async url => {
-  const product = new URL(url).pathname.split('/')[1];
-  return manifests[product] ? Response.json(manifests[product]) : new Response('missing', { status: 404 });
-};
-const offline = async () => { throw Error('getaddrinfo ENOTFOUND'); };
+const PAGES = ['index.html', 'download/index.html', 'start/index.html', 'privacy/index.html', '404.html'];
 
-function output(t) {
-  const directory = mkdtempSync(join(tmpdir(), 'mob-site-test-'));
-  t.after(() => rmSync(directory, { recursive: true, force: true }));
-  return directory;
+// Builds the site with Astro into a temporary directory, with release manifests from a fixture.
+function build(t, env, fixture = manifests) {
+  const root = mkdtempSync(join(tmpdir(), 'mob-site-test-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const fixtureFile = join(root, 'releases.json');
+  writeFileSync(fixtureFile, JSON.stringify(fixture));
+  const out = join(root, 'dist');
+  const result = spawnSync('npx', ['astro', 'build', '--outDir', out], {
+    encoding: 'utf8',
+    env: { PATH: process.env.PATH, HOME: process.env.HOME, DOWNLOAD_BASE_URL: base, RELEASES_FIXTURE: fixtureFile, ASTRO_TELEMETRY_DISABLED: '1', ...env },
+  });
+  return { ok: result.status === 0, log: result.stdout + result.stderr, read: page => readFileSync(join(out, page), 'utf8'), out };
 }
-const read = (directory, page) => readFileSync(join(directory, page), 'utf8');
 
 test('configuration rejects unsafe or placeholder values', () => {
   assert.throws(() => origin('https://mob.example.com'), /example domain/);
@@ -35,51 +39,6 @@ test('configuration rejects unsafe or placeholder values', () => {
   assert.throws(() => origin('https://mob.test/?key=value'), /HTTPS/);
   assert.throws(() => iosURL('https://evil.test/app'), /apps.apple.com/);
   assert.equal(iosURL('https://testflight.apple.com/join/abc'), 'https://testflight.apple.com/join/abc');
-});
-
-test('deployment requires SITE_URL and reachable release manifests', async t => {
-  await assert.rejects(build(output(t), { REQUIRE_PUBLIC_CONFIG: '1', DOWNLOAD_BASE_URL: base }, fakeFetch), /SITE_URL/);
-  await assert.rejects(build(output(t), { REQUIRE_PUBLIC_CONFIG: '1', SITE_URL: 'https://mob.test', DOWNLOAD_BASE_URL: base }, offline), /release manifests/);
-});
-
-test('released products get static download links; unreleased ones are disabled', async t => {
-  const directory = output(t);
-  await build(directory, { SITE_URL: 'https://mob.test', DOWNLOAD_BASE_URL: base, REQUIRE_PUBLIC_CONFIG: '1' }, fakeFetch);
-  const download = read(directory, 'download/index.html');
-  assert.match(download, /href="https:\/\/download.mob.test\/mob\/v0.2.0\/mob_0.2.0_darwin_arm64.dmg"/);
-  assert.match(download, /curl -fsSL https:\/\/download.mob.test\/mobd\/install.sh \| sh/);
-  assert.match(download, /下载 APK<\/span>/, 'android button is a disabled span');
-  assert.doesNotMatch(download, /android\/v/);
-  assert.match(download, /即将上线/, 'iOS is coming soon without IOS_APP_URL');
-  assert.match(read(directory, 'index.html'), /MOB v0.2.0 · mobd v0.0.2/);
-  assert.match(read(directory, 'start/index.html'), /curl -fsSL https:\/\/download.mob.test\/mobd\/install.sh/);
-  const changelog = read(directory, 'changelog/index.html');
-  assert.equal(changelog.match(/class="release-entry"/g).length, 3);
-  assert.match(changelog, /<strong>Full Changelog<\/strong>/);
-  assert.match(read(directory, 'sitemap.xml'), /https:\/\/mob.test\/start\//);
-  assert.match(read(directory, 'download/index.html'), /rel="canonical" href="https:\/\/mob.test\/download\/"/);
-  for (const page of ['index.html', 'download/index.html', 'start/index.html', 'changelog/index.html', '404.html']) assert.ok(!read(directory, page).includes('{{'), page);
-});
-
-test('local preview builds offline with a helpful status', async t => {
-  const directory = output(t);
-  const { errors } = await build(directory, {}, offline);
-  assert.equal(errors.length, 3);
-  assert.match(read(directory, 'download/index.html'), /暂时无法获取版本信息/);
-  assert.match(read(directory, 'robots.txt'), /Disallow/);
-});
-
-test('iOS link appears once configured', async t => {
-  const directory = output(t);
-  await build(directory, { DOWNLOAD_BASE_URL: base, IOS_APP_URL: 'https://apps.apple.com/app/id123' }, fakeFetch);
-  const store = read(directory, 'download/index.html');
-  assert.match(store, /href="https:\/\/apps.apple.com\/app\/id123">在 App Store 获取/);
-  assert.match(store, /<span class="version-tag">App Store<\/span>/);
-  await build(directory, { DOWNLOAD_BASE_URL: base, IOS_APP_URL: 'https://testflight.apple.com/join/abc' }, fakeFetch);
-  const beta = read(directory, 'download/index.html');
-  assert.match(beta, /href="https:\/\/testflight.apple.com\/join\/abc">通过 TestFlight 获取/);
-  assert.match(beta, /<span class="version-tag">TestFlight<\/span>/);
-  assert.doesNotMatch(beta, /App Store/);
 });
 
 test('manifests reject external URLs and wrong products; notes are escaped', async () => {
@@ -94,29 +53,67 @@ test('manifests reject external URLs and wrong products; notes are escaped', asy
   assert.equal(renderNotes('<script>alert(1)</script> $& **x**'), '&lt;script&gt;alert(1)&lt;/script&gt; $&amp; <strong>x</strong>');
 });
 
-test('only macOS, Android and iPhone clients render, even when manifests list Windows or Linux files', async t => {
-  const mob = release('mob', '0.3.0', 'mob_0.3.0_darwin_arm64.dmg');
+test('deployment requires SITE_URL and reachable release manifests', t => {
+  const noSite = build(t, { REQUIRE_PUBLIC_CONFIG: '1' });
+  assert.equal(noSite.ok, false);
+  assert.match(noSite.log, /SITE_URL is required/);
+  const offline = build(t, { REQUIRE_PUBLIC_CONFIG: '1', SITE_URL: 'https://mob.test' }, { mob: 'offline' });
+  assert.equal(offline.ok, false);
+  assert.match(offline.log, /Could not read release manifests/);
+});
+
+test('released products get downloads and notes; the site is English, CSP-clean and complete', t => {
+  const site = build(t, { SITE_URL: 'https://mob.test', REQUIRE_PUBLIC_CONFIG: '1' });
+  assert.ok(site.ok, site.log);
+  const download = site.read('download/index.html');
+  assert.match(download, /href="https:\/\/download.mob.test\/mob\/v0.2.0\/mob_0.2.0_darwin_arm64.dmg"/);
+  assert.match(download, /curl -fsSL https:\/\/download.mob.test\/mobd\/install.sh \| sh/);
+  assert.doesNotMatch(download, /android\/v/, 'no APK link before the first Android release');
+  assert.match(download, /<strong>New<\/strong> live view/, 'latest notes of the desktop app');
+  assert.equal(download.match(/Release notes/g).length, 2, 'notes for mob and mobd, none for unreleased Android');
+  assert.match(download, /Coming to the App Store/);
+  assert.match(site.read('index.html'), /New release · Mob 0.2.0 · mobd 0.0.2/);
+  assert.match(site.read('start/index.html'), /curl -fsSL https:\/\/download.mob.test\/mobd\/install.sh/);
+  assert.match(download, /rel="canonical" href="https:\/\/mob.test\/download\/"/);
+  const sitemap = site.read('sitemap.xml');
+  for (const path of ['/', '/download/', '/start/', '/privacy/']) assert.ok(sitemap.includes(`<loc>https://mob.test${path}</loc>`), path);
+  assert.match(site.read('robots.txt'), /Sitemap: https:\/\/mob.test\/sitemap.xml/);
+  assert.match(site.read('privacy/index.html'), /mailto:mob@taoist.dev/);
+  for (const page of PAGES) {
+    const html = site.read(page);
+    assert.doesNotMatch(html, /[一-鿿]/, `${page}: English only`);
+    assert.doesNotMatch(html, /changelog|\bMOB\b/, `${page}: no changelog links, product written "Mob"`);
+    assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)[^>]*>|<style|\sstyle="/, `${page}: nothing inline (CSP)`);
+    for (const [, src] of html.matchAll(/(?:src|href)="(\/[^"#?]*)"/g)) {
+      const file = src.endsWith('/') ? `${src}index.html` : src;
+      assert.ok(existsSync(join(site.out, file)), `${page} links to ${src}`);
+    }
+  }
+});
+
+test('a local preview builds offline with a helpful status', t => {
+  const site = build(t, {}, { mob: 'offline', mobd: 'offline', android: 'offline' });
+  assert.ok(site.ok, site.log);
+  assert.match(site.read('download/index.html'), /Version unavailable/);
+  assert.doesNotMatch(site.read('index.html'), /New release/, 'no release pill without versions');
+  assert.match(site.read('robots.txt'), /Disallow/);
+});
+
+test('iOS card: coming soon, App Store link, or TestFlight link', t => {
+  const store = build(t, { IOS_APP_URL: 'https://apps.apple.com/app/id123' }).read('download/index.html');
+  assert.match(store, /href="https:\/\/apps.apple.com\/app\/id123"[^>]*>Get it on the App Store/);
+  assert.doesNotMatch(store, /Coming to the App Store/);
+  const beta = build(t, { IOS_APP_URL: 'https://testflight.apple.com/join/abc' }).read('download/index.html');
+  assert.match(beta, /href="https:\/\/testflight.apple.com\/join\/abc"[^>]*>Join on TestFlight/);
+});
+
+test('only macOS, iPhone and Android clients get downloads, even when manifests list Windows or Linux files', t => {
   const file = (product, name) => ({ url: `${base}/${product}/v0.3.0/${name}`, sha256: 'b'.repeat(64) });
-  mob.downloads = {
-    'windows-x64': [file('mob', 'mob_0.3.0_windows_x64-setup.exe')],
-    'linux-x64': [file('mob', 'mob_0.3.0_linux_x64.AppImage'), file('mob', 'mob_0.3.0_linux_x64.deb')],
-    evil: [{ url: 'https://evil.test/x.exe', sha256: 'c'.repeat(64) }],
-  };
-  assert.deepEqual(Object.keys(validateRelease(mob, 'mob', base).files), ['windows-x64', 'linux-x64'], 'files outside the release are dropped');
+  const mob = release('mob', '0.3.0', 'mob_0.3.0_darwin_arm64.dmg');
+  mob.downloads = { 'windows-x64': [file('mob', 'mob_0.3.0_windows_x64-setup.exe')], 'linux-x64': [file('mob', 'mob_0.3.0_linux_x64.AppImage'), file('mob', 'mob_0.3.0_linux_x64.deb')] };
   const mobd = release('mobd', '0.3.0', 'mobd_0.3.0_darwin_arm64.tar.gz');
   mobd.platforms = { 'linux-x86_64': { ...file('mobd', 'mobd_0.3.0_linux_amd64.tar.gz'), deb: file('mobd', 'mobd_0.3.0_amd64.deb') } };
-  const directory = output(t);
-  const extra = { mob: [mob], mobd: [mobd] };
-  await build(directory, { DOWNLOAD_BASE_URL: base }, async url => {
-    const product = new URL(url).pathname.split('/')[1];
-    return extra[product] ? Response.json(extra[product]) : fakeFetch(url);
-  });
-  const download = read(directory, 'download/index.html');
+  const download = build(t, {}, { mob: [mob], mobd: [mobd] }).read('download/index.html');
   assert.match(download, /href="https:\/\/download.mob.test\/mob\/v0.3.0\/mob_0.3.0_darwin_arm64.dmg"/);
-  assert.doesNotMatch(download, /\.exe|\.AppImage|\.deb"|evil\.test/);
-  assert.doesNotMatch(download, /id="(windows|linux|mobd-linux)"|Windows/);
-  for (const id of ['mac', 'android', 'ios', 'mobd']) assert.match(download, new RegExp(`id="${id}"`));
-  const start = read(directory, 'start/index.html');
-  assert.doesNotMatch(start, /id="linux"|mobd desktops/);
-  assert.equal(start.match(/install\.sh \| sh/g).length, 1, 'the install command appears once in the guide');
+  assert.doesNotMatch(download, /\.exe"|\.AppImage"|\.deb"/);
 });

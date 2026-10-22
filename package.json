@@ -7,9 +7,14 @@
     "node": ">=24"
   },
   "scripts": {
-    "build": "node build.mjs",
-    "dev": "npm run build && node scripts/serve.mjs",
-    "preview": "node scripts/serve.mjs",
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "astro build",
+    "preview": "astro preview --host 127.0.0.1",
     "test": "node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "astro": "^5.0.5",
+    "@astrojs/tailwind": "^6.0.2",
+    "tailwindcss": "^3.4.17"
   }
 }
