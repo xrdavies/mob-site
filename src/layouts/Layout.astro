@@ -1,11 +1,21 @@
 ---
 import '../styles/global.css';
-import { siteURL } from '../data/site.mjs';
+import { latest, siteURL } from '../data/site.mjs';
 
-interface Props { title: string; description: string }
-const { title, description } = Astro.props;
+interface Props {
+  title: string;
+  description: string;
+  /** Header readout: on the home page it follows the hour; elsewhere it names the page. */
+  readout?: { turn: string; time: string; place: string };
+  /** Home: leave the right edge free for the phone on large screens. */
+  room?: boolean;
+}
+const { title, description, readout = { turn: 'Mob', time: '', place: '' }, room = false } = Astro.props;
 const path = Astro.url.pathname;
-const nav = [['/#features', 'Features'], ['/start/', 'Docs'], ['/download/', 'Download']];
+const mob = latest('mob')?.version;
+const mobd = latest('mobd')?.version;
+const versions = [mob && `Mob ${mob}`, mobd && `mobd ${mobd}`].filter(Boolean).join(' · ');
+const nav = [['/start/', 'Docs'], ['/privacy/', 'Privacy']];
 ---
 <!doctype html>
 <html lang="en">
@@ -13,10 +23,10 @@ const nav = [['/#features', 'Features'], ['/start/', 'Docs'], ['/download/', 'Do
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   {/* The dev server injects inline styles and scripts; the built site has none. */}
-  {import.meta.env.PROD && <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">}
+  {import.meta.env.PROD && <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">}
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#09090b">
+  <meta name="theme-color" content="#0b0b0f">
   <title>{title}</title>
   <meta name="description" content={description}>
   <meta property="og:title" content={title}>
@@ -27,43 +37,54 @@ const nav = [['/#features', 'Features'], ['/start/', 'Docs'], ['/download/', 'Do
   {siteURL && <meta property="og:image" content={`${siteURL}/assets/social.png`}>}
   <link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
 </head>
-<body class="min-h-screen">
-  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-50 focus:rounded-md focus:bg-zinc-900 focus:px-3 focus:py-2">Skip to content</a>
-  <header class="site-header sticky top-0 z-40 border-b border-zinc-800/80 bg-zinc-950/75 backdrop-blur-xl">
-    <div class="container-x flex h-16 items-center justify-between">
-      <a href="/" class="flex items-center gap-2.5 font-semibold text-zinc-50">
-        <img src="/assets/logo.svg" width="24" height="24" alt="">
-        <span>Mob</span>
-      </a>
-      <button type="button" class="menu-toggle -mr-2 grid size-10 place-items-center text-zinc-300 md:hidden" aria-controls="site-nav" aria-expanded="false" aria-label="Menu">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 6h14M3 14h14"/></svg>
-      </button>
-      <nav id="site-nav" aria-label="Main" class="absolute inset-x-0 top-16 hidden flex-col gap-1 border-b border-zinc-800 bg-zinc-950 p-4 md:static md:flex md:flex-row md:items-center md:gap-8 md:border-0 md:bg-transparent md:p-0">
-        {nav.map(([href, label]) => label === 'Download'
-          ? <a href={href} class="btn-primary mt-2 min-h-9 px-4 md:mt-0">{label}</a>
-          : <a href={href} aria-current={path === href ? 'page' : undefined} class="py-2 text-sm text-zinc-400 hover:text-zinc-50 aria-[current=page]:text-zinc-50">{label}</a>)}
-      </nav>
+<body>
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-6 focus:top-6 focus:z-[70] focus:rounded-md focus:bg-zinc-900 focus:px-3 focus:py-2">Skip to content</a>
+
+  <!-- The office Mac's screen, as Mob's live view shows it -->
+  <div class="hourglow" aria-hidden="true"></div>
+  <div class="scan" aria-hidden="true"></div>
+  <div class="bezel" aria-hidden="true">
+    <div class="absolute -top-[11px] left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-[#0b0b0f] px-3">
+      <span class="live-dot"></span><span class="vcr text-[15px] text-[#cfcde0]">Live · Office Mac<span class="hidden sm:inline"> · WebRTC</span></span>
     </div>
-  </header>
+    <div class="absolute -bottom-[11px] left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-full bg-[#0b0b0f] px-3 sm:block">
+      <span class="vcr text-[15px] text-[#6d6b80]">Mob · steer it from anywhere</span>
+    </div>
+  </div>
 
-  <main id="main"><slot /></main>
-
-  <footer class="mt-32 border-t border-zinc-800">
-    <div class="container-x flex flex-col gap-6 py-10 text-sm md:flex-row md:items-center md:justify-between">
-      <div class="flex items-center gap-3">
-        <img src="/assets/logo.svg" width="20" height="20" alt="">
-        <span class="font-medium text-zinc-200">Mob</span>
-        <span class="text-zinc-500">Run agents on your computer. Steer them from anywhere.</span>
+  <div class="screen">
+    <header class={`${room ? 'room ' : ''}fixed inset-x-2 top-2 z-40 rounded-t-[18px] bg-[#0b0b0f]/75 backdrop-blur-md sm:inset-x-[14px] sm:top-[14px] sm:rounded-t-[26px]`}>
+      <div class="wrapd flex h-16 items-center justify-between gap-4 sm:h-[72px]">
+        <a href="/" class="flex items-center gap-2.5 text-[16px] font-semibold"><img src="/assets/logo.svg" width="24" height="24" alt="">Mob</a>
+        <div class="hidden items-baseline gap-3 md:flex" aria-live="polite">
+          <span data-read-turn class="vcr text-[18px] text-accent-400">{readout.turn}</span>
+          <span data-read-time class="vcr text-[26px] leading-none">{readout.time}</span>
+          <span data-read-place class="cap">{readout.place}</span>
+        </div>
+        <nav aria-label="Main" class="flex items-center gap-5 text-sm">
+          {nav.map(([href, label]) => <a href={href} aria-current={path === href ? 'page' : undefined} class={`text-[var(--dim)] hover:text-white aria-[current=page]:text-white ${label === 'Privacy' ? 'hidden sm:inline' : ''}`}>{label}</a>)}
+          <a href="/download/" class="btn-light min-h-9 px-4">Download</a>
+        </nav>
       </div>
-      <nav aria-label="Footer" class="flex flex-wrap gap-x-6 gap-y-2 text-zinc-400">
-        <a href="/download/" class="hover:text-zinc-100">Download</a>
-        <a href="/start/" class="hover:text-zinc-100">Docs</a>
-        <a href="/privacy/" class="hover:text-zinc-100">Privacy</a>
-        <a href="https://github.com/xrdavies/mob" rel="noreferrer" class="hover:text-zinc-100">GitHub</a>
-      </nav>
-    </div>
-    <p class="container-x pb-10 font-mono text-xs text-zinc-600">© 2026 Mob · MIT License</p>
-  </footer>
+    </header>
+
+    <main id="main" class={room ? 'room' : ''}><slot /></main>
+
+    <footer class={`${room ? 'room ' : ''}border-t border-[var(--line)]`}>
+      <div class="wrapd flex flex-col gap-4 pb-6 pt-10 sm:flex-row sm:items-center sm:justify-between">
+        <p class="vcr text-[16px] text-[var(--dim)]">{versions || 'Mob'}</p>
+        <nav aria-label="Footer" class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-[var(--dim)]">
+          <a href="/download/" class="hover:text-white">Download</a>
+          <a href="/start/" class="hover:text-white">Docs</a>
+          <a href="/privacy/" class="hover:text-white">Privacy</a>
+          <a href="https://github.com/xrdavies/mob" rel="noreferrer" class="hover:text-white">GitHub</a>
+        </nav>
+      </div>
+      <p class="wrapd pb-16 font-mono text-xs text-zinc-600">© 2026 Mob · MIT License</p>
+    </footer>
+  </div>
+
+  <slot name="overlay" />
   <script src="../scripts/site.ts"></script>
 </body>
 </html>

@@ -1,28 +1,96 @@
 // Progressive enhancement only: every page and download link works without JavaScript.
-const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
-const nav = document.getElementById('site-nav');
-const setMenu = (open: boolean) => {
-  toggle?.setAttribute('aria-expanded', String(open));
-  nav?.classList.toggle('hidden', !open);
-  nav?.classList.toggle('flex', open);
+const root = document.documentElement;
+root.classList.add('js');
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const seen = (el: Element, fn: () => void, margin = '0px 0px -20% 0px') => {
+  if (!('IntersectionObserver' in window)) return fn();
+  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); fn(); } }, { rootMargin: margin });
+  io.observe(el);
 };
-toggle?.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
-nav?.addEventListener('click', event => { if ((event.target as Element).closest('a')) setMenu(false); });
-document.addEventListener('keydown', event => { if (event.key === 'Escape') setMenu(false); });
 
-// Copy buttons next to [data-copy-source].
+// Headlines arrive word by word, like a model's reply.
+for (const el of document.querySelectorAll<HTMLElement>('[data-stream]')) {
+  let i = 0;
+  const walk = (node: Node) => {
+    for (const child of [...node.childNodes]) {
+      if (child.nodeType === Node.TEXT_NODE) {
+        const frag = document.createDocumentFragment();
+        for (const part of (child.textContent ?? '').split(/(\s+)/)) {
+          if (!part) continue;
+          if (/^\s+$/.test(part)) { frag.append(part); continue; }
+          const w = document.createElement('span');
+          w.className = 'w';
+          w.textContent = part;
+          w.style.transitionDelay = `${i++ * 70}ms`;
+          frag.append(w);
+        }
+        child.replaceWith(frag);
+      } else walk(child);
+    }
+  };
+  walk(el);
+  seen(el, () => el.classList.add('on'));
+}
+
+// Tool calls: spinners turn into results one after another.
+for (const list of document.querySelectorAll<HTMLElement>('[data-steps]')) {
+  const steps = [...list.querySelectorAll<HTMLElement>('.step')];
+  seen(list, () => steps.forEach((s, n) => {
+    if (s.dataset.hold !== undefined) return;
+    setTimeout(() => s.setAttribute(s.dataset.result === 'fail' ? 'data-fail' : 'data-done', ''), still ? 0 : 500 + n * 650);
+  }));
+}
+
+// The screen's readout, its glow and the phone follow the hour on screen.
+const readTime = document.querySelector('[data-read-time]');
+const readTurn = document.querySelector('[data-read-turn]');
+const readPlace = document.querySelector('[data-read-place]');
+const phones = [...document.querySelectorAll<HTMLElement>('[data-phone]')];
+const hours = [...document.querySelectorAll<HTMLElement>('[data-hour]')];
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver(es => {
+    for (const e of es) {
+      if (!e.isIntersecting) continue;
+      const h = (e.target as HTMLElement).dataset;
+      if (readTime) readTime.textContent = h.time ?? '';
+      if (readTurn) readTurn.textContent = h.turn ?? '';
+      if (readPlace) readPlace.textContent = h.place ?? '';
+      if (h.glow) root.style.setProperty('--glow', h.glow);
+      for (const p of phones) p.classList.toggle('on', p.dataset.phone === h.hour);
+    }
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  for (const h of hours) io.observe(h);
+}
+
+// Answering the question on the phone lets the agent carry on.
+for (const button of document.querySelectorAll<HTMLButtonElement>('[data-answer]')) {
+  button.addEventListener('click', () => {
+    for (const box of document.querySelectorAll<HTMLElement>('[data-question]')) box.hidden = true;
+    for (const box of document.querySelectorAll<HTMLElement>('[data-answered]')) {
+      box.hidden = false;
+      box.querySelector('b')!.textContent = button.dataset.answer!;
+    }
+    const wait = document.querySelector<HTMLElement>('[data-waiting]');
+    if (wait) { wait.removeAttribute('data-hold'); wait.setAttribute('data-done', ''); wait.querySelector('span')!.textContent = `Answered: ${button.dataset.answer}`; }
+    const deploy = document.querySelector<HTMLElement>('[data-after-answer]');
+    if (deploy) { deploy.hidden = false; setTimeout(() => deploy.setAttribute('data-done', ''), still ? 0 : 900); }
+  });
+}
+
+// Copy buttons
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
   const source = button.parentElement?.querySelector('[data-copy-source]');
   button.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(source?.textContent?.trim() ?? '');
-      button.textContent = 'Copied';
-      setTimeout(() => { button.textContent = 'Copy'; }, 1600);
-    } catch {
-      button.textContent = 'Select and copy';
-    }
+    try { await navigator.clipboard.writeText(source?.textContent?.trim() ?? ''); button.textContent = 'Copied'; }
+    catch { button.textContent = 'Select to copy'; }
+    setTimeout(() => { button.textContent = 'Copy'; }, 1600);
   });
 }
+
+// Put the display to sleep, and wake it.
+document.querySelector('[data-sleep]')?.addEventListener('click', () => document.body.classList.add('asleep'));
+document.querySelector('[data-wake]')?.addEventListener('click', () => document.body.classList.remove('asleep'));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.body.classList.remove('asleep'); });
 
 // Tabs (configuration examples).
 for (const tabs of document.querySelectorAll('[data-tabs]')) {

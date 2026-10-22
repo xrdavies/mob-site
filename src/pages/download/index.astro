@@ -9,8 +9,8 @@ const mob = latest('mob');
 const mobd = latest('mobd');
 const android = latest('android');
 ---
-<Layout title="Download · Mob" description="Download mobd for your office computer and the Mob app for macOS, iPhone, iPad and Android.">
-  <section class="container-x pt-20 sm:pt-24">
+<Layout title="Download · Mob" description="Download mobd for your office computer and the Mob app for macOS, iPhone, iPad and Android." readout={{ turn: 'Download', time: '', place: 'mobd · Mob' }}>
+  <section class="container-x pt-32 sm:pt-40">
     <p class="eyebrow">Download</p>
     <h1 class="mt-3 text-4xl sm:text-5xl">Two parts, one setup.</h1>
     <p class="section-lead">mobd runs on the computer that does the work. Mob runs on the devices you carry. Install mobd first so the apps have something to pair with.</p>
@@ -18,28 +18,28 @@ const android = latest('android');
 
   <!-- Step 1: mobd -->
   <section class="container-x pt-16" aria-labelledby="step-office">
-    <h2 id="step-office" class="flex items-center gap-3 text-xl"><span class="grid size-7 place-items-center rounded-full border border-cyan-400/40 font-mono text-xs text-cyan-400">1</span>Office computer: mobd</h2>
+    <h2 id="step-office" class="flex items-center gap-3 text-xl"><span class="grid size-7 place-items-center rounded-full border border-accent-400/40 font-mono text-xs text-accent-400">1</span>Office computer: mobd</h2>
     <article id="mobd" class="card mt-6 p-6 sm:p-8">
       <div class="flex flex-wrap items-center gap-3">
         <h3 class="text-2xl">mobd</h3>
         <ReleaseMeta product="mobd" />
       </div>
-      <p class="mt-2 text-sm text-zinc-400">macOS 13+ on Apple Silicon. Installs to <code class="font-mono text-cyan-200">~/.local/bin</code> without sudo, and checks the SHA-256 and the Apple signature.</p>
+      <p class="mt-2 text-sm text-zinc-400">macOS 13+ on Apple Silicon. Installs to <code class="font-mono text-accent-200">~/.local/bin</code> without sudo, and checks the SHA-256 and the Apple signature.</p>
       <div class="mt-6"><Command command={install} label="Run in Terminal on the office Mac" /></div>
       <div class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
         {mobd && <a class="link" href={mobd.url}>Download .tar.gz ↓</a>}
         <a class="link" href="/start/#install">Install guide →</a>
       </div>
       <div class="mt-5 grid gap-2"><ReleaseFolds product="mobd" /></div>
-      <p class="mt-6 flex flex-wrap items-center gap-2 border-t border-zinc-800 pt-5 text-sm text-zinc-400"><span class="tag-soon">Soon</span>mobd for Linux and Windows.</p>
+      <p class="mt-6 flex flex-wrap items-center gap-2 border-t border-white/[0.08] pt-5 text-sm text-zinc-400"><span class="tag-soon">Soon</span>mobd for Linux and Windows.</p>
     </article>
   </section>
 
   <!-- Step 2: clients -->
   <section class="container-x pt-16" aria-labelledby="step-clients">
-    <h2 id="step-clients" class="flex items-center gap-3 text-xl"><span class="grid size-7 place-items-center rounded-full border border-cyan-400/40 font-mono text-xs text-cyan-400">2</span>Your devices: Mob</h2>
+    <h2 id="step-clients" class="flex items-center gap-3 text-xl"><span class="grid size-7 place-items-center rounded-full border border-accent-400/40 font-mono text-xs text-accent-400">2</span>Your devices: Mob</h2>
     <div class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-3">
-      <article id="mac" data-platform="mac" class="card group flex flex-col p-6 data-[recommended]:border-cyan-400/50">
+      <article id="mac" data-platform="mac" class="card group flex flex-col p-6 data-[recommended]:border-accent-400/50">
         <div class="flex items-center justify-between"><img src="/assets/app-icon.svg" width="44" height="44" alt=""><span class="tag-accent hidden group-data-[recommended]:inline-flex">Your device</span></div>
         <h3 class="mt-5 text-xl">Mob for macOS</h3>
         <div class="mt-2 flex flex-wrap items-center gap-2"><ReleaseMeta product="mob" /></div>
@@ -48,7 +48,7 @@ const android = latest('android');
         <div class="mt-4 grid gap-2"><ReleaseFolds product="mob" /></div>
       </article>
 
-      <article id="ios" data-platform="ios" class="card group flex flex-col p-6 data-[recommended]:border-cyan-400/50">
+      <article id="ios" data-platform="ios" class="card group flex flex-col p-6 data-[recommended]:border-accent-400/50">
         <div class="flex items-center justify-between"><img src="/assets/app-icon.svg" width="44" height="44" alt=""><span class="tag-accent hidden group-data-[recommended]:inline-flex">Your device</span></div>
         <h3 class="mt-5 text-xl">Mob for iPhone & iPad</h3>
         <div class="mt-2 flex flex-wrap items-center gap-2">{ios ? <span class="tag-live">{testflight ? 'TestFlight' : 'App Store'}</span> : <span class="tag-soon">Coming soon</span>}</div>
@@ -58,7 +58,7 @@ const android = latest('android');
           : <span class="btn-disabled w-full" aria-disabled="true">Coming to the App Store</span>}</div>
       </article>
 
-      <article id="android" data-platform="android" class="card group flex flex-col p-6 data-[recommended]:border-cyan-400/50">
+      <article id="android" data-platform="android" class="card group flex flex-col p-6 data-[recommended]:border-accent-400/50">
         <div class="flex items-center justify-between"><img src="/assets/app-icon.svg" width="44" height="44" alt=""><span class="tag-accent hidden group-data-[recommended]:inline-flex">Your device</span></div>
         <h3 class="mt-5 text-xl">Mob for Android</h3>
         <div class="mt-2 flex flex-wrap items-center gap-2"><ReleaseMeta product="android" /></div>
@@ -72,7 +72,7 @@ const android = latest('android');
     <p class="mt-6 flex flex-wrap items-center gap-2 text-sm text-zinc-400"><span class="tag-soon">Soon</span>Mob for Windows and Linux.</p>
 
     <div class="card mt-12 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
-      <p class="text-zinc-300">Next: run <code class="font-mono text-cyan-200">mobd link</code> on the office computer and pair your device.</p>
+      <p class="text-zinc-300">Next: run <code class="font-mono text-accent-200">mobd link</code> on the office computer and pair your device.</p>
       <a href="/start/#connect" class="btn-secondary">Pairing guide →</a>
     </div>
   </section>

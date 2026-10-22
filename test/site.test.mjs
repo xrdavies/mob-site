@@ -72,7 +72,11 @@ test('released products get downloads and notes; the site is English, CSP-clean 
   assert.match(download, /<strong>New<\/strong> live view/, 'latest notes of the desktop app');
   assert.equal(download.match(/Release notes/g).length, 2, 'notes for mob and mobd, none for unreleased Android');
   assert.match(download, /Coming to the App Store/);
-  assert.match(site.read('index.html'), /New release · Mob 0.2.0 · mobd 0.0.2/);
+  const home = site.read('index.html');
+  assert.match(home, /Mob 0.2.0 · mobd 0.0.2/, 'versions in the footer');
+  assert.match(home, /Leave the desk\./);
+  for (const hour of ['08:47', '09:12', '12:30', '15:05', '18:00', '21:40']) assert.match(home, new RegExp(`data-time="${hour}"`), hour);
+  assert.match(home, /curl -fsSL https:\/\/download.mob.test\/mobd\/install.sh \| sh/);
   assert.match(site.read('start/index.html'), /curl -fsSL https:\/\/download.mob.test\/mobd\/install.sh/);
   assert.match(download, /rel="canonical" href="https:\/\/mob.test\/download\/"/);
   const sitemap = site.read('sitemap.xml');
@@ -95,7 +99,7 @@ test('a local preview builds offline with a helpful status', t => {
   const site = build(t, {}, { mob: 'offline', mobd: 'offline', android: 'offline' });
   assert.ok(site.ok, site.log);
   assert.match(site.read('download/index.html'), /Version unavailable/);
-  assert.doesNotMatch(site.read('index.html'), /New release/, 'no release pill without versions');
+  assert.doesNotMatch(site.read('index.html'), /mobd \d+\.\d+\.\d+/, 'no versions without manifests');
   assert.match(site.read('robots.txt'), /Disallow/);
 });
 

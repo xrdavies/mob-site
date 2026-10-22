@@ -1,14 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout title="Page not found · Mob" description="This page does not exist.">
-  <section class="container-x pt-32 text-center">
-    <p class="font-mono text-sm text-cyan-400">404</p>
-    <h1 class="mt-3 text-4xl">Page not found.</h1>
-    <p class="mt-4 text-zinc-400">The page moved or never existed.</p>
-    <div class="mt-8 flex flex-wrap justify-center gap-3">
-      <a href="/" class="btn-primary">Home</a>
-      <a href="/download/" class="btn-secondary">Download</a>
+<Layout title="Page not found · Mob" description="This page does not exist." readout={{ turn: '404', time: '', place: 'No signal' }}>
+  <section class="container-x grid min-h-[80vh] place-items-center pt-32 text-center">
+    <div>
+      <img src="/assets/logo.svg" width="64" height="64" alt="" class="mx-auto opacity-70">
+      <p class="vcr mt-6 text-[22px] tracking-[.3em] text-[var(--dim)]">404 · No signal</p>
+      <h1 class="display caret mt-5 text-[clamp(44px,7vw,96px)]">Nothing on this screen.</h1>
+      <p class="mt-5 text-[var(--dim)]">The page moved, or it never existed.</p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <a href="/" class="btn-light">Back to the day</a>
+        <a href="/download/" class="btn-ghost">Download</a>
+      </div>
     </div>
   </section>
 </Layout>
