@@ -72,7 +72,14 @@ test('local preview builds offline with a helpful status', async t => {
 test('iOS link appears once configured', async t => {
   const directory = output(t);
   await build(directory, { DOWNLOAD_BASE_URL: base, IOS_APP_URL: 'https://apps.apple.com/app/id123' }, fakeFetch);
-  assert.match(read(directory, 'download/index.html'), /href="https:\/\/apps.apple.com\/app\/id123"/);
+  const store = read(directory, 'download/index.html');
+  assert.match(store, /href="https:\/\/apps.apple.com\/app\/id123">在 App Store 获取/);
+  assert.match(store, /<span class="version-tag">App Store<\/span>/);
+  await build(directory, { DOWNLOAD_BASE_URL: base, IOS_APP_URL: 'https://testflight.apple.com/join/abc' }, fakeFetch);
+  const beta = read(directory, 'download/index.html');
+  assert.match(beta, /href="https:\/\/testflight.apple.com\/join\/abc">通过 TestFlight 获取/);
+  assert.match(beta, /<span class="version-tag">TestFlight<\/span>/);
+  assert.doesNotMatch(beta, /App Store/);
 });
 
 test('manifests reject external URLs and wrong products; notes are escaped', async () => {
@@ -87,49 +94,29 @@ test('manifests reject external URLs and wrong products; notes are escaped', asy
   assert.equal(renderNotes('<script>alert(1)</script> $& **x**'), '&lt;script&gt;alert(1)&lt;/script&gt; $&amp; <strong>x</strong>');
 });
 
-test('mob releases with Windows and Linux files get those buttons; files outside the release are dropped', async t => {
-  const r = release('mob', '0.3.0', 'mob_0.3.0_darwin_arm64.dmg');
-  const file = name => ({ url: `${base}/mob/v0.3.0/${name}`, sha256: 'b'.repeat(64) });
-  r.downloads = {
-    'macos-arm64': [r.download],
-    'windows-x64': [file('mob_0.3.0_windows_x64-setup.exe')],
-    'linux-x64': [file('mob_0.3.0_linux_x64.AppImage'), file('mob_0.3.0_linux_x64.deb')],
+test('only macOS, Android and iPhone clients render, even when manifests list Windows or Linux files', async t => {
+  const mob = release('mob', '0.3.0', 'mob_0.3.0_darwin_arm64.dmg');
+  const file = (product, name) => ({ url: `${base}/${product}/v0.3.0/${name}`, sha256: 'b'.repeat(64) });
+  mob.downloads = {
+    'windows-x64': [file('mob', 'mob_0.3.0_windows_x64-setup.exe')],
+    'linux-x64': [file('mob', 'mob_0.3.0_linux_x64.AppImage'), file('mob', 'mob_0.3.0_linux_x64.deb')],
     evil: [{ url: 'https://evil.test/x.exe', sha256: 'c'.repeat(64) }],
   };
-  assert.deepEqual(Object.keys(validateRelease(r, 'mob', base).files), ['macos-arm64', 'windows-x64', 'linux-x64']);
+  assert.deepEqual(Object.keys(validateRelease(mob, 'mob', base).files), ['windows-x64', 'linux-x64'], 'files outside the release are dropped');
+  const mobd = release('mobd', '0.3.0', 'mobd_0.3.0_darwin_arm64.tar.gz');
+  mobd.platforms = { 'linux-x86_64': { ...file('mobd', 'mobd_0.3.0_linux_amd64.tar.gz'), deb: file('mobd', 'mobd_0.3.0_amd64.deb') } };
   const directory = output(t);
-  const fetchV3 = async url => new URL(url).pathname.startsWith('/mob/') ? Response.json([r]) : fakeFetch(url);
-  await build(directory, { DOWNLOAD_BASE_URL: base }, fetchV3);
+  const extra = { mob: [mob], mobd: [mobd] };
+  await build(directory, { DOWNLOAD_BASE_URL: base }, async url => {
+    const product = new URL(url).pathname.split('/')[1];
+    return extra[product] ? Response.json(extra[product]) : fakeFetch(url);
+  });
   const download = read(directory, 'download/index.html');
-  for (const name of ['mob_0.3.0_windows_x64-setup.exe', 'mob_0.3.0_linux_x64.AppImage', 'mob_0.3.0_linux_x64.deb']) assert.match(download, new RegExp(`href="${base}/mob/v0.3.0/${name}"`));
-  assert.doesNotMatch(download, /evil\.test/);
-  // Older manifests without `downloads` leave the buttons disabled.
-  await build(directory, { DOWNLOAD_BASE_URL: base }, fakeFetch);
-  const old = read(directory, 'download/index.html');
-  assert.match(old, /<span class="button primary is-disabled" aria-disabled="true">下载安装程序<\/span>/);
-  assert.equal(old.match(/即将推出/g).length >= 2, true, 'Windows and Linux are coming soon, not tagged with the macOS version');
-});
-
-test('mobd releases with Linux platforms get .deb buttons per architecture', async t => {
-  const r = release('mobd', '0.4.0', 'mobd_0.4.0_darwin_arm64.tar.gz');
-  const file = name => ({ url: `${base}/mobd/v0.4.0/${name}`, sha256: 'd'.repeat(64) });
-  r.platforms = {
-    'darwin-aarch64': r.download,
-    'linux-x86_64': { ...file('mobd_0.4.0_linux_amd64.tar.gz'), deb: file('mobd_0.4.0_amd64.deb') },
-    'linux-aarch64': { ...file('mobd_0.4.0_linux_arm64.tar.gz'), deb: { url: 'https://evil.test/mobd.deb', sha256: 'e'.repeat(64) } },
-  };
-  const files = validateRelease(r, 'mobd', base).files;
-  assert.equal(files['linux-x86_64'].length, 2);
-  assert.equal(files['linux-aarch64'].length, 1, 'a file outside the release is dropped');
-  const directory = output(t);
-  const fetchLinux = async url => new URL(url).pathname.startsWith('/mobd/') ? Response.json([r]) : fakeFetch(url);
-  await build(directory, { DOWNLOAD_BASE_URL: base }, fetchLinux);
-  const download = read(directory, 'download/index.html');
-  assert.match(download, new RegExp(`href="${base}/mobd/v0.4.0/mobd_0.4.0_amd64.deb"`));
-  assert.match(download, /<span class="button ghost is-disabled" aria-disabled="true">下载 deb \(arm64\)<\/span>/);
-  assert.doesNotMatch(download, /evil\.test/);
-  // Before mobd ships Linux the buttons are disabled and the card says so.
-  await build(directory, { DOWNLOAD_BASE_URL: base }, fakeFetch);
-  assert.match(read(directory, 'download/index.html'), /<span class="button ghost is-disabled" aria-disabled="true">下载 deb \(x86_64\)<\/span>/);
-  assert.match(read(directory, 'start/index.html'), /id="linux"/);
+  assert.match(download, /href="https:\/\/download.mob.test\/mob\/v0.3.0\/mob_0.3.0_darwin_arm64.dmg"/);
+  assert.doesNotMatch(download, /\.exe|\.AppImage|\.deb"|evil\.test/);
+  assert.doesNotMatch(download, /id="(windows|linux|mobd-linux)"|Windows/);
+  for (const id of ['mac', 'android', 'ios', 'mobd']) assert.match(download, new RegExp(`id="${id}"`));
+  const start = read(directory, 'start/index.html');
+  assert.doesNotMatch(start, /id="linux"|mobd desktops/);
+  assert.equal(start.match(/install\.sh \| sh/g).length, 1, 'the install command appears once in the guide');
 });

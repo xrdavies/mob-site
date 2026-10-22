@@ -1,63 +1,52 @@
-<section class="page-intro wrap"><p class="eyebrow">HELLO, MOB</p><h1>安装 mobd，<br><span class="gradient-text">开始协作。</span></h1><p>先准备办公室 Mac 或 Linux 电脑，再连接你身边的 Mac、iPhone 或 Android。<br>大约十分钟。当前 mobd 版本：{{version:mobd}}。</p></section>
+<section class="page-intro wrap"><h1>快速开始</h1><p>在办公室 Mac 上安装 mobd，再用 MOB 客户端配对。大约十分钟。当前 mobd 版本：{{version:mobd}}。</p></section>
 
 <div class="guide wrap">
   <aside class="guide-nav" aria-label="指南目录">
-    <a href="#requirements">准备</a>
-    <a href="#install">01 安装 mobd</a>
-    <a href="#config">02 配置</a>
-    <a href="#permissions">03 系统权限</a>
-    <a href="#run">04 启动服务</a>
-    <a href="#connect">05 配对客户端</a>
-    <a href="#linux">办公室是 Linux 电脑</a>
-    <a href="#remote">Tailscale 准备</a>
-    <a href="#tailscale-serve">私有连接 · Serve</a>
-    <a href="#tailscale-funnel">公网连接 · Funnel</a>
-    <a href="#tailscale-pair">远程配对与验收</a>
-    <a href="#tailscale-help">排错与关闭</a>
+    <a href="#requirements">准备工作</a>
+    <a href="#install">1. 安装</a>
+    <a href="#config">2. 配置</a>
+    <a href="#permissions">3. 系统权限</a>
+    <a href="#run">4. 启动</a>
+    <a href="#connect">5. 配对客户端</a>
+    <a href="#remote">远程访问</a>
     <a href="#upgrade">更新与卸载</a>
     <a href="#commands">命令速查</a>
     <a href="#faq">常见问题</a>
   </aside>
   <div class="guide-content">
 
-<section id="requirements"><span class="step-label">BEFORE YOU BEGIN</span><h2>准备工作。</h2>
+<section id="requirements"><h2>准备工作</h2>
 <ul class="check-list">
-  <li>一台 <strong>Apple Silicon</strong> 办公室 Mac，运行 <strong>macOS 13</strong> 或更新版本，保持开机、联网、用户已登录。办公室用 Linux 电脑时，先看 <a href="#linux">Linux 一节</a>：安装和启动不同，配对与远程连接相同。</li>
-  <li>已安装并登录 <a href="https://developers.openai.com/codex/cli/" rel="noreferrer">Codex CLI</a> 或 <a href="https://code.claude.com/docs/en/quickstart" rel="noreferrer">Claude Code</a>（至少一个）。</li>
-  <li>客户端设备能访问办公室 Mac：同一内网、公司 VPN，或按下文配置 <a href="#remote">Tailscale Serve / Funnel</a>。</li>
+  <li>一台 <strong>Apple Silicon</strong> 办公室 Mac，<strong>macOS 13</strong> 或更新版本，保持开机、联网、用户已登录。</li>
+  <li>已安装并登录 <a href="https://developers.openai.com/codex/cli/" rel="noreferrer">Codex CLI</a> 或 <a href="https://code.claude.com/docs/en/quickstart" rel="noreferrer">Claude Code</a>，至少一个。</li>
+  <li>客户端设备能访问办公室 Mac：同一内网、公司 VPN，或按下文配置<a href="#remote">远程访问</a>。</li>
+  <li>客户端：<a href="/download/#mac">桌面端（macOS 13+）</a>、<a href="/download/#android">Android 8.0+</a> 或 <a href="/download/#ios">iPhone</a>。</li>
 </ul></section>
 
-<section id="install"><span class="step-label">01 / INSTALL</span><h2>在办公室 Mac 上安装 mobd。</h2>
-<p>打开“终端”，以普通用户身份运行（不要加 sudo）。Linux 电脑请按 <a href="#linux">Linux 一节</a>安装。</p>
+<section id="install"><h2>1. 安装 mobd</h2>
+<p>在办公室 Mac 的“终端”中以普通用户运行，不要加 sudo：</p>
 <div class="command"><code data-copy-source>{{install}}</code><button type="button" class="copy-button" data-copy>复制</button></div>
-<p>安装器会读取最新的稳定版本，校验 SHA-256 与 Apple 开发者签名，然后只把 <code>mobd</code> 安装到 <code>~/.local/bin</code>。无需 Go、Node.js、Python 或源码。</p>
-<p>把安装目录加入 PATH，并确认安装成功：</p>
+<p>安装器读取最新稳定版本，校验 SHA-256 与 Apple 开发者签名，只把 <code>mobd</code> 安装到 <code>~/.local/bin</code>。把它加入 PATH 并确认：</p>
 <pre><code>echo 'export PATH="$HOME/.local/bin:$PATH"' &gt;&gt; ~/.zshrc
 export PATH="$HOME/.local/bin:$PATH"
 mobd --version</code></pre>
-<details class="hint"><summary>安装指定版本或自定义目录</summary>
+<details class="hint"><summary>指定版本、自定义目录或手动安装</summary>
 <pre><code>curl -fsSLO {{base}}/mobd/install.sh
 sh install.sh --version X.Y.Z
 sh install.sh --install-dir /absolute/path</code></pre>
-<p>可以先阅读下载的脚本再执行。历史版本见<a href="/changelog/#mobd">更新日志</a>。</p></details>
-<details class="hint"><summary>不使用安装脚本，手动安装</summary>
-<p>从<a href="/download/#mobd">下载页</a>获取压缩包，对照 SHA256SUMS 校验后解压：</p>
-<pre><code>shasum -a 256 mobd_X.Y.Z_darwin_arm64.tar.gz
-tar -xzf mobd_X.Y.Z_darwin_arm64.tar.gz mobd
-mkdir -p ~/.local/bin &amp;&amp; install -m 755 mobd ~/.local/bin/mobd
-codesign --verify --strict --verbose=2 ~/.local/bin/mobd</code></pre></details>
+<p>也可以从<a href="/download/#mobd">下载页</a>获取压缩包，对照 SHA256SUMS 校验后解压，把 <code>mobd</code> 放进 PATH 中的目录。历史版本见<a href="/changelog/#mobd">更新日志</a>。</p></details>
 </section>
 
-<section id="config"><span class="step-label">02 / CONFIGURE</span><h2>创建并编辑配置。</h2>
-<pre><code>mobd init      # 创建 ~/.mobd/config.json，已有配置不会被覆盖
+<section id="config"><h2>2. 配置</h2>
+<pre><code>mobd init      # 创建 ~/.mobd/config.json，不覆盖已有配置
 open -e ~/.mobd/config.json</code></pre>
-<p><code>mobd init</code> 默认监听 <code>0.0.0.0:8080</code>，局域网和 VPN 中的设备可以直接连接；只通过 Tailscale Serve / Funnel 访问时改为 <code>127.0.0.1:8080</code>。用 <code>command -v codex</code> 或 <code>command -v claude</code> 查找 Agent 的绝对路径。</p>
+<p><code>listen</code> 默认是 <code>0.0.0.0:8080</code>，内网和 VPN 中的设备可以直接连接；只通过 Tailscale 访问时改为 <code>127.0.0.1:8080</code>。<code>codexBin</code> / <code>claudeBin</code> 可以写 PATH 中的命令名；不在 PATH 中时，用 <code>command -v codex</code> 找到绝对路径。</p>
 <div class="tabs" data-tabs>
   <div class="tab-list" role="tablist"><button type="button" role="tab" aria-selected="true" aria-controls="cfg-codex" id="tab-codex">Codex</button><button type="button" role="tab" aria-selected="false" aria-controls="cfg-claude" id="tab-claude" tabindex="-1">Claude Code</button></div>
   <div class="tab-panel" role="tabpanel" id="cfg-codex" aria-labelledby="tab-codex"><pre><code>{
   "listen": "0.0.0.0:8080",
   "workdir": "/Users/you/Projects",
-  "codexBin": "/absolute/path/to/codex",
+  "codexBin": "codex",
   "runners": ["codex"],
   "defaultRunner": "codex",
   "codexPermissions": "approve"
@@ -65,250 +54,110 @@ open -e ~/.mobd/config.json</code></pre>
   <div class="tab-panel" role="tabpanel" id="cfg-claude" aria-labelledby="tab-claude" hidden><pre><code>{
   "listen": "0.0.0.0:8080",
   "workdir": "/Users/you/Projects",
-  "claudeBin": "/absolute/path/to/claude",
+  "claudeBin": "claude",
   "runners": ["claude"],
   "defaultRunner": "claude",
   "claudePermissions": "approve"
 }</code></pre></div>
 </div>
-<p><code>"approve"</code> 让 Agent 在执行命令或修改文件前询问你，问题会出现在客户端的审批卡片中。两个 Agent 都安装时，可以同时启用：<code>"runners": ["codex", "claude"]</code>。</p>
-<div class="guide-note"><strong>JSON 中只使用绝对路径</strong><p><code>~</code> 和 <code>$HOME</code> 不会展开。修改配置后执行 <code>mobd restart</code> 生效。</p></div>
-<div class="guide-note warn"><strong>只在受信任的网络中开放</strong><p><code>0.0.0.0:8080</code> 允许其他设备连接。请使用内网、VPN 或 Tailscale，并限制访问来源；不要设置公网端口转发。所有客户端都必须先配对才能访问，但 HTTP 地址不加密：没有 VPN 或 Tailscale 时，能监听网络的人可能取得凭据和内容。</p></div>
+<p><code>"approve"</code> 让 Agent 在执行命令或修改文件前询问你；省略时默认为 <code>"bypass"</code>，不询问。两个 Agent 可以同时启用：<code>"runners": ["codex", "claude"]</code>。JSON 中不展开 <code>~</code> 和 <code>$HOME</code>，路径请写完整。修改后执行 <code>mobd restart</code>。</p>
+<div class="guide-note warn"><strong>只在受信任的网络中开放</strong><p>所有客户端都要先配对，但 HTTP 不加密。不要把 8080 端口映射到公网；跨网络连接请使用 VPN 或 Tailscale。</p></div>
 </section>
 
-<section id="permissions"><span class="step-label">03 / PERMISSIONS</span><h2>授予系统权限。</h2>
-<ol class="steps">
-  <li><strong>系统设置 → 隐私与安全性 → 辅助功能</strong>：允许运行 mobd 的程序（终端或 mobd）。</li>
-  <li><strong>系统设置 → 隐私与安全性 → 屏幕与系统录音</strong>：同样授权，按提示重新启动相关进程。</li>
-  <li><strong>电源设置</strong>：避免无人值守时自动睡眠。专用的办公室 Mac 建议关闭自动锁屏：实时桌面在锁屏时也能查看和输入，但截图快照需要解锁、唤醒的屏幕。</li>
-</ol>
-<p>实时桌面由 mobd 直接采集和编码（H.264），<strong>不需要开启“屏幕共享”</strong>，也不需要填写 macOS 登录密码。</p>
+<section id="permissions"><h2>3. 系统权限</h2>
+<p>首次启动时 mobd 会请求缺少的权限，按系统提示允许启动 mobd 的程序（终端或 mobd），也可以在 <strong>系统设置 → 隐私与安全性</strong> 中手动授予：</p>
+<ul class="check-list">
+  <li><strong>辅助功能</strong>：用于操作鼠标和键盘。</li>
+  <li><strong>屏幕与系统录音</strong>：用于截图和实时桌面。</li>
+</ul>
+<p>实时桌面由 mobd 自己采集和编码，不需要开启“屏幕共享”。在电源设置中避免办公室 Mac 无人值守时睡眠。</p>
 </section>
 
-<section id="run"><span class="step-label">04 / START</span><h2>启动服务。</h2>
-<pre><code>mobd start     # 后台运行，直到停止或注销
-mobd status    # 显示监听地址和健康检查
-
-# 可选：登录 macOS 时自动启动
-mobd stop
-mobd start --login</code></pre>
-<p><code>mobd status</code> 中的检查项应全部通过。缺少的权限或 Agent 也会在客户端的设置页显示为提醒。日志位于 <code>~/.mobd/mobd.log</code>，用 <code>mobd logs</code> 跟随查看。</p>
+<section id="run"><h2>4. 启动</h2>
+<pre><code>mobd start            # 后台运行，直到停止或注销
+mobd status           # 监听地址与健康检查
+mobd stop &amp;&amp; mobd start --login   # 可选：登录 macOS 时自动启动</code></pre>
+<p><code>mobd status</code> 中的检查项应全部通过。日志位于 <code>~/.mobd/mobd.log</code>，用 <code>mobd logs</code> 跟随查看。</p>
 </section>
 
-<section id="connect"><span class="step-label">05 / PAIR</span><h2>配对 MOB，连接你的搭档。</h2>
-<p>每台客户端设备都要先配对一次。配对后凭据保存在设备的系统安全存储中，之后自动连接。</p>
-<p>下面以内网地址为例。从家里或手机流量连接时，先完成 <a href="#remote">Tailscale 配置</a>，再用生成的 HTTPS 地址配对。</p>
-<ol class="steps">
-  <li>安装客户端：<a href="/download/#mac">macOS</a>（把 <strong>mob.app</strong> 拖入“应用程序”）、<a href="/download/#android">Android</a>（APK）；iPhone 版即将上线。</li>
-  <li>在办公室 Mac 上用客户端能访问的地址生成配对链接，替换为实际的内网、VPN 或 Tailscale 地址：</li>
-</ol>
+<section id="connect"><h2>5. 配对客户端</h2>
+<p>每台设备配对一次，凭据保存在设备的安全存储中，之后自动连接。在办公室 Mac 上用客户端能访问的地址生成邀请：</p>
 <pre><code>mobd link --url http://192.168.1.100:8080</code></pre>
-<p>终端会显示二维码和链接，<strong>10 分钟内有效，只能使用一次</strong>。使用 HTTP 地址时会提示传输未加密，仍可正常配对。</p>
-<ol class="steps" start="3">
-  <li>在 MOB 中进入 <strong>Settings → Machines → Add machine</strong>：手机扫描二维码，或在任意设备上粘贴完整链接。核对显示的办公室地址，点击 <strong>Pair</strong>。</li>
-  <li>点击 <strong>Test connection</strong>，确认各项检查通过。可在同一页设置该办公室的实时桌面画质：<strong>Auto</strong>（默认）、<strong>High</strong>，或适合慢速、按流量计费网络的 <strong>Low</strong>。</li>
-  <li>新建对话，先试一个简单任务：“查看当前屏幕，并告诉我你看到了什么。”</li>
+<p>终端显示二维码和链接，<strong>10 分钟内有效，只能使用一次</strong>。HTTP 地址会提示传输未加密，仍可配对。</p>
+<ol class="steps">
+  <li>在 MOB 中打开 <strong>Settings → Machines → Add machine</strong>。</li>
+  <li>手机扫描二维码，或在任意设备上粘贴完整链接；核对地址后点击 <strong>Pair</strong>。</li>
+  <li>点击 <strong>Test connection</strong>，然后新建对话试一个简单任务，例如“查看当前屏幕，告诉我你看到了什么”。</li>
 </ol>
-<p>实时桌面默认只查看。需要自己操作时，展开大画面并切换到 <strong>Control</strong>（桌面端也可按 <kbd>⇧⌘C</kbd>）。手机上点按即点击、长按为右键、双指滚动、捏合缩放。画面下方显示分辨率、帧率、流量和连接方式（如 <code>WebRTC · LAN</code>）；静止的桌面几乎不占流量，帧率低是正常的。</p>
-<p>用 <code>mobd clients list</code> 查看已配对的设备；设备丢失时执行 <code>mobd clients revoke CLIENT_ID</code>，它会立即断开，其他设备不受影响。</p>
+<p>实时桌面默认只查看，切换到 <strong>Control</strong> 后可以亲自操作。用 <code>mobd clients list</code> 查看已配对设备；设备丢失时执行 <code>mobd clients revoke CLIENT_ID</code>，它会立即断开。</p>
 </section>
 
-<section id="linux"><span class="step-label">OFFICE LINUX</span><h2>办公室是 Linux 电脑。</h2>
-<p>在 Linux 上，mobd 为<strong>每个对话</strong>启动一个独立的虚拟桌面（Xvfb + openbox）。Agent 在这个桌面里打开应用和浏览器，你在客户端实时查看该对话的桌面；不同对话的任务可以同时运行。它不会操作你自己登录的 Linux 桌面。</p>
-<h3>1. 准备</h3>
+<section id="remote"><h2>远程访问</h2>
+<p>不在同一内网时，推荐用 <a href="https://tailscale.com/" rel="noreferrer">Tailscale</a> 为 mobd 提供 HTTPS 入口，不需要公网 IP 或端口映射。</p>
 <ul class="check-list">
-  <li><strong>Ubuntu 22.04 / 24.04</strong> 或 <strong>Debian 12 / 13</strong>，x86_64 或 arm64；实体机或虚拟机均可，但需要 <strong>systemd</strong>（普通的 Docker 容器不行）。其他发行版见 <a href="https://github.com/xrdavies/mobd/blob/main/docs/linux-build.md" rel="noreferrer">源码构建指南</a>。</li>
-  <li>以运行 mobd 的普通用户安装并登录 Codex CLI 或 Claude Code。</li>
-  <li>需要浏览器时安装软件包版本：Debian 的 <code>chromium</code> / <code>firefox-esr</code>、Google Chrome，或 Mozilla APT 源的 Firefox。<strong>Snap 版浏览器无法使用对话各自的浏览器配置。</strong></li>
+  <li><strong>Serve（推荐）</strong>：办公室 Mac 和客户端都安装 Tailscale，入口只对你的 tailnet 开放，实时桌面走 WebRTC。</li>
+  <li><strong>Funnel</strong>：只有办公室 Mac 安装 Tailscale，入口在公网可达（仍需配对），实时桌面改用较慢的 WebSocket。</li>
 </ul>
-<h3>2. 安装</h3>
-<p>从<a href="/download/#mobd-linux">下载页</a>下载对应架构的 <code>.deb</code>，它会一并安装 Xvfb、openbox、dbus 和 GStreamer：</p>
-<pre><code>sudo apt install ./mobd_X.Y.Z_amd64.deb     # arm64 电脑用 _arm64.deb
-mobd --version</code></pre>
-<details class="hint"><summary>不用 .deb，使用安装脚本</summary>
-<p>与 Mac 相同的安装命令也能在 Linux 上运行：它安装对应架构的压缩包到 <code>~/.local/bin</code>（只校验 SHA-256），并打印需要用 <code>apt install</code> 安装的软件包。</p>
-<div class="command"><code data-copy-source>{{install}}</code><button type="button" class="copy-button" data-copy>复制</button></div></details>
-<h3>3. 配置并启动</h3>
-<pre><code>mobd init                 # 然后编辑 ~/.mobd/config.json，与 Mac 相同
-mobd start                # 作为当前用户的 systemd 服务运行
-mobd desktops doctor      # 每一行都应为 ok</code></pre>
-<p>配置项与上文 <a href="#config">02 配置</a>相同，路径改为 Linux 的绝对路径（如 <code>/home/you/Projects</code>）。Linux 不需要授予系统权限。<code>mobd start</code> 会为当前用户开启 linger，注销或重启后 mobd 和桌面仍会运行；如提示无权限，执行一次 <code>sudo loginctl enable-linger $USER</code>。<code>mobd start --login</code> 让它开机自动启动。</p>
-<p><code>doctor</code> 检查 Xvfb、openbox、dbus、cgroup v2、编码器、浏览器、内存和磁盘，失败的项目会给出修复命令。</p>
-<h3>4. 配对与网络</h3>
-<p>配对方式与 <a href="#connect">05 配对客户端</a>相同。实时桌面的 WebRTC 使用 UDP 9527，Linux 防火墙需要放行，例如 <code>sudo ufw allow 9527/udp</code>；未放行时客户端会自动改用较慢的 WebSocket。<a href="#remote">Tailscale</a> 同样可用，Linux 上按 <a href="https://tailscale.com/download/linux" rel="noreferrer">官方 Linux 安装方法</a>安装后，<code>tailscale serve</code> / <code>funnel</code> 命令与下文一致。</p>
-<h3>5. 每个对话的桌面</h3>
-<ul class="check-list">
-  <li><strong>随首次任务启动</strong>：新对话的第一个任务启动它的桌面；在客户端打开该对话即可实时查看。</li>
-  <li><strong>空闲时休眠</strong>：没有任务、没人查看、没有 CPU 占用和画面变化 10 分钟后自动冻结，几乎不占 CPU；下一个任务或打开实时桌面时立即恢复，窗口保持原样。</li>
-  <li><strong>何时关闭</strong>：归档或删除对话、在客户端选择“关闭桌面”，或运行 <code>mobd desktops close</code>。关闭后打开的窗口会丢失，文件和浏览器登录状态保留。</li>
-  <li><strong>浏览器登录</strong>：每个对话有自己的浏览器配置和 <code>Downloads</code> 目录。在某个对话里登录常用网站并关闭浏览器后，运行 <code>mobd desktops seed 会话ID</code>，之后的新对话会以已登录的状态开始。</li>
-  <li><strong>内存与磁盘</strong>：内存或磁盘不足时，客户端会提醒你关闭桌面；低于下限时新对话的任务会等待，已有桌面的对话不受影响。</li>
-</ul>
-<div class="guide-note warn"><strong>对话之间没有隔离</strong><p>所有桌面、Agent 和 mobd 都以同一个 Linux 用户运行，Agent 可以读取该用户的文件以及其他对话的浏览器配置。请在专用的用户或机器上运行，不要放入不希望 Agent 读到的数据。</p></div>
-</section>
-
-<section id="remote"><span class="step-label">AWAY FROM THE OFFICE</span><h2>用 Tailscale，从外面连接办公室。</h2>
-<p>Tailscale 为办公室的 mobd 提供一个 HTTPS 入口。先选连接方式，再完成本节准备，最后只执行所选方式的步骤。两种方式都不需要办公室公网 IP 或路由器端口映射。</p>
-<div class="table-wrap"><table>
-  <thead><tr><th scope="col">方式</th><th scope="col">在哪里安装 Tailscale</th><th scope="col">谁能访问入口</th></tr></thead>
-  <tbody>
-    <tr><td><a href="#tailscale-serve">Serve · 优先选择</a></td><td>办公室 Mac 和每台客户端设备</td><td>同一私有网络中获准的设备</td></tr>
-    <tr><td><a href="#tailscale-funnel">Funnel · 客户端免 VPN</a></td><td>只需办公室 Mac</td><td>公网可达，业务访问仍需 MOB 配对</td></tr>
-  </tbody>
-</table></div>
-<p>tailnet 就是你的 Tailscale 私有网络。两端都能安装时选 Serve；手机不方便安装或连接 VPN 时选 Funnel。同一内网或已有公司 VPN 能直连的用户，可以继续使用<a href="#connect">内网配对</a>。</p>
-
-<h3>1. 在办公室安装并登录 Tailscale</h3>
-<p>本指南办公室端统一使用 Homebrew 的开源命令行版，适用于下面两种方式。先安装 <a href="https://brew.sh/" rel="noreferrer">Homebrew</a>，然后在办公室 Mac 的终端运行：</p>
-<div class="guide-note"><strong>已有 Tailscale 时先确认安装方式</strong><p>不要同时启动 App Store、独立 App 和 Homebrew 多套 Tailscale。已经使用 App 的 Serve 用户可以保留现有安装，按下面的说明使用对应 CLI；需要迁移安装方式时，先处理旧安装再继续。</p></div>
+<p>在办公室 Mac 上安装并登录 Tailscale，把 <code>listen</code> 改为 <code>127.0.0.1:8080</code> 后重启 mobd，再发布入口并用输出的 HTTPS 地址配对：</p>
 <pre><code>brew install --formula tailscale
 sudo brew services start tailscale
 sudo tailscale up
-sudo tailscale status</code></pre>
-<p>打开 <code>up</code> 输出的登录链接，登录自己的 Tailscale 账号；在 <a href="https://login.tailscale.com/admin/machines" rel="noreferrer">设备管理页</a>确认办公室 Mac 在线。使用公司网络时，按管理员要求加入对应 tailnet。安装命令依据 <a href="https://github.com/tailscale/tailscale/wiki/Tailscaled-on-macOS#installing-tailscaled-from-homebrew" rel="noreferrer">Tailscale 官方 macOS 指引</a>。</p>
-<details class="hint"><summary>办公室已经安装 Tailscale App，如何使用 Serve？</summary>
-<p>打开 App，完成登录并保持连接；无需再安装 Homebrew 版。在当前终端设置下面的别名，并把后文所有 <code>sudo tailscale</code> 换成 <code>tailscale</code>。新开终端需重新设置别名，或按<a href="https://tailscale.com/docs/reference/tailscale-cli" rel="noreferrer">官方 CLI 指引</a>配置命令行集成。下文 Funnel 步骤以 Homebrew 版为准。</p>
-<pre><code>alias tailscale='/Applications/Tailscale.app/Contents/MacOS/Tailscale'
-tailscale status</code></pre>
-</details>
-
-<h3>2. 确认 mobd 在办公室本机可用</h3>
-<p>先完成前面的安装、Agent 和系统权限设置。编辑 <code>~/.mobd/config.json</code>，仅把 <code>listen</code> 改为 <code>127.0.0.1:8080</code>，保留其他配置。当前任务结束后运行：</p>
-<pre><code>mobd restart
-mobd status
-curl -i --connect-timeout 5 --max-time 10 http://127.0.0.1:8080/health</code></pre>
-<p>未启动过服务时用 <code>mobd start</code>。<code>status</code> 应显示监听 <code>127.0.0.1:8080</code>；未带配对凭据的 <code>/health</code> 应返回 <strong>401</strong>，表示已到达认证接口，不代表 Agent 和桌面权限全部正常。本机不通时先用 <code>mobd logs</code> 排查。</p>
-<p>如果地址没有变化，检查 <code>MOBD_LISTEN</code> 和原启动参数的覆盖。可明确运行 <code>mobd restart --listen 127.0.0.1:8080</code>；使用自定义配置时同时保留 <code>--config PATH</code>。改为本机监听后，原来的局域网直连地址将不可用。</p>
-
-<h3>3. 检查现有发布配置</h3>
-<pre><code>sudo tailscale serve status
-sudo tailscale funnel status</code></pre>
-<p>确认 Tailscale 的 HTTPS 443 根路径没有其他服务再继续；已有服务时不要覆盖。<strong>同一端口不能同时保持私有 Serve 和公网 Funnel</strong>，后执行的配置会改变可见范围。切换前先按<a href="#tailscale-help">关闭步骤</a>停用本指南创建的旧入口。</p>
-</section>
-
-<section id="tailscale-serve"><span class="step-label">PRIVATE / SERVE</span><h2>Serve：只让自己的设备连接。</h2>
-<p>先完成<a href="#remote">办公室准备</a>。在家里的电脑或手机上安装 <a href="https://tailscale.com/download" rel="noreferrer">Tailscale</a>，按系统提示允许 VPN 连接，登录与办公室相同的 tailnet，并在使用 MOB 时保持连接。</p>
-<h3>1. 限制访问范围</h3>
-<p>在 <a href="https://login.tailscale.com/admin/acls" rel="noreferrer">Tailscale 访问控制</a>中，只允许需要使用 MOB 的设备访问办公室 Mac 的 TCP 443 和 UDP 9527，不需要另开放 8080。TCP 443 承载对话和配对；实时桌面的 WebRTC 画面在 tailnet 内直接连到 mobd 的 UDP 9527。只放行 TCP 443 时，画面自动改用经过 443 的 WebSocket 方式，画质和延迟较差。</p>
-<details class="hint"><summary>专用两台设备的访问规则示例</summary>
-<p>从设备管理页读取真实 Tailscale IP；办公室也可运行 <code>sudo tailscale ip -4</code>。将下面 <code>src</code> 换为客户端 IP、<code>dst</code> 换为办公室 IP。这个完整示例只适用于专门为这两台设备建立的 tailnet：</p>
-<pre><code>{
-  "grants": [
-    {
-      "src": ["100.101.102.103"],
-      "dst": ["100.101.102.104"],
-      "ip": ["tcp:443", "udp:9527"]
-    }
-  ]
-}</code></pre>
-<p>放行规则会累加：仅添加这条规则不会收紧已有的全放行规则。专用网络需移除宽泛放行；共享或公司网络请管理员调整相关规则，保留其他业务配置，不要直接覆盖整份策略。设备 IP 变化后同步更新。参见<a href="https://tailscale.com/docs/reference/syntax/grants" rel="noreferrer">官方 grants 语法</a>。</p>
-</details>
-<h3>2. 在办公室启用私有 HTTPS</h3>
-<pre><code>sudo tailscale serve --bg --https=443 http://127.0.0.1:8080
-sudo tailscale serve status
-sudo tailscale funnel status</code></pre>
-<p>首次运行按终端链接启用 HTTPS 证书，并确认 tailnet 已开启 MagicDNS；没有权限时联系管理员。成功后应看到 <strong>Available within your tailnet</strong>，且 Funnel 状态没有将这个端口公开。复制输出中的完整 HTTPS 地址，继续<a href="#tailscale-pair">远程配对与验收</a>。</p>
-<p>Serve 的入口只对获准的私有网络设备开放，但仍需 MOB 配对。参考 <a href="https://tailscale.com/docs/features/tailscale-serve" rel="noreferrer">Serve 官方说明</a>。</p>
-</section>
-
-<section id="tailscale-funnel"><span class="step-label">PUBLIC / FUNNEL</span><h2>Funnel：手机不装 Tailscale 也能连接。</h2>
-<p>先完成<a href="#remote">办公室准备</a>，客户端只需安装 MOB 和正常联网。此方式由 Tailscale 提供公网 HTTPS 转发，不需要自备服务器。</p>
-<div class="guide-note warn"><strong>这是公网入口</strong><p>任何人都可能访问这个域名，业务访问由 mobd 配对认证保护，不能依靠私有网络访问规则筛选公网访客。只给可信设备发送邀请，保持 mobd 更新；不要把 mobd 的 8080 直接映射到公网。</p></div>
-<p>Funnel 需要 MagicDNS、HTTPS 证书和账号的 Funnel 权限。首次执行后按终端链接启用；权限不足请 tailnet 管理员处理。下面命令使用前文的 Homebrew 版：</p>
+mobd restart
+sudo tailscale serve --bg --https=443 http://127.0.0.1:8080
+mobd link --url https://office-mac.your-tailnet.ts.net</code></pre>
+<p>把示例域名换成 <code>tailscale serve</code> 输出的实际地址，不要追加 <code>:8080</code>。客户端设备安装 Tailscale 并登录同一 tailnet。</p>
+<details class="hint"><summary>使用 Funnel（客户端不装 Tailscale）</summary>
 <pre><code>sudo tailscale funnel --bg --https=443 http://127.0.0.1:8080
 sudo tailscale funnel status</code></pre>
-<p>成功后应看到 <strong>Available on the internet</strong> 和实际的 HTTPS 地址。复制这个地址，继续<a href="#tailscale-pair">远程配对与验收</a>。公网 DNS 首次生效可能需要几分钟。</p>
-<p>Funnel 只转发 TCP：实时桌面会在约 5 秒后自动改用较慢的 WebSocket 方式（之后连接同一办公室时约 1 秒），画质和延迟不如 Serve / 内网。Funnel 还有带宽限制，请用手机流量实测桌面延迟；套餐和办公用途以 <a href="https://tailscale.com/pricing" rel="noreferrer">Tailscale 当前条款</a>为准。要求及限制见 <a href="https://tailscale.com/docs/features/tailscale-funnel" rel="noreferrer">Funnel 官方说明</a>。</p>
-</section>
-
-<section id="tailscale-pair"><span class="step-label">CONNECT / VERIFY</span><h2>用 HTTPS 地址配对，再测试实际连接。</h2>
-<p>Serve 和 Funnel 使用相同的 MOB 配对流程。下文的 <code>office-mac.your-tailnet.ts.net</code> 是示例，务必换成终端实际输出的域名；保留 <code>https://</code>，不要追加 <code>:8080</code> 或其他路径。</p>
-<h3>1. 从客户端所在网络检查入口</h3>
-<p>Serve 用户保持客户端 Tailscale 在线；Funnel 用户用手机关闭 Wi-Fi、断开 Tailscale，以蜂窝网络测试。在浏览器打开实际域名的 <code>/pair</code> 页面，应看到 mobd 配对提示；仅打开此页不会完成配对。也可在客户端电脑运行：</p>
-<pre><code>curl -i --connect-timeout 10 --max-time 15 https://office-mac.your-tailnet.ts.net/health</code></pre>
-<p>预期返回 mobd 的 <strong>401</strong>，说明网络和认证入口可达。超时、502 或证书错误时先看<a href="#tailscale-help">排错说明</a>，不要跳过证书验证。</p>
-<h3>2. 在办公室生成邀请，在客户端完成配对</h3>
-<pre><code>mobd link --url https://office-mac.your-tailnet.ts.net</code></pre>
-<ol class="steps">
-  <li>打开 MOB 的 <strong>Settings → Machines → Add machine</strong>，扫描二维码或粘贴完整邀请链接，核对 HTTPS 地址后点击 <strong>Pair</strong>。每台设备单独生成邀请，邀请 10 分钟内有效且只能使用一次。</li>
-  <li>运行 <strong>Test connection</strong>。打开实时桌面后，画面下方应显示 <code>WebRTC · Tailscale</code>（Serve）或 <code>WebSocket</code>（Funnel）。</li>
-  <li>发起“查看当前屏幕，并告诉我你看到了什么”，确认任务进度实时更新、截图和桌面能打开；再测试上传图片、打开附件以及断线后重新连接。</li>
-</ol>
-<p>Serve 用户还应确认：客户端断开 Tailscale 后，新请求不再到达；未获准的 tailnet 设备也无法访问。所有配对设备共享同一办公室的会话和桌面，配对不提供用户间的数据隔离。</p>
-<h3>3. 保持办公室可用</h3>
-<p><code>--bg</code> 保存 Serve / Funnel 的后台配置，Tailscale 重启后会恢复；它不会替你启动 mobd。需要登录 macOS 后自动启动 mobd 时，已运行的服务执行 <code>mobd restart --login</code>，未运行时执行 <code>mobd start --login</code>。</p>
-<p>办公室 Mac 仍需保持唤醒、联网和用户登录，Tailscale 也必须在线。日常重启不需要重新配对；设备名、tailnet 名或注册身份变化可能改变入口，届时需核对客户端地址。</p>
-</section>
-
-<section id="tailscale-help"><span class="step-label">TROUBLESHOOT / DISCONNECT</span><h2>连接不通时，逐段检查。</h2>
-<div class="table-wrap"><table>
-  <thead><tr><th scope="col">现象</th><th scope="col">检查方法</th></tr></thead>
-  <tbody>
-    <tr><td>办公室本机也不通</td><td>先看 <code>mobd status</code> 和 <code>mobd logs</code>，确认监听端口及服务状态。</td></tr>
-    <tr><td>Serve 超时或域名无法解析</td><td>确认两端在同一 tailnet 且在线，检查 MagicDNS、客户端使用 Tailscale DNS，以及访问策略是否放行办公室 TCP 443。用 <code>sudo tailscale status</code> 和 <code>sudo tailscale netcheck</code> 检查办公室网络。</td></tr>
-    <tr><td>Funnel 在手机流量下不通</td><td>检查 <code>sudo tailscale funnel status</code> 是否显示公网入口、HTTPS / Funnel 权限及办公室在线状态；首次发布等待 DNS 生效。</td></tr>
-    <tr><td>入口返回 502</td><td>在办公室重试本机 <code>/health</code>；确认 mobd 正在运行，转发目标为实际的 HTTP 监听端口。</td></tr>
-    <tr><td>证书错误</td><td>使用终端输出的完整 HTTPS 域名，检查 DNS、系统时间和证书启用状态，不要改用 IP 或关闭证书验证。</td></tr>
-    <tr><td>配对后客户端仍报 401</td><td>裸 curl 的 401 是预期；MOB 内的 401 则需检查设备是否被撤销，使用新邀请重新配对。</td></tr>
-    <tr><td>聊天正常，桌面打不开或很慢</td><td>先看客户端显示的原因（屏幕锁定或休眠、缺少屏幕录制权限、“Update mobd”需升级办公室 mobd）；画面慢时看读数中的连接方式和信号格，用 <code>sudo tailscale status</code> 查看是否经过 relay 中继，并检查办公室上行带宽。Funnel 走 WebSocket，还有带宽限制。</td></tr>
-  </tbody>
-</table></div>
-<h3>关闭入口或切换方式</h3>
-<p>在办公室只运行与你所选方式对应的一组命令；以下仅关闭本指南在 443 上建立的入口，保留其他端口配置。</p>
-<p><strong>关闭 Serve：</strong></p>
+<p>Funnel 需要 MagicDNS、HTTPS 证书和 Funnel 权限，首次执行时按终端链接启用。这是公网入口：只给可信设备发邀请，保持 mobd 更新。同一端口不能同时使用 Serve 和 Funnel。参见 <a href="https://tailscale.com/docs/features/tailscale-funnel" rel="noreferrer">Funnel 说明</a>。</p></details>
+<details class="hint"><summary>限制 tailnet 内的访问</summary>
+<p>在 <a href="https://login.tailscale.com/admin/acls" rel="noreferrer">访问控制</a>中只允许你的设备访问办公室 Mac 的 TCP 443 和 UDP 9527。TCP 443 承载对话和配对，UDP 9527 承载实时桌面的 WebRTC；只放行 443 时画面改用 WebSocket。规则会累加，仅添加新规则不会收紧已有的全放行规则。</p></details>
+<details class="hint"><summary>连接不通时</summary>
+<ul>
+  <li>先在办公室本机检查：<code>mobd status</code>、<code>mobd logs</code>，以及 <code>curl -i http://127.0.0.1:8080/health</code>（未带凭据返回 401 即正常）。</li>
+  <li>Serve：确认两端都在线且在同一 tailnet，<code>sudo tailscale serve status</code> 显示入口。</li>
+  <li>入口返回 502：mobd 未运行，或转发目标不是实际的监听端口。</li>
+  <li>证书错误：使用输出的完整域名，不要改用 IP 或跳过证书验证。</li>
+</ul></details>
+<details class="hint"><summary>关闭入口</summary>
 <pre><code>sudo tailscale serve --bg --https=443 off
-sudo tailscale serve status</code></pre>
-<p><strong>关闭 Funnel：</strong></p>
-<pre><code>sudo tailscale funnel --bg --https=443 off
-sudo tailscale funnel status</code></pre>
-<p>不要用 <code>serve reset</code> 或 <code>funnel reset</code> 清除同机其他服务。关闭入口不会撤销 MOB 已配对凭据；只需移除某台设备时，在办公室运行 <code>mobd clients list</code>，再用 <code>mobd clients revoke CLIENT_ID</code> 撤销它。</p>
-<p>网络命令与关闭方式可对照官方 <a href="https://tailscale.com/docs/reference/tailscale-cli/serve" rel="noreferrer">Serve CLI</a> 和 <a href="https://tailscale.com/docs/reference/tailscale-cli/funnel" rel="noreferrer">Funnel CLI</a>。需要使用自己的公网服务器和域名时，参考进阶的 <a href="https://github.com/xrdavies/mobd/blob/main/docs/connection-setup.md#自建中继" rel="noreferrer">Caddy + Tailscale 网关手册</a>。</p>
+sudo tailscale funnel --bg --https=443 off</code></pre>
+<p>关闭入口不会撤销已配对的凭据；需要时用 <code>mobd clients revoke</code>。</p></details>
 </section>
 
-<section id="upgrade"><span class="step-label">KEEP MOB CURRENT</span><h2>更新与卸载。</h2>
-<p><strong>更新 mobd：</strong>等当前任务结束，然后：</p>
-<pre><code>mobd stop
-{{install}}
-mobd start            # 或 mobd start --login 恢复登录启动</code></pre>
-<p>配置、会话和附件都会保留。</p>
-<p><strong>更新客户端：</strong>macOS 版启动时自动检查更新，也可在 Settings → About 中手动检查。Android 版下载新 APK 覆盖安装。</p>
-<p><strong>卸载 mobd：</strong>执行 <code>mobd stop</code>，删除 <code>~/.local/bin/mobd</code>。配置位于 <code>~/.mobd</code>，会话数据位于 <code>~/Library/Application Support/mob</code>，按需备份或删除。</p>
-<p><strong>Linux：</strong>用新的 <code>.deb</code> 执行 <code>sudo apt install ./mobd_X.Y.Z_amd64.deb</code> 即可更新，正在运行的桌面会保留，执行 <code>mobd restart</code> 后重新连接。<code>sudo apt remove mobd</code>（或 <code>mobd uninstall</code>）会关闭所有桌面并移除服务；配置位于 <code>~/.mobd</code>，会话、桌面文件和浏览器配置位于 <code>~/.local/share/mob</code>，按需删除。</p>
+<section id="upgrade"><h2>更新与卸载</h2>
+<p><strong>更新 mobd</strong>：等当前任务结束，执行 <code>mobd stop</code>，重新运行<a href="#install">安装命令</a>，再 <code>mobd start</code>（或 <code>mobd start --login</code>）。配置、会话和附件都会保留。</p>
+<p><strong>更新客户端</strong>：桌面端启动时自动检查更新；Android 下载新 APK 覆盖安装。</p>
+<p><strong>卸载 mobd</strong>：执行 <code>mobd stop</code>，删除 <code>~/.local/bin/mobd</code>。配置在 <code>~/.mobd</code>，会话数据在 <code>~/Library/Application Support/mob</code>，按需删除。</p>
 </section>
 
-<section id="commands"><span class="step-label">CHEAT SHEET</span><h2>命令速查。</h2>
+<section id="commands"><h2>命令速查</h2>
 <div class="table-wrap"><table>
-  <thead><tr><th>命令</th><th>作用</th></tr></thead>
+  <thead><tr><th scope="col">命令</th><th scope="col">作用</th></tr></thead>
   <tbody>
-    <tr><td><code>mobd init</code></td><td>创建 <code>~/.mobd/config.json</code>，不会覆盖已有文件</td></tr>
-    <tr><td><code>mobd start</code></td><td>以当前用户的后台服务运行（macOS LaunchAgent，Linux systemd 用户服务）</td></tr>
-    <tr><td><code>mobd start --login</code></td><td>启动并在登录 macOS 或 Linux 开机时自动运行</td></tr>
+    <tr><td><code>mobd init</code></td><td>创建 <code>~/.mobd/config.json</code>，不覆盖已有文件</td></tr>
+    <tr><td><code>mobd start</code></td><td>作为当前用户的后台服务运行</td></tr>
+    <tr><td><code>mobd start --login</code></td><td>启动，并在登录 macOS 时自动运行</td></tr>
     <tr><td><code>mobd status</code></td><td>监听地址与健康检查</td></tr>
     <tr><td><code>mobd logs</code></td><td>跟随日志（Ctrl-C 结束）</td></tr>
     <tr><td><code>mobd restart</code></td><td>重新加载配置，保留登录启动设置</td></tr>
-    <tr><td><code>mobd stop</code></td><td>停止服务，并取消登录启动；Linux 上会询问是否关闭各对话的桌面</td></tr>
-    <tr><td><code>mobd serve</code></td><td>在前台运行，Ctrl-C 停止</td></tr>
+    <tr><td><code>mobd stop</code></td><td>停止服务，并取消登录启动</td></tr>
+    <tr><td><code>mobd serve</code></td><td>在前台运行</td></tr>
     <tr><td><code>mobd link --url URL</code></td><td>生成一次性配对二维码和链接，10 分钟有效</td></tr>
     <tr><td><code>mobd clients list</code></td><td>列出已配对的设备</td></tr>
-    <tr><td><code>mobd clients revoke ID</code></td><td>撤销一台设备并立即断开它</td></tr>
-    <tr><td><code>mobd desktops list</code></td><td>Linux：列出各对话的桌面、状态、内存与磁盘占用</td></tr>
-    <tr><td><code>mobd desktops close ID</code></td><td>Linux：关闭一个对话的桌面（会话 ID 前 4 位以上即可）</td></tr>
-    <tr><td><code>mobd desktops doctor</code></td><td>Linux：检查桌面所需的软件包和系统设置</td></tr>
-    <tr><td><code>mobd desktops seed ID</code></td><td>Linux：以该对话的浏览器登录状态作为新对话的起点</td></tr>
+    <tr><td><code>mobd clients revoke ID</code></td><td>撤销一台设备并立即断开</td></tr>
   </tbody>
 </table></div>
 <p>完整配置项见 <a href="https://github.com/xrdavies/mobd#configuration-reference" rel="noreferrer">mobd 配置参考</a>。</p>
 </section>
 
-<section id="faq"><span class="step-label">A FEW GOOD QUESTIONS</span><h2>常见问题。</h2>
-<details><summary>为什么连接不上办公室 Mac？</summary><p>内网直连需确认 mobd 的监听地址、防火墙和两端网络互通。Tailscale 连接请按<a href="#tailscale-help">排错说明</a>检查 Serve / Funnel 入口，再在客户端使用 Test connection 查看具体项目。</p></details>
-<details><summary>客户端提示需要重新配对？</summary><p>这台设备的凭据已被撤销，或办公室执行了认证重置。在办公室 Mac 上重新运行 <code>mobd link --url …</code>，在客户端对该办公室选择 <strong>Pair again</strong> 并扫描或粘贴新链接，对话会保留。配对链接过期或已被使用时，同样重新生成即可。</p></details>
-<details><summary>为什么只能聊天，看不到桌面？</summary><p>客户端会显示原因：缺少屏幕录制权限时，在办公室 Mac 授予后重启 mobd；提示“Update mobd”时更新办公室的 mobd；截图提示屏幕锁定时，解锁或关闭自动锁屏（实时桌面在锁屏时仍可打开）。不再需要“屏幕共享”或 macOS 登录密码。</p></details>
-<details><summary>实时桌面用什么方式传输？流量大吗？</summary><p>在内网和 Tailscale 下用 WebRTC，H.264 画面按客户端窗口大小编码，并随网络自动调节码率、分辨率和帧率；画面不变时几乎不发送数据。只通 TCP 的入口（Funnel、HTTPS 网关）自动改用 WebSocket。可按办公室选择 Auto / High / Low 画质。</p></details>
-<details><summary>安装器提示 mobd 正在运行？</summary><p>先结束任务并执行 <code>mobd stop</code>（前台运行的 <code>mobd serve</code> 需手动停止），再重新运行安装命令。</p></details>
-<details><summary>我的内容会发送到哪里？</summary><p>桌面运行在办公室 Mac，客户端直接连接 mobd。任务内容、截图等是否发送给模型服务取决于你使用的 Agent 和模型配置，请查看对应服务的数据政策。</p></details>
-<details><summary>支持 iPhone、Intel Mac、Windows 或 Linux 吗？</summary><p>iPhone 与 iPad 版即将上线；Android 版已可下载。MOB 桌面客户端支持 macOS（Apple Silicon）、Windows 10/11 和 Linux（x64），Windows 与 Linux 版随包含它们的首个版本出现在<a href="/download/">下载页</a>。办公室端的 mobd 支持 macOS Apple Silicon 和 <a href="#linux">Linux</a>（Ubuntu、Debian，x86_64 与 arm64）；Windows 版在规划中。</p></details>
-<details><summary>Linux 上为什么看不到对话的桌面？</summary><p>桌面随对话的第一个任务启动，之前客户端会显示“还没有桌面”。显示“休眠”时，打开实时桌面会立即唤醒它。仍有问题时，在办公室运行 <code>mobd desktops doctor</code>；常见原因是缺少 systemd 用户服务（在容器中运行）、没有放行 UDP 9527，或缺少 H.264 编码器。</p></details>
+<section id="faq"><h2>常见问题</h2>
+<details><summary>连接不上办公室 Mac？</summary><p>确认 mobd 的监听地址、防火墙和两端网络互通，然后在客户端运行 Test connection 查看具体检查项。使用 Tailscale 时见<a href="#remote">远程访问</a>中的排查步骤。</p></details>
+<details><summary>客户端提示需要重新配对？</summary><p>这台设备的凭据已被撤销，或办公室重置了认证。重新运行 <code>mobd link --url …</code>，在客户端选择 <strong>Pair again</strong> 并扫描或粘贴新链接，对话会保留。</p></details>
+<details><summary>能聊天，但看不到桌面？</summary><p>客户端会显示原因：缺少屏幕录制权限时，授予后重启 mobd；提示 “Update mobd” 时更新办公室端。不需要“屏幕共享”或 macOS 登录密码。</p></details>
+<details><summary>实时桌面流量大吗？</summary><p>内网和 Tailscale Serve 下使用 WebRTC，码率、分辨率和帧率随网络自动调节，画面不变时几乎不发送数据。可以按办公室选择 Auto / High / Low 画质。</p></details>
+<details><summary>我的内容会发送到哪里？</summary><p>桌面运行在办公室 Mac，客户端直接连接 mobd。任务内容和截图是否发送给模型服务，取决于你使用的 Agent 和模型配置。</p></details>
+<details><summary>支持 Intel Mac 吗？</summary><p>目前桌面端和 mobd 只支持 Apple Silicon 的 macOS 13 或更新版本。</p></details>
 </section>
 
   </div>

@@ -69,22 +69,12 @@ for (const tabs of document.querySelectorAll('[data-tabs]')) {
   });
 }
 
-// Highlight the download that fits this device.
+// Highlight the download that fits this device (macOS, Android or iPhone).
 const ua = navigator.userAgent;
 const platform = /android/i.test(ua) ? 'android'
   : /iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && navigator.maxTouchPoints > 1) ? 'ios'
-  : /macintosh|mac os x/i.test(ua) ? 'mac' : /windows/i.test(ua) ? 'windows' : /linux|x11/i.test(ua) ? 'linux' : '';
-document.querySelector(`[data-platform="${platform}"]`)?.classList.add('is-recommended');
-
-// Seamless marquee: the track scrolls by half its width.
-const track = document.querySelector('.marquee-track');
-if (track) {
-  for (const item of [...track.children]) {
-    const clone = item.cloneNode(true);
-    clone.setAttribute('aria-hidden', 'true');
-    track.append(clone);
-  }
-}
+  : /macintosh|mac os x/i.test(ua) ? 'mac' : '';
+if (platform) document.querySelector(`[data-platform="${platform}"]`)?.classList.add('is-recommended');
 
 // Guide table of contents follows the section in view.
 const guideLinks = [...document.querySelectorAll('.guide-nav a')];
@@ -101,14 +91,14 @@ if (guideLinks.length && 'IntersectionObserver' in window) {
   }
 }
 
-// Gentle reveal on scroll for large blocks.
+// Subtle reveal on scroll for large blocks.
 if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
   const observer = new IntersectionObserver(entries => {
     for (const entry of entries) {
       if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
     }
   }, { rootMargin: '0px 0px -10% 0px' });
-  for (const element of document.querySelectorAll('.feature, .app-demo, .phone-stage, .connection, .terminal, .download-card, .requirements > div, .release-entry')) {
+  for (const element of document.querySelectorAll('.feature-grid, .sides, .how-steps, .download-card')) {
     element.classList.add('reveal');
     observer.observe(element);
   }

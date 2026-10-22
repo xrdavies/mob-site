@@ -1,96 +1,46 @@
-<section class="page-intro wrap"><p class="eyebrow">ONE APP FOR EACH SIDE</p><h1>下载 <span class="gradient-text">MOB</span></h1><p>你身边的设备安装 MOB 客户端，办公室的 Mac 或 Linux 电脑安装 mobd。<br>两端通过内网、VPN 或 Tailscale 连接。</p></section>
+<section class="page-intro wrap"><h1>下载</h1><p>在你的设备上安装 MOB，在办公室 Mac 上安装 mobd。系统要求见<a href="/start/#requirements">准备工作</a>。</p></section>
 
 <section class="wrap download-section" aria-labelledby="clients-title">
-  <h2 class="group-title" id="clients-title"><span>01</span> 你身边的设备 · 客户端</h2>
+  <h2 class="group-title" id="clients-title">MOB 客户端</h2>
   <div class="download-grid">
     <article class="download-card" id="mac" data-platform="mac">
-      <span class="recommended">适合这台设备</span>
-      <div class="card-top"><img class="app-icon" src="/assets/app-icon.svg" width="72" height="72" alt="mob 应用图标"><div class="release-meta">{{meta:mob}}</div></div>
-      <h3>MOB for macOS</h3>
-      <p>发起任务，跟随 Agent 的进度，实时查看和控制办公室桌面。</p>
-      <ul class="spec-list"><li>macOS 13+ · Apple Silicon</li><li>DMG 安装包，已签名并公证</li><li>支持应用内自动更新</li></ul>
+      <div class="card-top"><h3>桌面端（macOS）</h3><div class="release-meta">{{meta:mob}}</div></div>
+      <p>发起任务、回答问题，查看和控制办公室桌面。</p>
+      <ul class="spec-list"><li>macOS 13+ · Apple Silicon</li><li>DMG，已签名并公证</li><li>应用内自动更新</li></ul>
       <div class="card-actions">{{download:mob|下载 DMG}}</div>
       {{checksum:mob}}
     </article>
-    <article class="download-card" id="windows" data-platform="windows">
-      <span class="recommended">适合这台设备</span>
-      <div class="card-top"><img class="app-icon" src="/assets/app-icon.svg" width="72" height="72" alt="mob 应用图标"><div class="release-meta">{{filemeta:windows-x64}}</div></div>
-      <h3>MOB for Windows</h3>
-      <p>与 macOS 版相同的桌面客户端。控制办公室 Mac 时，Ctrl 相当于 ⌘。</p>
-      <ul class="spec-list"><li>Windows 10 / 11 · x64</li><li>安装程序，安装到当前用户，无需管理员</li><li>支持应用内自动更新</li></ul>
-      <div class="card-actions">{{file:windows-x64|下载安装程序}}</div>
-      {{filesum:windows-x64}}
-      <details class="hint"><summary>出现“Windows 已保护你的电脑”？</summary><p>安装程序暂未进行 Windows 代码签名。确认文件来自本站且 SHA-256 一致后，点击“更多信息” → “仍要运行”。</p></details>
-    </article>
-    <article class="download-card" id="linux" data-platform="linux">
-      <span class="recommended">适合这台设备</span>
-      <div class="card-top"><img class="app-icon" src="/assets/app-icon.svg" width="72" height="72" alt="mob 应用图标"><div class="release-meta">{{filemeta:linux-x64}}</div></div>
-      <h3>MOB for Linux</h3>
-      <p>与 macOS 版相同的桌面客户端。控制办公室 Mac 时，Ctrl 相当于 ⌘。</p>
-      <ul class="spec-list"><li>Ubuntu 22.04+ 等 x64 发行版</li><li>AppImage（应用内自动更新）或 deb 包</li><li>凭据保存在系统密钥环</li></ul>
-      <div class="card-actions">{{file:linux-x64|下载 AppImage}}{{file:linux-x64-deb|下载 deb}}</div>
-      {{filesum:linux-x64}}
-      <details class="hint"><summary>实时桌面需要什么？</summary><p>deb 包会安装所需的 GStreamer 组件。使用 AppImage 时如实时桌面无法播放，请安装 <code>gstreamer1.0-plugins-bad gstreamer1.0-libav</code>。</p></details>
-    </article>
     <article class="download-card" id="android" data-platform="android">
-      <span class="recommended">适合这台设备</span>
-      <div class="card-top"><div class="platform-icon android" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 18h4"/></svg></div><div class="release-meta">{{meta:android}}</div></div>
-      <h3>MOB for Android</h3>
-      <p>手机和平板上的完整客户端：对话、审批卡片、通知，以及可手势控制的实时桌面。</p>
-      <ul class="spec-list"><li>Android 8.0+ · 手机与平板</li><li>APK 直接安装，已签名</li><li>可选后台监听，及时收到通知</li></ul>
+      <div class="card-top"><h3>Android</h3><div class="release-meta">{{meta:android}}</div></div>
+      <p>对话、审批、通知，以及可手势控制的实时桌面。</p>
+      <ul class="spec-list"><li>Android 8.0+</li><li>APK，已签名</li><li>下载新版本覆盖安装</li></ul>
       <div class="card-actions">{{download:android|下载 APK}}</div>
       {{checksum:android}}
-      <details class="hint"><summary>如何安装 APK？</summary><p>在手机上打开下载的文件；首次安装时按提示允许浏览器“安装未知应用”。更新时下载新版本覆盖安装，对话与设置会保留。</p></details>
+      <details class="hint"><summary>如何安装 APK？</summary><p>在手机上打开下载的文件，首次安装时按提示允许浏览器“安装未知应用”。更新时覆盖安装，对话与设置会保留。</p></details>
     </article>
     <article class="download-card" id="ios" data-platform="ios">
-      <span class="recommended">适合这台设备</span>
-      <div class="card-top"><div class="platform-icon ios" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4"/></svg></div><div class="release-meta">{{iosmeta}}</div></div>
-      <h3>MOB for iPhone &amp; iPad</h3>
-      <p>原生 SwiftUI 应用，iPad 上对话与桌面并排显示。正在准备上架，敬请期待。</p>
-      <ul class="spec-list"><li>iOS / iPadOS 17+</li><li>通过 App Store 分发</li><li>与 Android 版功能一致</li></ul>
+      <div class="card-top"><h3>iPhone</h3><div class="release-meta">{{iosmeta}}</div></div>
+      <p>与 Android 版相同的对话、审批、通知和实时桌面。</p>
+      <ul class="spec-list"><li>iOS 17+</li><li>先在 iPhone 上安装 TestFlight</li></ul>
       <div class="card-actions">{{ios|在 App Store 获取}}</div>
     </article>
   </div>
 </section>
 
 <section class="wrap download-section" aria-labelledby="office-title">
-  <h2 class="group-title" id="office-title"><span>02</span> 办公室的电脑 · 服务端</h2>
+  <h2 class="group-title" id="office-title">办公室端</h2>
   <article class="download-card wide" id="mobd">
     <div class="wide-copy">
-      <div class="card-top"><div class="platform-icon terminal" aria-hidden="true">&gt;_</div><div class="release-meta">{{meta:mobd}}</div></div>
-      <h3>mobd for macOS</h3>
-      <p>运行 Codex / Claude Code、执行桌面操作，并向所有客户端提供任务 API 和桌面连接。</p>
+      <div class="card-top"><h3>mobd（macOS）</h3><div class="release-meta">{{meta:mobd}}</div></div>
+      <p>运行 Codex / Claude Code、执行桌面操作，并向客户端提供任务接口和实时桌面。</p>
       <ul class="spec-list"><li>macOS 13+ · Apple Silicon</li><li>安装到 ~/.local/bin，无需 sudo</li><li>校验 SHA-256 与 Apple 签名</li></ul>
     </div>
     <div class="wide-install">
       <p class="install-label">在办公室 Mac 的终端中运行</p>
       <div class="command"><code data-copy-source>{{install}}</code><button type="button" class="copy-button" data-copy>复制</button></div>
-      <div class="card-actions"><a class="button ghost" href="/start/">安装与配置指南 →</a>{{link:mobd|手动下载压缩包}}</div>
+      <div class="card-actions"><a class="button secondary" href="/start/">安装指南 →</a>{{link:mobd|手动下载压缩包}}</div>
       {{checksum:mobd}}
     </div>
   </article>
-  <article class="download-card wide" id="mobd-linux">
-    <div class="wide-copy">
-      <div class="card-top"><div class="platform-icon terminal" aria-hidden="true">&gt;_</div><div class="release-meta">{{filemeta:mobd-linux-amd64-deb}}</div></div>
-      <h3>mobd for Linux</h3>
-      <p>每个对话都有自己的虚拟桌面：Agent 在里面工作，你随时实时查看；空闲的桌面自动休眠。</p>
-      <ul class="spec-list"><li>Ubuntu 22.04 / 24.04 · Debian 12 / 13</li><li>x86_64 与 arm64</li><li>以普通用户的 systemd 服务运行</li></ul>
-    </div>
-    <div class="wide-install">
-      <p class="install-label">下载 .deb 后在办公室 Linux 电脑上安装（会一并装好 Xvfb、openbox 和 GStreamer）</p>
-      <div class="command"><code data-copy-source>sudo apt install ./mobd_*.deb</code><button type="button" class="copy-button" data-copy>复制</button></div>
-      <div class="card-actions">{{file:mobd-linux-amd64-deb|下载 deb (x86_64)}}{{file:mobd-linux-arm64-deb|下载 deb (arm64)}}<a class="button ghost" href="/start/#linux">Linux 安装指南 →</a></div>
-      {{filesum:mobd-linux-amd64-deb}}
-      {{filesum:mobd-linux-arm64-deb}}
-    </div>
-  </article>
-</section>
-
-<section class="section wrap">
-  <div class="section-heading"><div><p class="eyebrow">BEFORE YOU BEGIN</p><h2>第一次见面，先准备这些。</h2></div><a class="text-link" href="/start/">查看完整安装指南 →</a></div>
-  <div class="requirements">
-    <div><span class="req-num">1</span><strong>一台办公室电脑</strong><p>Apple Silicon、macOS 13+ 的 Mac，或 Ubuntu / Debian 的 Linux 电脑（实体机或虚拟机，需要 systemd），保持开机联网。已安装并登录 Codex 或 Claude Code。</p></div>
-    <div><span class="req-num">2</span><strong>系统权限</strong><p>Mac：为 mobd 授予辅助功能与屏幕录制权限，无需开启“屏幕共享”。Linux：无需授权，<code>mobd desktops doctor</code> 会检查所需的软件包。</p></div>
-    <div><span class="req-num">3</span><strong>可达的网络与配对</strong><p>同一内网或公司 VPN 可以直接连接；跨网访问请按 <a class="text-link" href="/start/#remote">Tailscale 配置指南</a>选择私有 Serve 或客户端免 VPN 的 Funnel。两种方式都必须通过 <code>mobd link</code> 配对，不要把 mobd 的 HTTP 端口直接开放到公网。</p></div>
-  </div>
+  <p class="quiet">Linux 办公室端即将推出。</p>
 </section>

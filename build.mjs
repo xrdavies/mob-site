@@ -13,7 +13,8 @@ export function origin(value) {
   return url.origin;
 }
 
-// Optional App Store or TestFlight link; the iOS card says "coming soon" until it is set.
+// Optional App Store or TestFlight link; the iOS card says "coming soon" until it is set
+// and names TestFlight when the link is a beta invitation.
 export function iosURL(value) {
   if (!value) return '';
   const url = new URL(value);
@@ -22,11 +23,11 @@ export function iosURL(value) {
 }
 
 const pages = [
-  ['', '让办公室的 Mac，成为你的远程 AI 搭档', '把任务交给办公室里的 AI 助手。用 MOB 在 Mac、iPhone 或 Android 上发起任务、查看进度，并实时看见远程桌面。'],
-  ['download', '下载 MOB', 'MOB 桌面客户端（macOS）、Android 应用和办公室端 mobd（macOS、Linux）的下载与版本信息。'],
-  ['start', '安装 mobd 与快速开始', '在办公室 Mac 或 Linux 电脑上安装和配置 mobd，再从 Mac、iPhone 或 Android 连接。'],
-  ['changelog', '更新日志', 'MOB、mobd 与 Android 应用的公开版本记录和历史下载。'],
-  ['404', '这个页面暂时不在这里', '返回 MOB 首页，继续了解你的远程 AI 搭档。'],
+  ['', '在办公室的电脑上运行编码 Agent，随时随地驱动它', '在办公室 Mac 上运行 Codex 或 Claude Code，用 MOB 从 Mac、iPhone 或 Android 发起任务、回答问题，并实时查看办公室桌面。'],
+  ['download', '下载 MOB', 'MOB 桌面端（macOS）、Android、iPhone（TestFlight）客户端，以及办公室端 mobd（macOS）的下载与版本信息。'],
+  ['start', '快速开始', '在办公室 Mac 上安装和配置 mobd，再用 MOB 客户端配对连接。'],
+  ['changelog', '更新日志', 'MOB 桌面端、mobd 与 Android 应用的公开版本记录和历史下载。'],
+  ['404', '页面不存在', '这个页面不存在。返回 MOB 首页或下载页。'],
 ];
 
 export const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -40,15 +41,9 @@ export function renderNotes(text) {
     .replace(/\n/g, '<br>');
 }
 
-// {{file:...}} tokens: a product's extra files by platform key and index (mob's `downloads`,
-// mobd's Linux `platforms`: 0 the tarball, 1 the .deb).
-const FILES = {
-  'windows-x64': ['mob', 'windows-x64', 0], 'linux-x64': ['mob', 'linux-x64', 0], 'linux-x64-deb': ['mob', 'linux-x64', 1],
-  'mobd-linux-amd64-deb': ['mobd', 'linux-x86_64', 1], 'mobd-linux-arm64-deb': ['mobd', 'linux-aarch64', 1],
-};
-
 function renderers({ releases, base, ios }) {
   const latest = product => releases[product].releases[0];
+  const testflight = Boolean(ios) && new URL(ios).hostname === 'testflight.apple.com';
   const pending = product => releases[product].error ? '暂时无法获取版本信息' : '即将推出';
   return {
     version: product => latest(product) ? `v${latest(product).version}` : pending(product),
@@ -60,26 +55,6 @@ function renderers({ releases, base, ios }) {
       const release = latest(product);
       if (!release) return `<span class="button primary is-disabled" aria-disabled="true">${escape(label)}</span>`;
       return `<a class="button primary" href="${escape(release.url)}" data-download="${product}">${escape(label)} <span aria-hidden="true">↓</span></a>`;
-    },
-    file: (name, label) => {
-      const [product, key, index] = FILES[name] ?? [];
-      const release = product && latest(product);
-      const f = key && release?.files?.[key]?.[index];
-      if (!f) return `<span class="button ${index ? 'ghost' : 'primary'} is-disabled" aria-disabled="true">${escape(label)}</span>`;
-      return `<a class="button ${index ? 'ghost' : 'primary'}" href="${escape(f.url)}" data-download="${escape(name)}">${escape(label)} <span aria-hidden="true">↓</span></a>`;
-    },
-    filemeta: name => {
-      const [product = 'mob', key] = FILES[name] ?? [];
-      const release = latest(product);
-      return release?.files?.[key]?.length
-        ? `<span class="version-tag">v${release.version}</span><span>${formatDate(release.date)}</span>`
-        : `<span class="version-tag muted">${releases[product].error ? '暂时无法获取版本信息' : '即将推出'}</span>`;
-    },
-    filesum: name => {
-      const [product = 'mob', key] = FILES[name] ?? [];
-      const files = latest(product)?.files?.[key] ?? [];
-      if (!files.length) return '';
-      return `<details class="checksum"><summary>SHA-256 校验值</summary>${files.map(f => `<code>${f.sha256}</code>`).join('')}<a href="${escape(latest(product).checksums)}">SHA256SUMS ↗</a></details>`;
     },
     link: (product, label) => {
       const release = latest(product);
@@ -93,9 +68,9 @@ function renderers({ releases, base, ios }) {
     install: () => `curl -fsSL ${base}/mobd/install.sh | sh`,
     base: () => base,
     ios: label => ios
-      ? `<a class="button primary" href="${escape(ios)}">${escape(label)} <span aria-hidden="true">↗</span></a>`
+      ? `<a class="button primary" href="${escape(ios)}">${escape(testflight ? '通过 TestFlight 获取' : label)} <span aria-hidden="true">↗</span></a>`
       : '<span class="button primary is-disabled" aria-disabled="true">即将上线</span>',
-    iosmeta: () => ios ? '<span class="version-tag">App Store</span>' : '<span class="version-tag muted">即将推出</span>',
+    iosmeta: () => ios ? `<span class="version-tag">${testflight ? 'TestFlight' : 'App Store'}</span>` : '<span class="version-tag muted">即将推出</span>',
     changelog: product => {
       const { releases: list, error } = releases[product];
       if (!list.length) return `<p class="empty-release">${error ? '暂时无法获取发布记录，请稍后刷新。' : '尚未发布公开版本。'}</p>`;
