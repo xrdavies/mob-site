@@ -148,16 +148,35 @@ mobd stop && mobd start --login   # optional: also start at login</pre>
 
       <section id="remote">
         <h2>Remote access</h2>
-        <p>Away from the office network, use <a href="https://tailscale.com/" rel="noreferrer">Tailscale Serve</a>: only your tailnet can reach it, there is no public IP or port forwarding, and the live view still uses WebRTC. Install and sign in to Tailscale on the office Mac and on your devices.</p>
-        <p>Set <code>listen</code> to <code>127.0.0.1:8080</code> first, then:</p>
-        <pre>mobd restart
-sudo tailscale serve --bg --https=443 http://127.0.0.1:8080
-mobd link --url https://office-mac.your-tailnet.ts.net</pre>
-        <p>Use the address that <code>tailscale serve</code> prints, without <code>:8080</code>.</p>
+        <p>On the same Wi-Fi as the office Mac, pair with its LAN address (<a href="#connect">step 06</a>); that is the fastest route. Away from that network, use <a href="https://tailscale.com/" rel="noreferrer">Tailscale</a>: your devices join a private network (a tailnet) with the office Mac and reach mobd directly. There is no public IP or port forwarding, and the live view still uses WebRTC.</p>
+        <h3>1. Put every device on the same tailnet</h3>
+        <ul>
+          <li>Install <a href="https://tailscale.com/download" rel="noreferrer">Tailscale</a> on the office Mac, and the Tailscale app on your iPhone, iPad, Android phone or laptop.</li>
+          <li>Sign in with the <strong>same account</strong> everywhere, and keep Tailscale switched on while you use Mob.</li>
+          <li>In the <a href="https://login.tailscale.com/admin/dns" rel="noreferrer">admin console → DNS</a>, turn on <strong>MagicDNS</strong> and <strong>HTTPS Certificates</strong>.</li>
+        </ul>
+        <h3>2. Serve mobd on the office Mac</h3>
+        <pre>sudo tailscale serve --bg --https=443 http://127.0.0.1:8080
+tailscale serve status</pre>
+        <p>The status shows the address, such as <code>https://office-mac.your-tailnet.ts.net</code>. mobd does not need a restart. If you never pair over the LAN, you can also set <code>listen</code> to <code>127.0.0.1:8080</code> and run <code>mobd restart</code>, so mobd is reachable only through Tailscale.</p>
+        <h3>3. Pair with that address</h3>
+        <pre>mobd link --url https://office-mac.your-tailnet.ts.net</pre>
+        <p>Use the address that <code>tailscale serve status</code> shows, without <code>:8080</code>. In Mob, scan the QR code or paste the link (<strong>Add machine</strong>, or <strong>Pair again</strong> for a machine whose address changed).</p>
+        <h3>4. Check the connection is direct</h3>
+        <pre>tailscale ping your-phone</pre>
+        <p>Run it on the office Mac with the device's name from <code>tailscale status</code>. <strong>via direct</strong> or <strong>via</strong> an address and port means the device talks to the Mac directly and Mob is fast. <strong>via DERP(…)</strong> means traffic goes through one of Tailscale's relays: it works, but each request can take seconds, especially when the nearest relay is far away. Give it a minute (the first pings often start relayed), or try another network.</p>
+        <details class="fold"><summary>Mob says “mobd did not answer in time”</summary>
+          <ul>
+            <li>Check Tailscale is on and connected on the device, and that <code>tailscale ping</code> shows a direct path.</li>
+            <li>iPhone and iPad run one VPN at a time: Tailscale and another VPN or proxy app cannot be on together.</li>
+            <li>Funnel (below) always goes through Tailscale's relays. Far from them, requests take seconds; use Serve with the device on your tailnet instead.</li>
+            <li>On the office Wi-Fi, pair a second machine entry with the LAN address and use it there.</li>
+          </ul>
+        </details>
         <details class="fold"><summary>Public access with Funnel (devices without Tailscale)</summary>
           <pre>sudo tailscale funnel --bg --https=443 http://127.0.0.1:8080
 sudo tailscale funnel status</pre>
-          <p>This is a public entry point: pairing still applies, but invite trusted devices only and keep mobd up to date. The live view falls back to the slower WebSocket stream. Serve and Funnel cannot share a port. See <a href="https://tailscale.com/docs/features/tailscale-funnel" rel="noreferrer">Tailscale Funnel</a>.</p>
+          <p>This is a public entry point: pairing still applies, but invite trusted devices only and keep mobd up to date. The live view falls back to the slower WebSocket stream. Serve and Funnel cannot share a port. To move from Funnel to Serve once your devices are on the tailnet, run <code>sudo tailscale funnel --https=443 off</code>, then the Serve command above; the address stays the same, so devices stay paired. See <a href="https://tailscale.com/docs/features/tailscale-funnel" rel="noreferrer">Tailscale Funnel</a>.</p>
         </details>
         <details class="fold"><summary>Access control (ACLs)</summary>
           <p>In <a href="https://login.tailscale.com/admin/acls" rel="noreferrer">access controls</a>, allow only your devices to reach TCP 443 and UDP 9527 on the office Mac. 443 carries conversations and pairing; 9527 carries the live view over WebRTC. With 443 only, the live view uses WebSocket.</p>
