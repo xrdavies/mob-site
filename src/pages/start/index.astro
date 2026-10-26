@@ -13,8 +13,13 @@ const commands = [
   ['mobd status', 'Listening address and readiness checks'],
   ['mobd logs', 'Follow the log (Ctrl-C to stop)'],
   ['mobd serve', 'Run in the foreground'],
-  ['mobd link --url URL', 'Print a one-time pairing link and QR code'],
+  ['mobd link', 'Print a one-time pairing link and QR code for the remote address, else the office network one'],
+  ['mobd link --lan', 'The same, always for the office network address'],
+  ['mobd link --url URL', 'The same, for exactly this address'],
   ['mobd link --close', 'Cancel invitations that were not used yet'],
+  ['mobd remote', 'Show remote access and check it reaches mobd'],
+  ['mobd remote setup', 'Set up Tailscale Serve or a Cloudflare Tunnel'],
+  ['mobd remote off', 'Turn remote access off; paired devices stay paired'],
   ['mobd clients list', 'List paired devices'],
   ['mobd clients revoke ID', 'Revoke a device and disconnect it now'],
   ['mobd connections', 'List active authenticated requests and streams'],
@@ -56,7 +61,7 @@ const commands = [
         <ul>
           <li>An office Mac with <strong>Apple Silicon</strong> and <strong>macOS 13</strong> or later that stays on, online and logged in. mobd for Linux and Windows is coming.</li>
           <li><a href="https://developers.openai.com/codex/cli/" rel="noreferrer">Codex CLI</a> or <a href="https://code.claude.com/docs/en/quickstart" rel="noreferrer">Claude Code</a> installed and signed in on it. More agent harnesses are coming.</li>
-          <li>Your devices can reach that Mac: the same LAN, a company VPN, or <a href="#remote">remote access</a> as described below.</li>
+          <li>Your devices can reach that Mac: the same LAN, a company VPN, or <a href="/remote/">remote access</a> (Tailscale or a Cloudflare Tunnel).</li>
           <li>A client: <a href="/download/#mac">Mob for macOS</a>, <a href="/download/#ios">iPhone and iPad (iOS 17+)</a> or <a href="/download/#android">Android 8.0+</a>.</li>
         </ul>
       </section>
@@ -109,7 +114,7 @@ open -e ~/.mobd/config.json</pre>
           <li><code>listen</code> defaults to <code>0.0.0.0:8080</code> so devices on your LAN and VPN can connect. With Tailscale only, use <code>127.0.0.1:8080</code>.</li>
           <li>JSON does not expand <code>~</code> or <code>$HOME</code>; write full paths. Run <code>mobd restart</code> after a change.</li>
         </ul>
-        <p class="callout"><strong>Open it on trusted networks only.</strong> Every device must pair, but plain HTTP is not encrypted. Never forward port 8080 to the internet; across networks use a VPN, <a href="#remote">Tailscale</a> or a <a href="#cloudflare">Cloudflare Tunnel</a>.</p>
+        <p class="callout"><strong>Open it on trusted networks only.</strong> Every device must pair, but plain HTTP is not encrypted. Never forward port 8080 to the internet; across networks see <a href="/remote/">Remote access</a>.</p>
       </section>
 
       <section id="permissions">
@@ -135,9 +140,9 @@ mobd stop && mobd start --login   # optional: also start at login</pre>
 
       <section id="connect">
         <h2><span class="mr-3 font-mono text-accent-400">06</span>Pair a device</h2>
-        <p>Each device pairs once. Its credential is kept in the Keychain or Android Keystore and it reconnects on its own afterwards. On the office Mac, create an invitation with an address your device can reach:</p>
-        <pre>mobd link --url http://192.168.1.100:8080</pre>
-        <p>Terminal shows a QR code and a link, <strong>valid for 10 minutes and for one use</strong>. Run <code>mobd link</code> again if it expires.</p>
+        <p>Each device pairs once. Its credential is kept in the Keychain or Android Keystore and it reconnects on its own afterwards. On the office Mac, create an invitation:</p>
+        <pre>mobd link</pre>
+        <p>Terminal shows the address it used (this Mac's office network address, or the <a href="/remote/">remote address</a> once set up), a QR code and a link, <strong>valid for 10 minutes and for one use</strong>. Run <code>mobd link</code> again if it expires. With mobd 0.2.0, name the address: <code>mobd link --url http://192.168.1.100:8080</code>.</p>
         <ol>
           <li>In Mob, open <strong>Settings → Machines → Add machine</strong>.</li>
           <li>Scan the QR code with your phone, or paste the whole link. Check the address and tap <strong>Pair</strong>.</li>
@@ -148,76 +153,9 @@ mobd stop && mobd start --login   # optional: also start at login</pre>
 
       <section id="remote">
         <h2>Remote access</h2>
-        <p>On the same Wi-Fi as the office Mac, pair with its LAN address (<a href="#connect">step 06</a>); that is the fastest route. Away from that network, use <a href="https://tailscale.com/" rel="noreferrer">Tailscale</a>: your devices join a private network (a tailnet) with the office Mac and reach mobd directly. There is no public IP or port forwarding, and the live view still uses WebRTC. If you'd rather not run a VPN on your phone, use a <a href="#cloudflare">Cloudflare Tunnel</a> instead.</p>
-        <h3>1. Put every device on the same tailnet</h3>
-        <ul>
-          <li>Install <a href="https://tailscale.com/download" rel="noreferrer">Tailscale</a> on the office Mac, and the Tailscale app on your iPhone, iPad, Android phone or laptop.</li>
-          <li>Sign in with the <strong>same account</strong> everywhere, and keep Tailscale switched on while you use Mob.</li>
-          <li>In the <a href="https://login.tailscale.com/admin/dns" rel="noreferrer">admin console → DNS</a>, turn on <strong>MagicDNS</strong> and <strong>HTTPS Certificates</strong>.</li>
-        </ul>
-        <h3>2. Serve mobd on the office Mac</h3>
-        <pre>sudo tailscale serve --bg --https=443 http://127.0.0.1:8080
-tailscale serve status</pre>
-        <p>The status shows the address, such as <code>https://office-mac.your-tailnet.ts.net</code>. mobd does not need a restart. If you never pair over the LAN, you can also set <code>listen</code> to <code>127.0.0.1:8080</code> and run <code>mobd restart</code>, so mobd is reachable only through Tailscale.</p>
-        <h3>3. Pair with that address</h3>
-        <pre>mobd link --url https://office-mac.your-tailnet.ts.net</pre>
-        <p>Use the address that <code>tailscale serve status</code> shows, without <code>:8080</code>. In Mob, scan the QR code or paste the link (<strong>Add machine</strong>, or <strong>Pair again</strong> for a machine whose address changed).</p>
-        <h3>4. Check the connection is direct</h3>
-        <pre>tailscale ping your-phone</pre>
-        <p>Run it on the office Mac with the device's name from <code>tailscale status</code>. <strong>via direct</strong> or <strong>via</strong> an address and port means the device talks to the Mac directly and Mob is fast. <strong>via DERP(…)</strong> means traffic goes through one of Tailscale's relays: it works, but each request can take seconds, especially when the nearest relay is far away. Give it a minute (the first pings often start relayed), or try another network.</p>
-        <details class="fold"><summary>Mob says “mobd did not answer in time”</summary>
-          <ul>
-            <li>Check Tailscale is on and connected on the device, and that <code>tailscale ping</code> shows a direct path.</li>
-            <li>iPhone and iPad run one VPN at a time: Tailscale and another VPN or proxy app cannot be on together.</li>
-            <li>Funnel (below) always goes through Tailscale's relays. Far from them, requests take seconds; use Serve with the device on your tailnet instead.</li>
-            <li>On the office Wi-Fi, pair a second machine entry with the LAN address and use it there.</li>
-          </ul>
-        </details>
-        <details class="fold"><summary>Public access with Funnel (devices without Tailscale)</summary>
-          <pre>sudo tailscale funnel --bg --https=443 http://127.0.0.1:8080
-sudo tailscale funnel status</pre>
-          <p>This is a public entry point: pairing still applies, but invite trusted devices only and keep mobd up to date. The live view falls back to the slower WebSocket stream. Serve and Funnel cannot share a port. To move from Funnel to Serve once your devices are on the tailnet, run <code>sudo tailscale funnel --https=443 off</code>, then the Serve command above; the address stays the same, so devices stay paired. See <a href="https://tailscale.com/docs/features/tailscale-funnel" rel="noreferrer">Tailscale Funnel</a>.</p>
-        </details>
-        <details class="fold"><summary>Access control (ACLs)</summary>
-          <p>In <a href="https://login.tailscale.com/admin/acls" rel="noreferrer">access controls</a>, allow only your devices to reach TCP 443 and UDP 9527 on the office Mac. 443 carries conversations and pairing; 9527 carries the live view over WebRTC. With 443 only, the live view uses WebSocket.</p>
-        </details>
-        <details class="fold"><summary>Can't connect?</summary>
-          <ul>
-            <li>On the office Mac: <code>mobd status</code>, <code>mobd logs</code>, and <code>curl -i http://127.0.0.1:8080/health</code> (401 without a credential is expected).</li>
-            <li>Both ends are online in the same tailnet, and <code>sudo tailscale serve status</code> shows the entry.</li>
-            <li>A 502 means mobd isn't running, or Serve forwards to a different port than mobd listens on.</li>
-            <li>Turn the entry off with <code>sudo tailscale serve --bg --https=443 off</code>. Paired devices stay paired.</li>
-          </ul>
-        </details>
-        <h3 id="cloudflare">Without a VPN: Cloudflare Tunnel</h3>
-        <p>Your phone reaches mobd at an HTTPS address on your own domain, with no app besides Mob. The office Mac runs <code>cloudflared</code>, which connects out to Cloudflare, so there's no public IP or open port. mobd needs no changes. The tunnel carries no UDP, so the live view uses the WebSocket stream. You need a Cloudflare account and a domain whose DNS is on Cloudflare; below, <code>mob.example.com</code>.</p>
-        <ol>
-          <li>In the <a href="https://dash.cloudflare.com/" rel="noreferrer">Cloudflare dashboard</a>, open <strong>Zero Trust → Networks → Tunnels</strong> and create a <strong>Cloudflared</strong> tunnel, for example <code>office-mac</code>. Choose <strong>macOS</strong> and copy the install command with its token.</li>
-          <li>Add a <strong>public hostname</strong>: <code>mob.example.com</code>, service type <strong>HTTP</strong>, URL <code>127.0.0.1:8080</code>. Use HTTP, not HTTPS: Cloudflare provides the certificate.</li>
-          <li>On the office Mac, install <code>cloudflared</code> and run the command from the dashboard. It starts at boot; the tunnel shows <strong>Healthy</strong>.</li>
-        </ol>
-        <pre>brew install cloudflared
-sudo cloudflared service install YOUR_TUNNEL_TOKEN</pre>
-        <p>From another network, <code>curl -i https://mob.example.com/health</code> should answer <strong>401</strong>: the request reached mobd, which wants a credential. Then pair, and close the invitation once the device is added:</p>
-        <pre>mobd link --url https://mob.example.com
-mobd link --close</pre>
-        <p>If only the tunnel is used, set <code>listen</code> to <code>127.0.0.1:8080</code> and run <code>mobd restart</code>, so the unencrypted port isn't open on your LAN. Keep the tunnel token secret; regenerate it in the dashboard if it leaks.</p>
-        <details class="fold"><summary>Security with a public address</summary>
-          <ul>
-            <li><strong>Cloudflare can read the traffic.</strong> TLS ends at Cloudflare, so invitations, device credentials, conversations and the live view pass through it decrypted. If that isn't acceptable, use Tailscale Serve.</li>
-            <li><strong>Anyone can reach the address, but not use it.</strong> Every request needs a paired device's credential. Invitations are 256-bit, single-use, expire after 10 minutes, and can only be created on the office Mac with <code>mobd link</code>.</li>
-            <li>mobd doesn't log failed attempts. To slow down scans, add a rate-limiting rule for <code>/pair</code> under <strong>Security → WAF</strong>.</li>
-            <li>Keep mobd up to date, and revoke a lost device with <code>mobd clients revoke CLIENT_ID</code>.</li>
-            <li>Don't put <strong>Cloudflare Access</strong> in front for now: Mob can't sign in to it yet and would be blocked.</li>
-          </ul>
-        </details>
-        <details class="fold"><summary>Cloudflare shows an error page</summary>
-          <ul>
-            <li><strong>Error 1033:</strong> <code>cloudflared</code> isn't running or can't reach Cloudflare. Check the tunnel's status in the dashboard.</li>
-            <li><strong>502:</strong> the tunnel works but mobd isn't running, or the public hostname points somewhere other than <code>http://127.0.0.1:8080</code>. Run <code>mobd status</code>.</li>
-            <li>To turn the address off, delete the public hostname or the tunnel; <code>sudo cloudflared service uninstall</code> removes it from the Mac. Paired devices stay paired.</li>
-          </ul>
-        </details>
+        <p>Away from the office network, reach mobd through <strong>Tailscale Serve</strong> (private, your devices run the Tailscale app) or a <strong id="cloudflare">Cloudflare Tunnel</strong> (no app on the phone, needs your domain). <code>mobd remote setup</code> walks you through either, checks the address reaches mobd and makes <code>mobd link</code> use it.</p>
+        <p><a href="/remote/" class="btn-ghost">Remote access guide</a></p>
+        <p>The guide compares the methods and covers the manual steps, Tailscale Funnel, using the same Mac at the office and away, security, and problems.</p>
       </section>
 
       <section id="upgrade">

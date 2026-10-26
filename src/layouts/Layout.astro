@@ -15,7 +15,7 @@ const path = Astro.url.pathname;
 const mob = latest('mob')?.version;
 const mobd = latest('mobd')?.version;
 const versions = [mob && `Mob ${mob}`, mobd && `mobd ${mobd}`].filter(Boolean).join(' · ');
-const nav = [['/start/', 'Docs'], ['/privacy/', 'Privacy']];
+const nav = [['/start/', 'Docs'], ['/remote/', 'Remote access'], ['/privacy/', 'Privacy']];
 ---
 <!doctype html>
 <html lang="en">
@@ -62,7 +62,7 @@ const nav = [['/start/', 'Docs'], ['/privacy/', 'Privacy']];
           <span data-read-place class="cap">{readout.place}</span>
         </div>
         <nav aria-label="Main" class="flex items-center gap-5 text-sm">
-          {nav.map(([href, label]) => <a href={href} aria-current={path === href ? 'page' : undefined} class={`text-[var(--dim)] hover:text-white aria-[current=page]:text-white ${label === 'Privacy' ? 'hidden sm:inline' : ''}`}>{label}</a>)}
+          {nav.map(([href, label]) => <a href={href} aria-current={path === href ? 'page' : undefined} class={`text-[var(--dim)] hover:text-white aria-[current=page]:text-white ${label !== 'Docs' ? 'hidden sm:inline' : ''}`}>{label}</a>)}
           <a href="/download/" class="btn-light min-h-9 px-4">Download</a>
         </nav>
       </div>
@@ -76,6 +76,7 @@ const nav = [['/start/', 'Docs'], ['/privacy/', 'Privacy']];
         <nav aria-label="Footer" class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-[var(--dim)]">
           <a href="/download/" class="hover:text-white">Download</a>
           <a href="/start/" class="hover:text-white">Docs</a>
+          <a href="/remote/" class="hover:text-white">Remote access</a>
           <a href="/privacy/" class="hover:text-white">Privacy</a>
           <a href="https://github.com/xrdavies/mob" rel="noreferrer" class="hover:text-white">GitHub</a>
         </nav>

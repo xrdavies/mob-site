@@ -83,6 +83,11 @@
   .fold[open] > summary::before { content: "−"; }
   .fold > :not(summary) { @apply px-4 pb-3 text-sm leading-relaxed text-zinc-400; }
 
+  /* A route from a device to mobd on the remote access page */
+  .route { @apply my-5 flex flex-wrap items-center gap-2 font-mono text-[12px]; }
+  .route span { @apply rounded-md border border-white/[0.1] bg-white/[0.03] px-2.5 py-1.5 text-zinc-300; }
+  .route i { @apply not-italic text-accent-400; }
+
   /* Long-form text: docs and privacy */
   .doc { @apply text-[15px] leading-7 text-zinc-300; }
   .doc section + section { @apply mt-16 border-t border-white/[0.08] pt-12; }

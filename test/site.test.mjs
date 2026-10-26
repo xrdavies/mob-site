@@ -17,7 +17,7 @@ const manifests = {
   mob: [release('mob', '0.2.0', 'mob_0.2.0_darwin_arm64.dmg', '**New** live view'), release('mob', '0.1.0', 'mob_0.1.0_darwin_arm64.dmg')],
   mobd: [release('mobd', '0.0.2', 'mobd_0.0.2_darwin_arm64.tar.gz')],
 };
-const PAGES = ['index.html', 'download/index.html', 'start/index.html', 'privacy/index.html', '404.html'];
+const PAGES = ['index.html', 'download/index.html', 'start/index.html', 'remote/index.html', 'privacy/index.html', '404.html'];
 
 // Builds the site with Astro into a temporary directory, with release manifests from a fixture.
 function build(t, env, fixture = manifests) {
@@ -80,9 +80,16 @@ test('released products get downloads and notes; the site is English, CSP-clean 
   assert.match(site.read('start/index.html'), /curl -fsSL https:\/\/download.mob.test\/mobd\/install.sh/);
   assert.match(download, /rel="canonical" href="https:\/\/mob.test\/download\/"/);
   const sitemap = site.read('sitemap.xml');
-  for (const path of ['/', '/download/', '/start/', '/privacy/']) assert.ok(sitemap.includes(`<loc>https://mob.test${path}</loc>`), path);
+  for (const path of ['/', '/download/', '/start/', '/remote/', '/privacy/']) assert.ok(sitemap.includes(`<loc>https://mob.test${path}</loc>`), path);
   assert.match(site.read('robots.txt'), /Sitemap: https:\/\/mob.test\/sitemap.xml/);
   assert.match(site.read('privacy/index.html'), /mailto:mob@taoist.dev/);
+  const remote = site.read('remote/index.html');
+  for (const id of ['choose', 'lan', 'tailscale', 'cloudflare', 'funnel', 'both', 'security', 'problems']) assert.match(remote, new RegExp(`id="${id}"`), `remote#${id}`);
+  assert.match(remote, /mobd remote setup --tailscale/);
+  assert.match(remote, /mobd remote setup --cloudflare --hostname mob.example.com/);
+  const start = site.read('start/index.html');
+  assert.match(start, /id="remote"[\s\S]*href="\/remote\/"/, 'Get started points to the remote access guide');
+  assert.match(start, /id="cloudflare"/, 'old #cloudflare links still land on the page');
   for (const page of PAGES) {
     const html = site.read(page);
     assert.doesNotMatch(html, /[一-鿿]/, `${page}: English only`);
