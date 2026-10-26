@@ -147,10 +147,11 @@ mobd link --url https://office-mac.your-tailnet.ts.net</pre>
 
       <section id="both">
         <h2>At the office and away</h2>
-        <p>Each pairing is one entry in <strong>Settings → Machines</strong>, for one address. To use the fast network address at the office and the remote one elsewhere, pair the device twice:</p>
-        <pre>mobd link --lan   # scan: the office network entry
-mobd link         # scan: the remote entry</pre>
-        <p>The next Mob release asks, for the second code, whether to add a second entry or replace the address; current versions replace it. Give the entries clear names, such as <strong>Office Mac (LAN)</strong> and <strong>Office Mac (remote)</strong>, and pick one in the machine menu. Both use the same conversations: they are the same mobd.</p>
+        <p>A Mac can have more than one address: the fast network address at the office and a remote one for elsewhere. Scan a code for each:</p>
+        <pre>mobd link --lan   # scan: the office network address
+mobd link         # scan: the remote address</pre>
+        <p>The second code for the same Mac adds its address to the Mac's row in <strong>Settings → Machines</strong>, labelled <strong>LAN</strong> or <strong>Remote</strong>; there is still one row, with the same conversations. The row shows which route is in use and whether it answers. To switch, long-press the Mac in the list (on the desktop app, click the route next to its name), or tap the route under the chat title. When the route in use doesn't answer, Mob shows <strong>LAN not reachable · Use Remote</strong>; it never switches by itself. Each address is paired on its own, so the device credential only goes to addresses it was paired on.</p>
+        <p>With Tailscale or Cloudflare the remote address also works at the office, so one address is often enough. The LAN address mainly makes the live view faster at your desk. This needs the next Mob release; current versions replace the address instead.</p>
       </section>
 
       <section id="security">
