@@ -1,6 +1,8 @@
 name: Build and deploy to GitHub Pages
 on:
+  # Pull requests to main are built and tested, not deployed.
   pull_request:
+    branches: [main]
   push:
     branches: [main]
   # Download links and release notes are baked in at build time; rebuild to pick up new releases.
