@@ -29,3 +29,15 @@ for (const error of errors) console.warn(`Warning: ${error}`);
 export const latest = product => releases[product].releases[0];
 export const pending = product => (releases[product].error ? 'Version unavailable' : 'Coming soon');
 export const install = `curl -fsSL ${base}/mobd/install.sh | sh`;
+
+// The source code (MIT) and where to report problems, per part of Mob.
+export const github = 'https://github.com/xrdavies';
+const repos = { mob: 'mob', mobd: 'mobd', android: 'mob-android' };
+export const releasePage = (product, version) => `${github}/${repos[product]}/releases/tag/v${version}`;
+export const parts = [
+  { name: 'mobd (office computer)', repo: 'mobd' },
+  { name: 'Mob for macOS', repo: 'mob' },
+  { name: 'Mob for iPhone & iPad', repo: 'mob-ios' },
+  { name: 'Mob for Android', repo: 'mob-android' },
+  { name: 'This website', repo: 'mob-site' },
+];

@@ -1,10 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Command from '../../components/Command.astro';
-import { base, install, latest } from '../../data/site.mjs';
+import { base, github, install, latest, parts } from '../../data/site.mjs';
 
 const steps = [['requirements', 'Requirements'], ['install', 'Install mobd'], ['config', 'Configure agents'], ['permissions', 'Grant permissions'], ['run', 'Start mobd'], ['connect', 'Pair a device']];
-const more = [['remote', 'Remote access'], ['upgrade', 'Upgrade & uninstall'], ['commands', 'Command reference'], ['faq', 'FAQ']];
+const more = [['remote', 'Remote access'], ['upgrade', 'Upgrade & uninstall'], ['commands', 'Command reference'], ['faq', 'FAQ'], ['report', 'Report a problem']];
 const mobd = latest('mobd');
 const commands = [
   ['mobd init', 'Create ~/.mobd/config.json; never overwrites an existing file'],
@@ -178,9 +178,18 @@ mobd stop && mobd start --login   # optional: also start at login</pre>
         <h2>FAQ</h2>
         <details class="fold"><summary>Does the office Mac have to stay on?</summary><p>Yes. mobd and the agents run on it; while it sleeps or is off, devices can't connect and tasks pause.</p></details>
         <details class="fold"><summary>Is my data uploaded anywhere?</summary><p>Mob runs no server of its own: your devices connect to mobd directly, or through the remote-access service you choose (Tailscale, Cloudflare). Whether task content goes to a model service depends on the agent and model you use. See the <a href="/privacy/">privacy policy</a>.</p></details>
-        <details class="fold"><summary>Mob says the machine needs pairing</summary><p>This device's credential was revoked, or the office reset authentication. Run <code>mobd link --url …</code> again, choose <strong>Pair again</strong> in Mob and scan or paste the new link. Conversations are kept.</p></details>
+        <details class="fold"><summary>Mob says the machine needs pairing</summary><p>This device's credential was revoked, or the office reset authentication. Run <code>mobd link</code> again, choose <strong>Pair again</strong> in Mob and scan or paste the new link. Conversations are kept.</p></details>
         <details class="fold"><summary>I can chat, but there is no live view</summary><p>Mob shows the reason. Without Screen Recording permission, grant it and restart mobd; if it says “Update mobd”, upgrade the office computer.</p></details>
         <details class="fold"><summary>Intel Macs, Linux, Windows?</summary><p>mobd and the macOS app currently need Apple Silicon and macOS 13 or later. mobd for Linux and Windows, and Mob for Windows and Linux, are on the way.</p></details>
+      </section>
+
+      <section id="report">
+        <h2>Report a problem</h2>
+        <p>Mob is open source. Search the issues or open a new one on GitHub, for the part that misbehaves:</p>
+        <ul>
+          {parts.map(p => <li><a href={`${github}/${p.repo}/issues`} rel="noreferrer">{p.name}</a></li>)}
+        </ul>
+        <p>Include the versions (<code>mobd --version</code>, and the app's in Settings → About) and what you did. Leave out addresses, pairing links and logs with private data: issues are public. For anything about security, write to <a href="mailto:mob@taoist.dev">mob@taoist.dev</a> instead.</p>
       </section>
     </article>
   </div>

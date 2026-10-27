@@ -1,7 +1,7 @@
 ---
-// Release notes and checksum of a product's latest release, folded.
+// Release notes and checksum of a product's latest release, folded, and its GitHub release.
 import { renderNotes } from '../../lib/config.mjs';
-import { latest } from '../data/site.mjs';
+import { latest, releasePage } from '../data/site.mjs';
 
 interface Props { product: string }
 const { product } = Astro.props;
@@ -10,5 +10,6 @@ const release = latest(product);
 {release && (
   <details class="fold"><summary>Release notes</summary><div class="release-notes" set:html={renderNotes(release.notes || `${product} ${release.version}`)} /></details>
   <details class="fold"><summary>SHA-256</summary><div><code class="block break-all font-mono text-xs text-zinc-300">{release.sha256}</code><a class="link mt-2 inline-block" href={release.checksums}>SHA256SUMS ↗</a></div></details>
+  <a class="link w-fit text-sm" href={releasePage(product, release.version)} rel="noreferrer">v{release.version} on GitHub: source and files ↗</a>
 )}
 <slot />

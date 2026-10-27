@@ -83,6 +83,13 @@ test('released products get downloads and notes; the site is English, CSP-clean 
   for (const path of ['/', '/download/', '/start/', '/remote/', '/privacy/']) assert.ok(sitemap.includes(`<loc>https://mob.test${path}</loc>`), path);
   assert.match(site.read('robots.txt'), /Sitemap: https:\/\/mob.test\/sitemap.xml/);
   assert.match(site.read('privacy/index.html'), /mailto:mob@taoist.dev/);
+  assert.match(download, /href="https:\/\/github.com\/xrdavies\/mob\/releases\/tag\/v0.2.0"/, 'the desktop download links its GitHub release');
+  assert.match(download, /href="https:\/\/github.com\/xrdavies\/mobd\/releases\/tag\/v0.0.2"/, 'mobd links its GitHub release');
+  assert.doesNotMatch(download, /mob-android\/releases/, 'no Android release link before its first release');
+  assert.match(home, /Open source/, 'the footer says it is open source');
+  assert.match(home, /href="\/start\/#report"/, 'the footer links Report a problem');
+  const report = site.read('start/index.html');
+  for (const repo of ['mobd', 'mob', 'mob-ios', 'mob-android', 'mob-site']) assert.match(report, new RegExp(`href="https://github.com/xrdavies/${repo}/issues"`), `issues of ${repo}`);
   const remote = site.read('remote/index.html');
   for (const id of ['choose', 'lan', 'tailscale', 'cloudflare', 'funnel', 'both', 'security', 'problems']) assert.match(remote, new RegExp(`id="${id}"`), `remote#${id}`);
   assert.match(remote, /mobd remote setup --tailscale/);
