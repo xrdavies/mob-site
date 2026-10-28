@@ -1,6 +1,6 @@
 # Mob website
 
-The product site for Mob: home, download, getting-started guide, privacy policy and 404.
+The product site for Mob, mob programming with your AI agents: home, download, docs, privacy policy and 404.
 Built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com) into static
 files, hosted on **GitHub Pages**. English only for now; the structure leaves room for more languages.
 

@@ -18,7 +18,7 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
 ---
 <Layout
   title="Mob · Leave the desk. The work stays."
-  description="mobd runs coding agents (Codex, Claude Code and Pi) on your own computer. Mob, on your laptop or phone, sends them tasks, answers their questions and shows the live desktop."
+  description="Mob is mob programming with your AI agents. mobd runs coding agents (Codex, Claude Code and Pi) on your own computer. Mob, on your laptop or phone, sends them tasks, answers their questions and shows the live desktop."
   readout={H.morning}
   room>
 
@@ -35,7 +35,7 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
         <a href="#how" class="btn-light">How it works ↓</a>
         <a href="#desk" class="btn-ghost">A day with Mob</a>
       </div>
-      <p class="mt-16 flex flex-wrap items-center gap-3"><span class="think font-mono text-sm">thinking…</span><span class="cap">Codex · Claude Code · Pi</span></p>
+      <p class="mt-16 flex flex-wrap items-center gap-3"><span class="think font-mono text-sm">thinking…</span><span class="cap">Mob programming with your agents · Codex · Claude Code · Pi</span></p>
     </div>
   </section>
 
@@ -44,6 +44,7 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
     <div class="wrapd">
       <p class="cap">How it works</p>
       <h2 class="mt-4 text-3xl sm:text-4xl">Two parts: mobd at the office, Mob with you.</h2>
+      <p class="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--dim)]"><span class="text-white">Why “Mob”?</span> In <a href="https://en.wikipedia.org/wiki/Mob_programming" rel="noreferrer" class="underline decoration-white/30 underline-offset-4 hover:decoration-white">mob programming</a> a team works together on one computer: one at the keyboard, the others steering. Here the team is you and your agents, and you steer from anywhere.</p>
       <ol class="mt-10 grid grid-cols-1 gap-5 md:grid-cols-3">
         <li class="panel p-6">
           <p class="vcr text-[28px] text-accent-400">01</p>
