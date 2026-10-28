@@ -17,7 +17,7 @@ const manifests = {
   mob: [release('mob', '0.2.0', 'mob_0.2.0_darwin_arm64.dmg', '**New** live view'), release('mob', '0.1.0', 'mob_0.1.0_darwin_arm64.dmg')],
   mobd: [release('mobd', '0.0.2', 'mobd_0.0.2_darwin_arm64.tar.gz')],
 };
-const DOCS = ['start', 'install/macos', 'install/linux', 'configure', 'pair', 'remote', 'desktops', 'commands', 'faq'];
+const DOCS = ['start', 'install/macos', 'install/linux', 'configure', 'pair', 'remote', 'desktops', 'files', 'commands', 'faq'];
 const PAGES = ['index.html', 'download/index.html', ...DOCS.map(d => `${d}/index.html`), 'privacy/index.html', '404.html'];
 
 // Builds the site with Astro into a temporary directory, with release manifests from a fixture.
