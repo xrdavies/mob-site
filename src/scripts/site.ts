@@ -149,3 +149,90 @@ if (docLinks.length && 'IntersectionObserver' in window) {
 }
 const mobileToc = document.querySelector<HTMLDetailsElement>('[data-mobile-toc]');
 mobileToc?.addEventListener('click', event => { if ((event.target as Element).closest('a')) mobileToc.open = false; });
+
+// Search: the index of every docs section is fetched on first use (/search.json, built by lib/search.mjs).
+interface Entry { url: string; page: string; title: string; text: string }
+const search = document.querySelector<HTMLDialogElement>('[data-search]');
+if (search) {
+  const input = search.querySelector('input')!;
+  const results = search.querySelector<HTMLElement>('[data-search-results]')!;
+  let index: Entry[] | null = null;
+  const load = async () => (index ??= await fetch('/search.json').then(r => r.json() as Promise<Entry[]>).catch(() => []));
+  const open = async () => {
+    if (!search.open) search.showModal();
+    input.select();
+    await load();
+    render();
+  };
+  for (const button of document.querySelectorAll('[data-search-open]')) button.addEventListener('click', () => void open());
+  document.addEventListener('keydown', event => {
+    const typing = (event.target as Element).closest('input, textarea, [contenteditable]');
+    if ((event.key === '/' && !typing) || ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k')) {
+      event.preventDefault();
+      void open();
+    }
+  });
+  search.addEventListener('click', event => { if (event.target === search) search.close(); });
+  results.addEventListener('click', event => { if ((event.target as Element).closest('a')) search.close(); });
+  input.addEventListener('input', render);
+  input.addEventListener('keydown', event => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      results.querySelector('a')?.click();
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      results.querySelector('a')?.focus();
+    }
+  });
+  results.addEventListener('keydown', event => {
+    const link = (event.target as Element).closest('a');
+    if (!link || (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')) return;
+    event.preventDefault();
+    const next = event.key === 'ArrowDown' ? link.nextElementSibling : link.previousElementSibling;
+    (next instanceof HTMLAnchorElement ? next : input).focus();
+  });
+
+  // Text with every query word marked, built from nodes (never HTML).
+  function marked(text: string, words: string[]): DocumentFragment {
+    const out = document.createDocumentFragment();
+    const pattern = new RegExp(`(${words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
+    for (const [i, part] of text.split(pattern).entries()) {
+      if (!part) continue;
+      if (i % 2) { const m = document.createElement('mark'); m.textContent = part; out.append(m); } else out.append(part);
+    }
+    return out;
+  }
+
+  function render() {
+    results.replaceChildren();
+    const words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
+    const note = (text: string) => { const p = document.createElement('p'); p.className = 'px-3 py-4 text-sm text-zinc-500'; p.textContent = text; results.append(p); };
+    if (!index) return note('Loading…');
+    if (!words.length) return note('Type to search the docs. Press / or ⌘K to open search anywhere.');
+    const found = index
+      .map(e => {
+        const title = e.title.toLowerCase(), page = e.page.toLowerCase(), text = e.text.toLowerCase();
+        if (!words.every(w => title.includes(w) || page.includes(w) || text.includes(w))) return null;
+        const score = words.reduce((n, w) => n + (title.includes(w) ? 10 : 0) + (page.includes(w) ? 4 : 0) + text.split(w).length - 1, 0);
+        return { e, score };
+      })
+      .filter((r): r is { e: Entry; score: number } => r !== null)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 12);
+    if (!found.length) return note(`Nothing found for “${input.value.trim()}”.`);
+    for (const [n, { e }] of found.entries()) {
+      const a = document.createElement('a');
+      a.href = e.url;
+      if (!n) a.dataset.first = '';
+      const head = document.createElement('span');
+      head.className = 'block text-sm text-zinc-100';
+      head.append(`${e.page} › `, marked(e.title, words));
+      const at = Math.max(0, e.text.toLowerCase().indexOf(words.find(w => e.text.toLowerCase().includes(w)) ?? '') - 50);
+      const snippet = document.createElement('span');
+      snippet.className = 'mt-0.5 block truncate text-xs text-zinc-500';
+      snippet.append(marked((at ? '…' : '') + e.text.slice(at, at + 160), words));
+      a.append(head, snippet);
+      results.append(a);
+    }
+  }
+}

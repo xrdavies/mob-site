@@ -89,6 +89,13 @@
   .route i { @apply not-italic text-accent-400; }
 
   /* Long-form text: docs and privacy */
+  /* Site search (Layout.astro, site.ts) */
+  .search { @apply m-0 mx-auto mt-[12vh] w-[min(640px,calc(100%-32px))] max-w-none overflow-hidden rounded-2xl border border-white/10 bg-[#111017] p-0 text-zinc-200 shadow-[0_30px_80px_-20px_rgb(0_0_0/.9)]; }
+  .search::backdrop { background: rgb(0 0 0 / .6); backdrop-filter: blur(4px); }
+  .search a { @apply block rounded-lg px-3 py-2.5 hover:bg-white/[0.06] focus:bg-white/[0.06] focus:outline-none; }
+  .search a[data-first] { @apply bg-white/[0.04]; }
+  .search mark { @apply bg-transparent text-accent-400; }
+
   .doc { @apply text-[15px] leading-7 text-zinc-300; }
   .doc section + section { @apply mt-16 border-t border-white/[0.08] pt-12; }
   .doc section { @apply scroll-mt-28; }

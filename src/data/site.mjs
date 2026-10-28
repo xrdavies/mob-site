@@ -34,6 +34,7 @@ export const install = `curl -fsSL ${base}/mobd/install.sh | sh`;
 export const github = 'https://github.com/xrdavies';
 const repos = { mob: 'mob', mobd: 'mobd', android: 'mob-android' };
 export const releasePage = (product, version) => `${github}/${repos[product]}/releases/tag/v${version}`;
+export const releasesPage = product => `${github}/${repos[product]}/releases`;
 export const parts = [
   { name: 'mobd (office computer)', repo: 'mobd' },
   { name: 'Mob Desktop (macOS, Windows, Linux)', repo: 'mob' },

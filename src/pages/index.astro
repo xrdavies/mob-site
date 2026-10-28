@@ -31,10 +31,40 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
         Here's an ordinary day.
       </p>
       <div class="mt-10 flex flex-wrap items-center gap-3">
-        <a href="#desk" class="btn-light">Start the day ↓</a>
-        <a href="/download/" class="btn-ghost">Download</a>
+        <a href="#how" class="btn-light">How it works ↓</a>
+        <a href="#desk" class="btn-ghost">A day with Mob</a>
       </div>
       <p class="mt-16 flex flex-wrap items-center gap-3"><span class="think font-mono text-sm">thinking…</span><span class="cap">Codex · Claude Code · Pi</span></p>
+    </div>
+  </section>
+
+  <!-- How it works: the two parts and what you need, before the story -->
+  <section id="how" class="border-t border-[var(--line)] py-24">
+    <div class="wrapd">
+      <p class="cap">How it works</p>
+      <h2 class="mt-4 text-3xl sm:text-4xl">Two parts: mobd at the office, Mob with you.</h2>
+      <ol class="mt-10 grid grid-cols-1 gap-5 md:grid-cols-3">
+        <li class="panel p-6">
+          <p class="vcr text-[28px] text-accent-400">01</p>
+          <h3 class="mt-2 text-lg font-medium">mobd on the office computer</h3>
+          <p class="mt-2 text-[15px] leading-relaxed text-[var(--dim)]">A Mac or a Linux machine that stays on. mobd runs Codex, Claude Code or Pi there, next to your code, tools and logins, and gives the agent a screen to work on.</p>
+        </li>
+        <li class="panel p-6">
+          <p class="vcr text-[28px] text-accent-400">02</p>
+          <h3 class="mt-2 text-lg font-medium">Mob on your devices</h3>
+          <p class="mt-2 text-[15px] leading-relaxed text-[var(--dim)]">Mob Desktop on your laptop, Mob Mobile on your iPhone or Android phone. Pair each once with a QR code from <code class="font-mono text-[13px]">mobd link</code>.</p>
+        </li>
+        <li class="panel p-6">
+          <p class="vcr text-[28px] text-accent-400">03</p>
+          <h3 class="mt-2 text-lg font-medium">Work from anywhere</h3>
+          <p class="mt-2 text-[15px] leading-relaxed text-[var(--dim)]">Send tasks, answer the agent's questions, watch its screen live and take control. On the office network, or from anywhere through Tailscale or Cloudflare.</p>
+        </li>
+      </ol>
+      <div class="mt-10 flex flex-wrap items-center gap-3">
+        <a href="/start/" class="btn-light">Get started</a>
+        <a href="/download/" class="btn-ghost">Download</a>
+        <span class="cap">No server of ours in between · open source</span>
+      </div>
     </div>
   </section>
 
