@@ -16,7 +16,7 @@ npm run build      # dist/
 npm run preview    # serves dist/
 ```
 
-The build reads the release manifests from R2 (default `https://mob-releases.0xd.app`) and writes
+The build reads the release manifests from R2 (default `https://dl.mymob.dev`) and writes
 versions, download links, SHA-256 and release notes into the HTML, so browsers never fetch R2 JSON
 (**no R2 CORS needed**). Offline, a local build still succeeds and shows “Version unavailable”.
 
@@ -25,7 +25,7 @@ versions, download links, SHA-256 and release notes into the HTML, so browsers n
 | Variable | Required | Meaning |
 | --- | --- | --- |
 | `SITE_URL` | to deploy | Site HTTPS origin (custom domain): canonical links, sitemap, og:image |
-| `DOWNLOAD_BASE_URL` | no | R2 download origin, default `https://mob-releases.0xd.app` |
+| `DOWNLOAD_BASE_URL` | no | R2 download origin, default `https://dl.mymob.dev` |
 | `IOS_APP_URL` | no | App Store or TestFlight link; without it the iPhone card says “Coming to the App Store” |
 | `REQUIRE_PUBLIC_CONFIG` | — | `1` requires `SITE_URL` and fails if any manifest can't be read (CI deploys) |
 | `RELEASES_FIXTURE` | — | JSON file of release histories by product used instead of R2 (tests, offline previews) |
@@ -33,8 +33,10 @@ versions, download links, SHA-256 and release notes into the HTML, so browsers n
 ## Deploy to GitHub Pages
 
 1. **Settings → Pages → Build and deployment → Source**: **GitHub Actions**.
-2. **Settings → Pages → Custom domain**: the site domain, with a DNS CNAME to `xrdavies.github.io`;
-   then **Enforce HTTPS**.
+2. **Settings → Pages → Custom domain**: `mymob.dev`, then **Enforce HTTPS**. DNS for the apex:
+   `A` records to `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153` and
+   `AAAA` records to `2606:50c0:8000::153` … `2606:50c0:8003::153`; `www` as a CNAME to
+   `xrdavies.github.io` (GitHub then redirects it). On Cloudflare, leave these records DNS-only.
 3. **Settings → Secrets and variables → Actions → Variables**: `SITE_URL` (same domain), and
    `DOWNLOAD_BASE_URL` / `IOS_APP_URL` as needed.
 4. Push to `main`.

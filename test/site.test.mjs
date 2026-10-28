@@ -48,6 +48,10 @@ test('manifests reject external URLs and wrong products; notes are escaped', asy
   assert.throws(() => validateRelease(data, 'mobd', base), /download/);
   assert.throws(() => validateRelease({ ...data, download: { ...data.download, url: 'https://other.test/file.dmg' } }, 'mob', base), /download/);
   assert.throws(() => validateRelease({ ...data, version: '../../bad' }, 'mob', base), /version/);
+  // Releases from before the move to dl.mymob.dev keep their old URLs and still count.
+  const old = 'https://mob-releases.0xd.app/mob/v1.2.3/';
+  const moved = { ...data, download: { ...data.download, url: `${old}mob_1.2.3_darwin_arm64.dmg` }, checksums_url: `${old}SHA256SUMS` };
+  assert.equal(validateRelease(moved, 'mob', base).url, `${old}mob_1.2.3_darwin_arm64.dmg`);
   assert.equal(validateRelease(release('android', '0.1.0', 'mob-android_0.1.0.apk'), 'android', base).version, '0.1.0');
   const { releases } = await fetchReleases(base, 'mob', async () => Response.json([data, { ...data, version: 'bad' }]));
   assert.equal(releases.length, 1, 'invalid entries are skipped, not fatal');
