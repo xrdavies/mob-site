@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { latest, siteURL } from '../data/site.mjs';
+import { DOC_PATHS } from '../data/docs.mjs';
 
 interface Props {
   title: string;
@@ -15,7 +16,9 @@ const path = Astro.url.pathname;
 const mob = latest('mob')?.version;
 const mobd = latest('mobd')?.version;
 const versions = [mob && `Mob ${mob}`, mobd && `mobd ${mobd}`].filter(Boolean).join(' · ');
+// Docs is current on every docs page.
 const nav = [['/start/', 'Docs'], ['/remote/', 'Remote access'], ['/privacy/', 'Privacy']];
+const docs = DOC_PATHS.includes(path);
 ---
 <!doctype html>
 <html lang="en">
@@ -62,7 +65,7 @@ const nav = [['/start/', 'Docs'], ['/remote/', 'Remote access'], ['/privacy/', '
           <span data-read-place class="cap">{readout.place}</span>
         </div>
         <nav aria-label="Main" class="flex items-center gap-5 text-sm">
-          {nav.map(([href, label]) => <a href={href} aria-current={path === href ? 'page' : undefined} class={`text-[var(--dim)] hover:text-white aria-[current=page]:text-white ${label !== 'Docs' ? 'hidden sm:inline' : ''}`}>{label}</a>)}
+          {nav.map(([href, label]) => <a href={href} aria-current={path === href || (label === 'Docs' && docs && path !== '/remote/') ? 'page' : undefined} class={`text-[var(--dim)] hover:text-white aria-[current=page]:text-white ${label !== 'Docs' ? 'hidden sm:inline' : ''}`}>{label}</a>)}
           <a href="/download/" class="btn-light min-h-9 px-4">Download</a>
         </nav>
       </div>
@@ -78,7 +81,7 @@ const nav = [['/start/', 'Docs'], ['/remote/', 'Remote access'], ['/privacy/', '
           <a href="/start/" class="hover:text-white">Docs</a>
           <a href="/remote/" class="hover:text-white">Remote access</a>
           <a href="/privacy/" class="hover:text-white">Privacy</a>
-          <a href="/start/#report" class="hover:text-white">Report a problem</a>
+          <a href="/faq/#report" class="hover:text-white">Report a problem</a>
           <a href="https://github.com/xrdavies" rel="noreferrer" class="hover:text-white">Source code</a>
         </nav>
       </div>

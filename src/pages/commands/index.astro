@@ -1,0 +1,60 @@
+---
+import DocLayout from '../../layouts/DocLayout.astro';
+
+const groups: [string, string, [string, string][]][] = [
+  ['service', 'Run mobd', [
+    ['mobd init', 'Create ~/.mobd/config.json; never overwrites an existing file'],
+    ['mobd start', 'Start in the background (macOS LaunchAgent, Linux systemd user service)'],
+    ['mobd start --login', 'Start, and start again at login (macOS) or boot (Linux)'],
+    ['mobd restart', 'Reload the configuration and restart; keeps the login setting'],
+    ['mobd stop', 'Stop, and turn off starting at login. Linux: asks whether to close desktops (--close-desktops, --keep-desktops)'],
+    ['mobd status', 'Listening address and readiness checks'],
+    ['mobd logs', 'Follow the log (Ctrl-C to stop)'],
+    ['mobd serve', 'Run in the foreground'],
+    ['mobd uninstall', 'Close every desktop, stop mobd and remove its service; keeps settings and data'],
+    ['mobd --version', 'Print the version'],
+  ]],
+  ['pairing', 'Pairing and devices', [
+    ['mobd link', 'One-use pairing link and QR code (10 minutes) for the remote address, else the office network one'],
+    ['mobd link --lan', 'The same, always for the office network address'],
+    ['mobd link --url URL', 'The same, for exactly this address'],
+    ['mobd link --close', 'Cancel invitations that were not used yet'],
+    ['mobd clients list', 'List paired devices'],
+    ['mobd clients revoke ID', 'Revoke a device and disconnect it now'],
+    ['mobd clients delete ID', 'Revoke a device and remove its record'],
+    ['mobd connections', 'List active authenticated requests and streams'],
+    ['mobd auth reset --yes', 'Revoke every device and invitation'],
+  ]],
+  ['remote', 'Remote access', [
+    ['mobd remote', 'Show remote access and check it reaches this mobd'],
+    ['mobd remote setup', 'Set up Tailscale Serve or a Cloudflare Tunnel (asks before each command)'],
+    ['mobd remote setup --tailscale --yes', 'The same, without questions'],
+    ['mobd remote setup --cloudflare --hostname HOST --token TOKEN --yes', 'Cloudflare, without questions'],
+    ['mobd remote off', 'Turn remote access off; paired devices stay paired'],
+  ]],
+  ['desktops', 'Desktops (Linux)', [
+    ['mobd desktops list', 'Every conversation desktop and its state'],
+    ['mobd desktops doctor', 'Check programs, cgroup v2, encoder, browsers, memory, disk and linger'],
+    ['mobd desktops wake SESSION', 'Wake a sleeping desktop'],
+    ['mobd desktops close SESSION', 'Close a desktop; its files and browser profile are kept'],
+    ['mobd desktops logs SESSION', "Show a desktop's logs"],
+    ['mobd desktops seed SESSION', "Make this conversation's browser profiles the start of every new conversation's"],
+  ]],
+];
+const sections: [string, string][] = [...groups.map(([id, label]) => [id, label] as [string, string]), ['config', 'Configuration']];
+---
+<DocLayout title="Commands" description="Every mobd command: running the service, pairing devices, remote access and Linux desktops." lead="Run them on the office computer, as the user that runs mobd. <code>mobd --help</code> lists them too." sections={sections}>
+  {groups.map(([id, label, rows]) => (
+    <section id={id}>
+      <h2>{label}</h2>
+      <div class="overflow-x-auto"><table>
+        <thead><tr><th scope="col">Command</th><th scope="col">What it does</th></tr></thead>
+        <tbody>{rows.map(([c, d]) => <tr><td class="whitespace-nowrap"><code>{c}</code></td><td>{d}</td></tr>)}</tbody>
+      </table></div>
+    </section>
+  ))}
+  <section id="config">
+    <h2>Configuration</h2>
+    <p>Settings live in <code>~/.mobd/config.json</code> (<a href="/configure/">Configure agents</a>). Every setting, with its default and environment variable, is in the <a href="https://github.com/xrdavies/mobd#configuration-reference" rel="noreferrer">configuration reference</a>.</p>
+  </section>
+</DocLayout>

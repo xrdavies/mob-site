@@ -1,7 +1,7 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import DocLayout from '../../layouts/DocLayout.astro';
 
-const sections = [
+const sections: [string, string][] = [
   ['choose', 'Choose a method'],
   ['lan', 'Same network (LAN)'],
   ['tailscale', 'Tailscale Serve'],
@@ -20,32 +20,7 @@ const routes = {
   funnel: ['Phone, no extra app', 'Tailscale relays (public HTTPS)', 'Office computer · Tailscale Funnel → mobd'],
 };
 ---
-<Layout title="Remote access · Mob" description="Reach mobd on your office computer from anywhere: on the office network, through Tailscale, or through a Cloudflare Tunnel." readout={{ turn: 'Docs', time: '', place: 'Remote access' }}>
-  <div class="container-x grid grid-cols-1 gap-12 pt-28 lg:grid-cols-[220px_minmax(0,1fr)] lg:pt-36">
-    <details data-mobile-toc class="fold sticky top-[72px] z-30 rounded-xl bg-[#0b0b0f]/95 backdrop-blur lg:hidden">
-      <summary>Contents</summary>
-      <nav aria-label="Remote access (mobile)" class="grid gap-1 pb-3 text-sm">
-        {sections.map(([id, label]) => <a href={`#${id}`} class="py-1 text-zinc-300">{label}</a>)}
-      </nav>
-    </details>
-
-    <aside class="hidden lg:block">
-      <nav data-doc-nav aria-label="Remote access" class="sticky top-32 text-sm">
-        <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">Remote access</p>
-        <div class="mt-3 grid gap-0.5">
-          {sections.map(([id, label]) => <a href={`#${id}`} class="rounded-md px-2 py-1.5 text-zinc-400 hover:text-zinc-100 data-[active]:bg-white/[0.06] data-[active]:text-zinc-50">{label}</a>)}
-        </div>
-        <p class="mt-8"><a href="/start/" class="text-zinc-400 hover:text-zinc-100">← Get started</a></p>
-      </nav>
-    </aside>
-
-    <article class="doc max-w-3xl">
-      <header class="mb-14">
-        <p class="eyebrow">Docs</p>
-        <h1 class="mt-3 text-4xl">Remote access</h1>
-        <p class="mt-4 text-lg text-zinc-400">How your phone and laptop reach mobd on the office computer: on the office network, or from anywhere. Set the route up once, then pair each device with <code>mobd link</code>.</p>
-      </header>
-
+<DocLayout title="Remote access" description="Reach mobd on your office computer (macOS or Linux) from anywhere: on the office network, through Tailscale, or through a Cloudflare Tunnel." lead="How your phone and laptop reach mobd on the office computer: on the office network, or from anywhere. Set the route up once, then pair each device with <code>mobd link</code>." sections={sections}>
       <section id="choose">
         <h2>Choose a method</h2>
         <div class="overflow-x-auto"><table>
@@ -73,11 +48,11 @@ const routes = {
         <div class="route">{routes.lan.map((r, i) => <><span>{r}</span>{i < routes.lan.length - 1 && <i aria-hidden="true">→</i>}</>)}</div>
         <p>For devices on the office Wi-Fi. On the office computer:</p>
         <pre>mobd link</pre>
-        <p>Without remote access set up, it prints the office computer's network address, such as <code>http://office-mac.local:8080</code>, with a QR code. Scan it in Mob (<strong>Settings → Machines → Add machine</strong>). Once remote access is set up, <code>mobd link</code> uses that address instead; <code>mobd link --lan</code> always gives the network one.</p>
+        <p>Without remote access set up, it prints the office computer's network address with a QR code: <code>http://&lt;name&gt;.local:8080</code> on a Mac, the computer's network IP on Linux, such as <code>http://192.168.1.20:8080</code>. Scan it in Mob (<strong>Settings → Machines → Add machine</strong>). Once remote access is set up, <code>mobd link</code> uses that address instead; <code>mobd link --lan</code> always gives the network one.</p>
         <ul>
           <li><strong>mobd must listen on the network.</strong> <code>mobd init</code> sets <code>"listen": "0.0.0.0:8080"</code>. If yours is <code>127.0.0.1:8080</code>, <code>mobd link</code> says so instead of printing a code that cannot work.</li>
           <li><strong>It is plain HTTP.</strong> Use it on a network you trust, never forward port 8080 to the internet.</li>
-          <li>If the macOS firewall asks, allow mobd to accept incoming connections.</li>
+          <li><strong>Firewall:</strong> on macOS, if the firewall asks, allow mobd to accept incoming connections. On Linux, open port 8080 and UDP 9527 to your network (<a href="/install/linux/#firewall">how</a>).</li>
         </ul>
       </section>
 
@@ -87,7 +62,7 @@ const routes = {
         <p>Your devices join a private network (a tailnet) with the office computer. mobd gets an HTTPS address that only they can reach, and the live view keeps WebRTC.</p>
         <h3>What you need</h3>
         <ul>
-          <li><a href="https://tailscale.com/download" rel="noreferrer">Tailscale</a> on the office computer and on each device, signed in to the <strong>same account</strong>.</li>
+          <li><a href="https://tailscale.com/download" rel="noreferrer">Tailscale</a> on the office computer and on each device, signed in to the <strong>same account</strong>. On Linux: <code>curl -fsSL https://tailscale.com/install.sh | sh</code>, then <code>sudo tailscale up</code>.</li>
           <li>In the <a href="https://login.tailscale.com/admin/dns" rel="noreferrer">admin console → DNS</a>: <strong>MagicDNS</strong> and <strong>HTTPS Certificates</strong> turned on.</li>
         </ul>
         <h3>Set it up</h3>
@@ -97,7 +72,7 @@ const routes = {
         <details class="fold"><summary>By hand</summary>
           <pre>sudo tailscale serve --bg --https=443 http://127.0.0.1:8080
 tailscale serve status</pre>
-          <p>The status shows the address, such as <code>https://office-mac.your-tailnet.ts.net</code>. Pair with it, without <code>:8080</code>: <code>mobd link --url https://office-mac.your-tailnet.ts.net</code>. With the Tailscale app on macOS, <code>sudo</code> is not needed.</p>
+          <p>The status shows the address, such as <code>https://office.your-tailnet.ts.net</code>. Pair with it, without <code>:8080</code>: <code>mobd link --url https://office.your-tailnet.ts.net</code>. With the Tailscale app on macOS, <code>sudo</code> is not needed. On Linux, <code>sudo tailscale set --operator=$USER</code> once lets your user run it without <code>sudo</code>.</p>
         </details>
         <h3>Check it is direct</h3>
         <pre>tailscale ping your-phone</pre>
@@ -116,16 +91,16 @@ tailscale serve status</pre>
         <h3>What you need</h3>
         <ul>
           <li>A Cloudflare account and a domain whose DNS is on Cloudflare; below, <code>mob.example.com</code>.</li>
-          <li>In the <a href="https://dash.cloudflare.com/" rel="noreferrer">Cloudflare dashboard</a>, <strong>Zero Trust → Networks → Tunnels</strong>: create a <strong>Cloudflared</strong> tunnel, environment <strong>macOS</strong>, and copy the token from the install command it shows.</li>
+          <li>In the <a href="https://dash.cloudflare.com/" rel="noreferrer">Cloudflare dashboard</a>, <strong>Zero Trust → Networks → Tunnels</strong>: create a <strong>Cloudflared</strong> tunnel, environment <strong>macOS</strong> or <strong>Debian</strong>, and copy the token from the install command it shows.</li>
           <li>On the tunnel, add a <strong>public hostname</strong>: <code>mob.example.com</code>, service type <strong>HTTP</strong>, URL <code>127.0.0.1:8080</code>. HTTP, not HTTPS: Cloudflare provides the certificate.</li>
         </ul>
         <h3>Set it up</h3>
         <pre>mobd remote setup --cloudflare --hostname mob.example.com</pre>
-        <p>It asks for the token without showing it, installs <code>cloudflared</code> with Homebrew if needed, installs it as a service that starts at boot (asking before each command), waits for the tunnel, checks <code>https://mob.example.com</code> reaches this mobd and saves it. Then pair each device:</p>
+        <p>It asks for the token without showing it, installs <code>cloudflared</code> if needed (Homebrew on macOS, Cloudflare's apt repository on Debian and Ubuntu), installs it as a service that starts at boot (asking before each command), waits for the tunnel, checks <code>https://mob.example.com</code> reaches this mobd and saves it. Then pair each device:</p>
         <pre>mobd link</pre>
         <details class="fold"><summary>By hand</summary>
-          <pre>brew install cloudflared
-sudo cloudflared service install YOUR_TUNNEL_TOKEN
+          <p>Install <code>cloudflared</code>: on macOS <code>brew install cloudflared</code>; on Debian and Ubuntu from <a href="https://pkg.cloudflare.com/" rel="noreferrer">Cloudflare's apt repository</a>; elsewhere from Cloudflare's <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/" rel="noreferrer">downloads</a>. Then:</p>
+          <pre>sudo cloudflared service install YOUR_TUNNEL_TOKEN
 mobd link --url https://mob.example.com</pre>
           <p>The tunnel shows <strong>Healthy</strong> in the dashboard once <code>cloudflared</code> is connected.</p>
         </details>
@@ -140,13 +115,13 @@ mobd link --url https://mob.example.com</pre>
         <p>A public HTTPS address from Tailscale for devices without the Tailscale app, with no domain needed. Traffic always goes through Tailscale's relays, so requests can take seconds when they are far away. <code>mobd remote</code> doesn't set it up; by hand:</p>
         <pre>sudo tailscale funnel --bg --https=443 http://127.0.0.1:8080
 sudo tailscale funnel status
-mobd link --url https://office-mac.your-tailnet.ts.net</pre>
+mobd link --url https://office.your-tailnet.ts.net</pre>
         <p>Serve and Funnel cannot share a port. To move to Serve once your devices have Tailscale, run <code>sudo tailscale funnel --https=443 off</code>, then the Serve setup; the address stays the same, so devices stay paired. See <a href="https://tailscale.com/docs/features/tailscale-funnel" rel="noreferrer">Tailscale Funnel</a>.</p>
       </section>
 
       <section id="both">
         <h2>At the office and away</h2>
-        <p>A Mac can have more than one address: the fast network address at the office and a remote one for elsewhere. Scan a code for each:</p>
+        <p>An office computer can have more than one address: the fast network address at the office and a remote one for elsewhere. Scan a code for each:</p>
         <pre>mobd link --lan   # scan: the office network address
 mobd link         # scan: the remote address</pre>
         <p>The second code for the same computer adds its address to its row in <strong>Settings → Machines</strong>, labelled <strong>LAN</strong> or <strong>Remote</strong>; there is still one row, with the same conversations. The row shows which route is in use and whether it answers. To switch, long-press the computer in the list (on the desktop app, click the route next to its name), or tap the route under the chat title. When the route in use doesn't answer, Mob shows <strong>LAN not reachable · Use Remote</strong>; it never switches by itself. Each address is paired on its own, so the device credential only goes to addresses it was paired on.</p>
@@ -172,19 +147,19 @@ mobd link         # scan: the remote address</pre>
         <details class="fold"><summary>Mob says “Cannot reach mobd” or “mobd did not answer in time”</summary>
           <ul>
             <li>On the office computer, <code>mobd status</code> and <code>mobd logs</code>: is mobd running?</li>
-            <li><strong>Network entry:</strong> is the device on the office Wi-Fi? Guest networks often keep devices apart.</li>
+            <li><strong>LAN address:</strong> is the device on the office network? Guest Wi-Fi often keeps devices apart. On Linux, check the firewall.</li>
             <li><strong>Tailscale:</strong> is Tailscale on and connected on the device? iPhone and iPad run one VPN at a time. <code>tailscale ping</code> should show a direct path.</li>
-            <li><strong>Remote entry at the office:</strong> fine, but slower; use the network entry there.</li>
+            <li><strong>Away from the office on the LAN address:</strong> Mob shows <strong>LAN not reachable · Use Remote</strong>; switch to the remote address.</li>
           </ul>
         </details>
         <details class="fold"><summary>HTTP 502</summary>
           <p>The route works but mobd doesn't answer behind it: mobd isn't running, or Serve or the tunnel's hostname points at a port other than mobd's (<code>http://127.0.0.1:8080</code>).</p>
         </details>
         <details class="fold"><summary>Cloudflare error 1033</summary>
-          <p><code>cloudflared</code> isn't running or can't reach Cloudflare. Check the tunnel's status in the dashboard; on macOS, <code>sudo launchctl list | grep cloudflared</code> on the office computer.</p>
+          <p><code>cloudflared</code> isn't running or can't reach Cloudflare. Check the tunnel's status in the dashboard, and the service on the office computer: <code>sudo launchctl list | grep cloudflared</code> on macOS, <code>systemctl status cloudflared</code> on Linux.</p>
         </details>
         <details class="fold"><summary>“Answers, but not as this mobd”</summary>
-          <p><code>mobd remote</code> reached the address, but another program answered: often something else on port 8080 of the office computer. <code>lsof -nP -iTCP:8080 -sTCP:LISTEN</code> lists what listens there; move that program to another port.</p>
+          <p><code>mobd remote</code> reached the address, but another program answered: often something else on port 8080 of the office computer. <code>lsof -nP -iTCP:8080 -sTCP:LISTEN</code> (macOS) or <code>sudo ss -ltnp 'sport = :8080'</code> (Linux) lists what listens there; move that program to another port.</p>
         </details>
         <details class="fold"><summary>Chat works, but the live view is slow</summary>
           <p>Over Cloudflare Tunnel and Funnel the live view always uses the WebSocket stream. Over Tailscale it uses WebRTC on UDP 9527; if your access control or a firewall blocks UDP, it falls back to WebSocket too.</p>
@@ -192,8 +167,6 @@ mobd link         # scan: the remote address</pre>
         <details class="fold"><summary>The pairing link is “invalid, expired or already used”</summary>
           <p>Invitations last 10 minutes and work once. Run <code>mobd link</code> again and scan the new code.</p>
         </details>
-        <p>Still stuck? <a href="/start/#report">Report a problem</a>.</p>
+        <p>Still stuck? See <a href="/faq/">FAQ &amp; help</a>, or <a href="/faq/#report">report a problem</a>.</p>
       </section>
-    </article>
-  </div>
-</Layout>
+</DocLayout>

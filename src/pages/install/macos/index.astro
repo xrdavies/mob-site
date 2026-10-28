@@ -1,0 +1,79 @@
+---
+import DocLayout from '../../../layouts/DocLayout.astro';
+import Command from '../../../components/Command.astro';
+import { base, install } from '../../../data/site.mjs';
+
+const sections: [string, string][] = [
+  ['requirements', 'Requirements'], ['install', 'Install'], ['permissions', 'Permissions'], ['start', 'Start mobd'],
+  ['awake', 'Keep it awake'], ['upgrade', 'Upgrade'], ['uninstall', 'Uninstall'],
+];
+---
+<DocLayout title="Install on macOS" description="Install mobd on a Mac: the installer, Screen Recording and Accessibility permissions, starting at login, upgrading and uninstalling." lead="On a Mac, the agent works on the Mac's own screen, shared by every conversation, while a user is logged in." sections={sections}>
+  <section id="requirements">
+    <h2>Requirements</h2>
+    <ul>
+      <li>A Mac with <strong>Apple Silicon</strong> and <strong>macOS 13</strong> or later. Intel Macs are not supported.</li>
+      <li>A user who stays logged in. mobd runs as that user, like any app.</li>
+      <li>At least one agent installed and signed in as that user: Codex, Claude Code or Pi (<a href="/configure/#agents">how</a>).</li>
+    </ul>
+  </section>
+
+  <section id="install">
+    <h2>Install</h2>
+    <p>In Terminal, as your normal user (no sudo):</p>
+    <Command command={install} />
+    <p>The installer checks the SHA-256 and the Apple developer signature and puts only <code>mobd</code> in <code>~/.local/bin</code>. Add that to your PATH and check:</p>
+    <pre>echo 'export PATH="$HOME/.local/bin:$PATH"' &gt;&gt; ~/.zshrc
+export PATH="$HOME/.local/bin:$PATH"
+mobd --version</pre>
+    <details class="fold"><summary>A specific version, another directory, or a manual install</summary>
+      <pre>curl -fsSLO {base}/mobd/install.sh
+sh install.sh --version X.Y.Z
+sh install.sh --install-dir /absolute/path</pre>
+      <p>Or download the archive from the <a href="/download/#mobd">download page</a>, check it against SHA256SUMS, unpack it and put <code>mobd</code> in a directory on your PATH.</p>
+    </details>
+    <p>Next, create the configuration: <code>mobd init</code>, then <a href="/configure/">Configure agents</a>. Come back here to start mobd.</p>
+  </section>
+
+  <section id="permissions">
+    <h2>Permissions</h2>
+    <p>mobd asks for missing permissions the first time it starts. You can also grant them in <strong>System Settings → Privacy &amp; Security</strong>.</p>
+    <div class="overflow-x-auto"><table>
+      <thead><tr><th scope="col">Permission</th><th scope="col">Used for</th></tr></thead>
+      <tbody>
+        <tr><td>Screen &amp; System Audio Recording</td><td>Screenshots and the live view</td></tr>
+        <tr><td>Accessibility</td><td>The agent's clicks and typing, and controlling the Mac from your device</td></tr>
+      </tbody>
+    </table></div>
+    <p>mobd captures the screen itself; Screen Sharing does not need to be on. After granting a permission, run <code>mobd restart</code>.</p>
+  </section>
+
+  <section id="start">
+    <h2>Start mobd</h2>
+    <pre>mobd start                        # run in the background
+mobd status                       # address and readiness checks
+mobd stop &amp;&amp; mobd start --login   # optional: also start at login</pre>
+    <p>Every check in <code>mobd status</code> should pass. <code>mobd logs</code> follows the log. Then <a href="/pair/">pair a device</a>.</p>
+  </section>
+
+  <section id="awake">
+    <h2>Keep it awake</h2>
+    <p>While the Mac sleeps, devices can't connect and turns pause. Stop it from sleeping on its own (System Settings → Energy, or Battery on a laptop). The display itself may sleep: the live view wakes it.</p>
+  </section>
+
+  <section id="upgrade">
+    <h2>Upgrade</h2>
+    <p>Let running turns finish, then:</p>
+    <pre>mobd stop          # the installer refuses while mobd runs
+{install}
+mobd start --login # or mobd start, if it should not start at login</pre>
+    <p><code>mobd stop</code> also turns off starting at login, so start it the way you want it again. Settings and conversations are kept.</p>
+  </section>
+
+  <section id="uninstall">
+    <h2>Uninstall</h2>
+    <pre>mobd uninstall          # stops mobd and removes its service
+rm ~/.local/bin/mobd</pre>
+    <p>Settings stay in <code>~/.mobd</code> and conversations in <code>~/Library/Application Support/mob</code>; delete them if you no longer need them.</p>
+  </section>
+</DocLayout>

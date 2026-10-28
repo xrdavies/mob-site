@@ -1,0 +1,75 @@
+---
+import DocLayout from '../../layouts/DocLayout.astro';
+
+const sections: [string, string][] = [
+  ['agents', 'Install the agents'], ['config', 'config.json'], ['settings', 'Agent settings in Mob'], ['linux', 'Linux desktops'], ['security', 'Security'],
+];
+---
+<DocLayout title="Configure agents" description="Choose which agents mobd runs (Codex, Claude Code, Pi) and where they work, then set models, effort and permissions in Mob." lead="<code>config.json</code> on the office computer says which agents mobd runs and where. Everything else about them is set in Mob and shared by every device." sections={sections}>
+  <section id="agents">
+    <h2>Install the agents</h2>
+    <p>Install each agent you want on the office computer, as the user that runs mobd, and sign it in once in a terminal:</p>
+    <div class="overflow-x-auto"><table>
+      <thead><tr><th scope="col">Agent</th><th scope="col">Install</th><th scope="col">In <code>runners</code></th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://developers.openai.com/codex/cli/" rel="noreferrer">Codex</a></td><td><code>npm install -g @openai/codex</code>, then <code>codex</code> to sign in</td><td><code>codex</code></td></tr>
+        <tr><td><a href="https://code.claude.com/docs/en/quickstart" rel="noreferrer">Claude Code</a></td><td><code>curl -fsSL https://claude.ai/install.sh | bash</code>, then <code>claude</code> to sign in</td><td><code>claude</code></td></tr>
+        <tr><td><a href="https://www.npmjs.com/package/@earendil-works/pi-coding-agent" rel="noreferrer">Pi</a></td><td><code>npm install -g --ignore-scripts @earendil-works/pi-coding-agent@1.4.0</code>, then set up its model provider</td><td><code>pi</code></td></tr>
+      </tbody>
+    </table></div>
+    <p>mobd checks that each agent is installed in a supported version; Mob's machine settings list every agent with its state and, when one is missing, the command to install it. The agent's own sign-in is not checked: a problem there shows as the agent's error on the first turn.</p>
+  </section>
+
+  <section id="config">
+    <h2>config.json</h2>
+    <pre>mobd init     # creates ~/.mobd/config.json; never overwrites it</pre>
+    <p>Open <code>~/.mobd/config.json</code> in an editor (<code>open -e</code> on macOS, <code>nano</code> on Linux):</p>
+    <pre>{`{
+  "listen": "0.0.0.0:8080",
+  "workdir": "/Users/you/Projects",
+  "runners": ["codex", "claude", "pi"]
+}`}</pre>
+    <ul>
+      <li><code>runners</code>: the agents to enable. mobd finds <code>codex</code>, <code>claude</code> and <code>pi</code> on your PATH; otherwise set <code>codexBin</code>, <code>claudeBin</code> or <code>piBin</code> to the full path (<code>command -v codex</code> shows it).</li>
+      <li><code>workdir</code>: the folder the agents work in, as a full path: <code>/Users/you/…</code> on macOS, <code>/home/you/…</code> on Linux. JSON does not expand <code>~</code> or <code>$HOME</code>.</li>
+      <li><code>listen</code>: <code>0.0.0.0:8080</code> lets devices on your network and VPN connect. With <a href="/remote/">Tailscale or a Cloudflare Tunnel</a> only, use <code>127.0.0.1:8080</code>.</li>
+      <li>Run <code>mobd restart</code> after a change.</li>
+    </ul>
+    <p>Every setting is in the <a href="https://github.com/xrdavies/mobd#configuration-reference" rel="noreferrer">configuration reference</a>.</p>
+  </section>
+
+  <section id="settings">
+    <h2>Agent settings in Mob</h2>
+    <p>Once a device is paired, open the machine in Mob (<strong>Settings → Machines</strong>, then its <strong>Agents</strong> settings) to set, for every device at once:</p>
+    <ul>
+      <li>the <strong>default agent</strong> for new conversations;</li>
+      <li>the <strong>models</strong> offered for each agent, and its <strong>default model</strong> and <strong>effort</strong>;</li>
+      <li><strong>permissions:</strong> <em>Run without asking</em> (the default), or <em>Ask before commands and edits</em>, where the agent waits for your approval in Mob.</li>
+    </ul>
+    <p>Changes apply from the next turn, without a restart. A conversation keeps its agent; its model and effort can be changed in the message box.</p>
+  </section>
+
+  <section id="linux">
+    <h2>Linux desktops</h2>
+    <p>On Linux these settings shape the conversations' desktops (all optional):</p>
+    <div class="overflow-x-auto"><table>
+      <thead><tr><th scope="col">Setting</th><th scope="col">Default</th><th scope="col">What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>maxRunning</code></td><td><code>4</code></td><td>Turns running at once; others wait</td></tr>
+        <tr><td><code>desktopSize</code></td><td><code>1920x1080</code></td><td>Size of every desktop, in points</td></tr>
+        <tr><td><code>desktopScale</code></td><td><code>1</code></td><td><code>2</code> for HiDPI</td></tr>
+        <tr><td><code>desktopSleepAfter</code></td><td><code>10m</code></td><td>Idle time before a desktop sleeps; <code>0</code> never</td></tr>
+        <tr><td><code>desktopKeyboardLayout</code></td><td>the computer's</td><td>Keyboard layout of every desktop</td></tr>
+        <tr><td><code>maxDesktops</code></td><td><code>0</code> (no limit)</td><td>Desktops open at once; new conversations wait</td></tr>
+        <tr><td><code>memoryWarnPercent</code> / <code>memoryFloorPercent</code></td><td><code>15</code> / <code>5</code></td><td>Available memory to warn at / below which no new desktop starts</td></tr>
+      </tbody>
+    </table></div>
+    <p>How the desktops work: <a href="/desktops/#linux">Desktops &amp; live view</a>.</p>
+  </section>
+
+  <section id="security">
+    <h2>Security</h2>
+    <p class="callout"><strong>Open it on trusted networks only.</strong> Every device must pair, but plain HTTP is not encrypted. Never forward port 8080 to the internet; across networks see <a href="/remote/">Remote access</a>.</p>
+    <p>The agents run as the user that runs mobd, with that user's files and logins. With <em>Run without asking</em> they act without confirmation; choose <em>Ask before commands and edits</em> for an agent you want to supervise.</p>
+  </section>
+</DocLayout>

@@ -1,0 +1,88 @@
+---
+import DocLayout from '../../../layouts/DocLayout.astro';
+import Command from '../../../components/Command.astro';
+import { install } from '../../../data/site.mjs';
+
+const sections: [string, string][] = [
+  ['requirements', 'Requirements'], ['install', 'Install'], ['browsers', 'Browsers and fonts'], ['start', 'Start mobd'],
+  ['check', 'Check'], ['firewall', 'Firewall'], ['upgrade', 'Upgrade'], ['uninstall', 'Uninstall'],
+];
+const packages = 'sudo apt install xvfb openbox dbus-daemon x11-xkb-utils gstreamer1.0-plugins-base gstreamer1.0-plugins-bad fonts-dejavu-core';
+---
+<DocLayout title="Install on Linux" description="Install mobd on Ubuntu or Debian: the .deb or the installer, browsers and fonts, the systemd user service, mobd desktops doctor, the firewall, upgrading and uninstalling." lead="On Linux, every conversation gets its own virtual desktop, so conversations run side by side. No screen, login or permission prompt is needed: a server or VM works." sections={sections}>
+  <section id="requirements">
+    <h2>Requirements</h2>
+    <ul>
+      <li><strong>Ubuntu 22.04 or 24.04</strong>, or <strong>Debian 12 or 13</strong>, on amd64 or arm64.</li>
+      <li>systemd with cgroup v2, as these releases have by default. mobd runs as a systemd user service and puts each desktop in its own cgroup, so idle desktops can sleep.</li>
+      <li>A normal user account for mobd and the agents. Nothing runs as root.</li>
+      <li>Memory for the desktops you keep open: each runs its own X server and apps. mobd warns when memory or disk runs low (<a href="/desktops/#limits">limits</a>).</li>
+      <li>At least one agent installed and signed in as that user: Codex, Claude Code or Pi (<a href="/configure/#agents">how</a>).</li>
+    </ul>
+    <p>Other distributions (Fedora, Arch, openSUSE, …) build mobd from source: <a href="https://github.com/xrdavies/mobd/blob/main/docs/linux-build.md" rel="noreferrer">building on Linux</a> lists the packages for each.</p>
+  </section>
+
+  <section id="install">
+    <h2>Install</h2>
+    <h3>The .deb (recommended)</h3>
+    <p>Download the <code>.deb</code> for your architecture from the <a href="/download/#mobd">download page</a> and install it. It brings what the desktops need: Xvfb, openbox, D-Bus, GStreamer and fonts.</p>
+    <pre>sudo apt install ./mobd_*_amd64.deb     # or _arm64.deb</pre>
+    <h3>Or the installer</h3>
+    <p>As your normal user, without sudo. It checks the SHA-256 and puts only <code>mobd</code> in <code>~/.local/bin</code>:</p>
+    <Command command={install} />
+    <p>Then install the desktops' packages and put <code>~/.local/bin</code> on your PATH:</p>
+    <pre>{packages}
+echo 'export PATH="$HOME/.local/bin:$PATH"' &gt;&gt; ~/.bashrc
+export PATH="$HOME/.local/bin:$PATH"
+mobd --version</pre>
+    <p>Next, create the configuration: <code>mobd init</code>, then <a href="/configure/">Configure agents</a>. Come back here to start mobd.</p>
+  </section>
+
+  <section id="browsers">
+    <h2>Browsers and fonts</h2>
+    <ul>
+      <li><strong>A browser is optional.</strong> Agents that browse use Google Chrome, Chromium or Firefox installed as a normal package. Each conversation gets its own browser profile (<a href="/desktops/#linux">more</a>).</li>
+      <li><strong>Snap and Flatpak browsers don't work:</strong> they can't open the profiles. On Ubuntu, Firefox and Chromium are Snaps by default; install <a href="https://www.google.com/chrome/" rel="noreferrer">Google Chrome</a>'s .deb, or Firefox from <a href="https://support.mozilla.org/kb/install-firefox-linux" rel="noreferrer">Mozilla's apt repository</a>. On Debian the packaged <code>chromium</code> and <code>firefox-esr</code> work.</li>
+      <li><strong>Fonts:</strong> a server has almost none, so pages show boxes. The .deb installs DejaVu; add <code>fonts-noto-cjk</code> for Chinese, Japanese and Korean text.</li>
+    </ul>
+  </section>
+
+  <section id="start">
+    <h2>Start mobd</h2>
+    <pre>mobd start             # a systemd user service
+mobd start --login     # or: also start at boot</pre>
+    <p><code>mobd start</code> writes <code>~/.config/systemd/user/mobd.service</code> and turns on <em>linger</em> for your user, so mobd keeps running when you log out, or without ever logging in on a server.</p>
+  </section>
+
+  <section id="check">
+    <h2>Check</h2>
+    <pre>mobd status            # address and readiness checks
+mobd desktops doctor   # programs, cgroup v2, encoder, browsers, memory, disk, linger
+mobd logs              # follow the log</pre>
+    <p><code>mobd desktops doctor</code> says what is missing and how to fix it. Then <a href="/pair/">pair a device</a>.</p>
+  </section>
+
+  <section id="firewall">
+    <h2>Firewall</h2>
+    <p>If a firewall is on (<code>sudo ufw status</code>), let your office network reach mobd's port and the live view's UDP port:</p>
+    <pre>sudo ufw allow 8080/tcp     # conversations and pairing (the listen port)
+sudo ufw allow 9527/udp     # live view over WebRTC</pre>
+    <p>Limit both to your network if you can (e.g. <code>from 192.168.1.0/24</code>). Without UDP the live view falls back to a WebSocket. With <a href="/remote/">Tailscale or a Cloudflare Tunnel</a> only, open nothing.</p>
+  </section>
+
+  <section id="upgrade">
+    <h2>Upgrade</h2>
+    <p>Let running turns finish. Desktops stay open and re-attach to the new mobd.</p>
+    <ul>
+      <li><strong>.deb:</strong> install the new one the same way, then <code>mobd restart</code>.</li>
+      <li><strong>Installer:</strong> <code>mobd stop --keep-desktops</code>, run the install command again, then <code>mobd start</code> (or <code>mobd start --login</code>).</li>
+    </ul>
+  </section>
+
+  <section id="uninstall">
+    <h2>Uninstall</h2>
+    <pre>mobd uninstall          # closes every desktop, stops mobd, removes its service
+sudo apt remove mobd    # the .deb; with the installer: rm ~/.local/bin/mobd</pre>
+    <p>Removing the .deb also runs <code>mobd uninstall</code> for every user with mobd. Settings stay in <code>~/.mobd</code> and conversations, desktops' files and browser profiles in <code>~/.local/share/mob</code>; delete them if you no longer need them.</p>
+  </section>
+</DocLayout>

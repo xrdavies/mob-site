@@ -1,0 +1,39 @@
+---
+import DocLayout from '../../layouts/DocLayout.astro';
+import { github, parts } from '../../data/site.mjs';
+
+const sections: [string, string][] = [['general', 'General'], ['problems', 'Problems'], ['report', 'Report a problem']];
+---
+<DocLayout title="FAQ & help" description="Answers about Mob and mobd on macOS and Linux, common problems, and where to report one." sections={sections}>
+  <section id="general">
+    <h2>General</h2>
+    <details class="fold"><summary>Does the office computer have to stay on?</summary><p>Yes. mobd and the agents run on it; while it is off or asleep, devices can't connect and turns pause. On a Mac the display may sleep; a Linux server needs no display at all.</p></details>
+    <details class="fold"><summary>Which systems does mobd run on?</summary><p>macOS 13 or later on Apple Silicon, and Linux: Ubuntu 22.04/24.04 and Debian 12/13 on amd64 or arm64, other distributions built from source. Intel Macs are not supported. mobd for Windows is planned.</p></details>
+    <details class="fold"><summary>Which apps are there?</summary><p>Mob Desktop for macOS (Windows and Linux on the way) and Mob Mobile for iPhone, iPad and Android. Any of them works with mobd on macOS or Linux.</p></details>
+    <details class="fold"><summary>Can several conversations run at once?</summary><p>On Linux, yes: each has its own desktop, and up to <code>maxRunning</code> turns (4) run side by side. On a Mac conversations share the screen, so their turns take turns in a queue. See <a href="/desktops/">Desktops &amp; live view</a>.</p></details>
+    <details class="fold"><summary>Is my data uploaded anywhere?</summary><p>Mob runs no server of its own: your devices connect to mobd directly, or through the remote-access service you choose (Tailscale, Cloudflare). Whether task content goes to a model service depends on the agent and model you use. See the <a href="/privacy/">privacy policy</a>.</p></details>
+    <details class="fold"><summary>Where are my settings and conversations?</summary><p>Settings in <code>~/.mobd</code>. Conversations in <code>~/Library/Application Support/mob</code> on macOS and <code>~/.local/share/mob</code> on Linux, where each conversation's desktop files and browser profiles are too.</p></details>
+  </section>
+
+  <section id="problems">
+    <h2>Problems</h2>
+    <p>Start with <code>mobd status</code> on the office computer, and on Linux <code>mobd desktops doctor</code>. <code>mobd logs</code> shows what happened.</p>
+    <details class="fold"><summary>Mob says the machine needs pairing</summary><p>This device's credential was revoked, or authentication was reset on the office computer. Run <code>mobd link</code> again, choose <strong>Pair again</strong> in Mob and scan or paste the new link. Conversations are kept.</p></details>
+    <details class="fold"><summary>The pairing link is “invalid, expired or already used”</summary><p>Invitations last 10 minutes and work once. Run <code>mobd link</code> again and use the new code.</p></details>
+    <details class="fold"><summary>Mob can't reach mobd</summary><p>Is mobd running (<code>mobd status</code>)? Is the device on the same network, or is remote access working (<code>mobd remote</code>)? On Linux, is a firewall blocking port 8080 (<a href="/install/linux/#firewall">firewall</a>)? More in <a href="/remote/#problems">Remote access → Problems</a>.</p></details>
+    <details class="fold"><summary>I can chat, but there is no live view</summary><p>Mob shows the reason. On macOS, grant Screen Recording and run <code>mobd restart</code>. On Linux, <code>mobd desktops doctor</code> shows whether an H.264 encoder is available; a desktop starts with the conversation's first turn. If UDP 9527 is blocked, the live view uses a WebSocket.</p></details>
+    <details class="fold"><summary>Linux: a new conversation waits and doesn't start a desktop</summary><p>Memory or disk is below its floor, or <code>maxDesktops</code> is reached. Mob shows a banner; close desktops you don't need (<strong>Close desktop</strong> in Mob, or <code>mobd desktops close</code>).</p></details>
+    <details class="fold"><summary>Linux: pages show boxes instead of text</summary><p>Fonts are missing: <code>sudo apt install fonts-dejavu-core fonts-noto-cjk</code>.</p></details>
+    <details class="fold"><summary>Linux: the browser won't start</summary><p>Snap and Flatpak browsers can't open the conversation's profile. Install Google Chrome's .deb, Debian's <code>chromium</code> or <code>firefox-esr</code>, or Firefox from Mozilla's apt repository (<a href="/install/linux/#browsers">browsers</a>).</p></details>
+    <details class="fold"><summary>A turn failed</summary><p>Mob shows the agent's error. Agent sign-in and model setup are the agent's own: check them by running the agent once in a terminal as the user that runs mobd. Mob's machine settings show whether each agent is installed.</p></details>
+  </section>
+
+  <section id="report">
+    <h2>Report a problem</h2>
+    <p>Mob is open source. Search the issues or open a new one on GitHub, for the part that misbehaves:</p>
+    <ul>
+      {parts.map(p => <li><a href={`${github}/${p.repo}/issues`} rel="noreferrer">{p.name}</a></li>)}
+    </ul>
+    <p>Include the versions (<code>mobd --version</code>, and the app's in its settings), the office computer's system, and what you did. Leave out addresses, pairing links and logs with private data: issues are public. For anything about security, write to <a href="mailto:mob@taoist.dev">mob@taoist.dev</a> instead.</p>
+  </section>
+</DocLayout>

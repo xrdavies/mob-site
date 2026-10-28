@@ -1,0 +1,65 @@
+---
+import DocLayout from '../../layouts/DocLayout.astro';
+
+const sections: [string, string][] = [
+  ['live', 'The live view'], ['macos', 'On macOS'], ['linux', 'On Linux'], ['browsers', 'Browsers and sign-ins'], ['limits', 'Limits on Linux'],
+];
+---
+<DocLayout title="Desktops & live view" description="Where the agent works: the Mac's own screen, or a virtual desktop per conversation on Linux. Watching and taking control from Mob, sleeping and closing desktops." lead="The agent sees a screen and clicks and types on it. On a Mac that is the Mac's own screen; on Linux every conversation gets its own virtual desktop." sections={sections}>
+  <section id="live">
+    <h2>The live view</h2>
+    <ul>
+      <li><strong>Watch:</strong> Mob shows the screen the agent is using, live. On Linux that is the open conversation's desktop.</li>
+      <li><strong>Take control:</strong> switch from <strong>View</strong> to <strong>Control</strong> to use the mouse and keyboard yourself, for a sign-in or a captcha, then switch back.</li>
+      <li><strong>Quality:</strong> Auto, High or Low per machine in Mob.</li>
+      <li><strong>Transport:</strong> WebRTC over UDP (port 9527), or a WebSocket where UDP can't pass, such as through a Cloudflare Tunnel.</li>
+    </ul>
+  </section>
+
+  <section id="macos">
+    <h2>On macOS</h2>
+    <ul>
+      <li><strong>One screen for everything:</strong> the agent works on the Mac's own screen, with the apps and logins of the logged-in user.</li>
+      <li><strong>One turn at a time:</strong> because conversations share that screen, their turns wait in a queue; Mob shows the queue.</li>
+      <li><strong>Permissions:</strong> Screen Recording and Accessibility (<a href="/install/macos/#permissions">how</a>).</li>
+      <li><strong>Awake:</strong> the Mac must not sleep; the display may, the live view wakes it.</li>
+    </ul>
+  </section>
+
+  <section id="linux">
+    <h2>On Linux</h2>
+    <p>Each conversation gets its own virtual desktop: an X display with a window manager, invisible on the computer itself. Conversations don't share a screen, so their turns run side by side (up to <code>maxRunning</code>, 4 by default).</p>
+    <div class="overflow-x-auto"><table>
+      <thead><tr><th scope="col">When</th><th scope="col">What happens</th></tr></thead>
+      <tbody>
+        <tr><td>The conversation's first turn</td><td>its desktop starts</td></tr>
+        <tr><td>No turn, viewer, CPU use or screen change for <code>desktopSleepAfter</code> (10 minutes)</td><td>it <strong>sleeps</strong>: frozen, using no CPU, windows kept</td></tr>
+        <tr><td>The next turn, or opening the live view</td><td>it wakes as it was</td></tr>
+        <tr><td>Archiving or deleting the conversation, <strong>Close desktop</strong> in Mob, or <code>mobd desktops close</code></td><td>it closes; the next turn starts a fresh one, with the conversation's files and browser profile kept</td></tr>
+        <tr><td><code>mobd stop</code></td><td>asks whether to close desktops; kept ones re-attach on the next start</td></tr>
+      </tbody>
+    </table></div>
+    <p>Mob shows each conversation's desktop state, and a banner when memory or disk runs low, listing the desktops you can close. On the office computer, <code>mobd desktops list</code> shows them and <code>mobd desktops logs SESSION</code> their logs.</p>
+  </section>
+
+  <section id="browsers">
+    <h2>Browsers and sign-ins</h2>
+    <p>On Linux, Chrome, Chromium and Firefox started by the agent use a browser profile and <code>Downloads</code> folder of the conversation's own, so conversations don't share cookies or sign-ins.</p>
+    <p>To start new conversations already signed in: in one conversation, sign in to the sites (from the live view, in Control), close the browser, then make its profiles the template:</p>
+    <pre>mobd desktops list                # find the conversation's ID
+mobd desktops seed SESSION        # its profiles become the start of every new conversation's</pre>
+    <p>On macOS the agent uses your normal browser with your own profile.</p>
+  </section>
+
+  <section id="limits">
+    <h2>Limits on Linux</h2>
+    <ul>
+      <li><strong>Memory:</strong> every open desktop has its own apps. Below <code>memoryWarnPercent</code> (15%) available memory Mob warns; below <code>memoryFloorPercent</code> (5%), or with too little disk, no new desktop starts; running ones keep going. mobd never closes a desktop to free memory: close those you don't need.</li>
+      <li><strong>No GPU:</strong> pages render in software. Normal sites work; WebGL-heavy sites and video are slow.</li>
+      <li><strong>No sound.</strong></li>
+      <li><strong>One size:</strong> every desktop is <code>desktopSize</code> (1920×1080), also when watched from a phone; Mob scales the picture.</li>
+      <li><strong>Not the computer's own screen:</strong> a Linux PC's physical display is not watched or controlled.</li>
+      <li><strong>Not isolated:</strong> desktops, agents and mobd run as one user; agents can read each other's files and profiles.</li>
+    </ul>
+  </section>
+</DocLayout>

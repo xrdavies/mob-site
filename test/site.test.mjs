@@ -17,7 +17,8 @@ const manifests = {
   mob: [release('mob', '0.2.0', 'mob_0.2.0_darwin_arm64.dmg', '**New** live view'), release('mob', '0.1.0', 'mob_0.1.0_darwin_arm64.dmg')],
   mobd: [release('mobd', '0.0.2', 'mobd_0.0.2_darwin_arm64.tar.gz')],
 };
-const PAGES = ['index.html', 'download/index.html', 'start/index.html', 'remote/index.html', 'privacy/index.html', '404.html'];
+const DOCS = ['start', 'install/macos', 'install/linux', 'configure', 'pair', 'remote', 'desktops', 'commands', 'faq'];
+const PAGES = ['index.html', 'download/index.html', ...DOCS.map(d => `${d}/index.html`), 'privacy/index.html', '404.html'];
 
 // Builds the site with Astro into a temporary directory, with release manifests from a fixture.
 function build(t, env, fixture = manifests) {
@@ -80,26 +81,30 @@ test('released products get downloads and notes; the site is English, CSP-clean 
   assert.match(download, /Mob Mobile for Android/);
   for (const hour of ['08:47', '09:12', '12:30', '15:05', '18:00', '21:40']) assert.match(home, new RegExp(`data-time="${hour}"`), hour);
   assert.match(home, /curl -fsSL https:\/\/download.mob.test\/mobd\/install.sh \| sh/);
-  assert.match(site.read('start/index.html'), /curl -fsSL https:\/\/download.mob.test\/mobd\/install.sh/);
+  for (const os of ['macos', 'linux']) assert.match(site.read(`install/${os}/index.html`), /curl -fsSL https:\/\/download.mob.test\/mobd\/install.sh/, os);
+  const linux = site.read('install/linux/index.html');
+  for (const text of ['sudo apt install ./mobd_', 'mobd desktops doctor', 'ufw allow 9527/udp', 'Snap and Flatpak']) assert.ok(linux.includes(text), `Linux guide: ${text}`);
+  assert.match(site.read('commands/index.html'), /mobd desktops seed SESSION/);
+  for (const path of ['/install/macos/', '/install/linux/', '/configure/', '/pair/', '/desktops/', '/commands/', '/faq/']) assert.ok(site.read('start/index.html').includes(`href="${path}"`), `Get started links ${path}`);
   assert.match(download, /rel="canonical" href="https:\/\/mob.test\/download\/"/);
   const sitemap = site.read('sitemap.xml');
-  for (const path of ['/', '/download/', '/start/', '/remote/', '/privacy/']) assert.ok(sitemap.includes(`<loc>https://mob.test${path}</loc>`), path);
+  for (const path of ['/', '/download/', ...DOCS.map(d => `/${d}/`), '/privacy/']) assert.ok(sitemap.includes(`<loc>https://mob.test${path}</loc>`), path);
   assert.match(site.read('robots.txt'), /Sitemap: https:\/\/mob.test\/sitemap.xml/);
   assert.match(site.read('privacy/index.html'), /mailto:mob@taoist.dev/);
   assert.match(download, /href="https:\/\/github.com\/xrdavies\/mob\/releases\/tag\/v0.2.0"/, 'the desktop download links its GitHub release');
   assert.match(download, /href="https:\/\/github.com\/xrdavies\/mobd\/releases\/tag\/v0.0.2"/, 'mobd links its GitHub release');
   assert.doesNotMatch(download, /mob-android\/releases/, 'no Android release link before its first release');
   assert.match(home, /Open source/, 'the footer says it is open source');
-  assert.match(home, /href="\/start\/#report"/, 'the footer links Report a problem');
-  const report = site.read('start/index.html');
+  assert.match(home, /href="\/faq\/#report"/, 'the footer links Report a problem');
+  const report = site.read('faq/index.html');
   for (const repo of ['mobd', 'mob', 'mob-ios', 'mob-android', 'mob-site']) assert.match(report, new RegExp(`href="https://github.com/xrdavies/${repo}/issues"`), `issues of ${repo}`);
   const remote = site.read('remote/index.html');
   for (const id of ['choose', 'lan', 'tailscale', 'cloudflare', 'funnel', 'both', 'security', 'problems']) assert.match(remote, new RegExp(`id="${id}"`), `remote#${id}`);
   assert.match(remote, /mobd remote setup --tailscale/);
   assert.match(remote, /mobd remote setup --cloudflare --hostname mob.example.com/);
-  const start = site.read('start/index.html');
-  assert.match(start, /id="remote"[\s\S]*href="\/remote\/"/, 'Get started points to the remote access guide');
-  assert.match(start, /id="cloudflare"/, 'old #cloudflare links still land on the page');
+  // Get started was one page; its old anchors forward to the new pages (site.ts).
+  const script = readFileSync(join(site.out, site.read('start/index.html').match(/src="(\/_astro\/[^"]+\.js)"/)[1]), 'utf8');
+  for (const to of ['/install/macos/#permissions', '/configure/', '/pair/', '/faq/#report']) assert.ok(script.includes(to), `old anchor forwards to ${to}`);
   for (const page of PAGES) {
     const html = site.read(page);
     assert.doesNotMatch(html, /[一-鿿]/, `${page}: English only`);
@@ -130,7 +135,7 @@ test('iOS card: coming soon, App Store link, or TestFlight link', t => {
   assert.match(beta, /href="https:\/\/testflight.apple.com\/join\/abc"[^>]*>Join on TestFlight/);
 });
 
-test('only macOS, iPhone and Android clients get downloads, even when manifests list Windows or Linux files', t => {
+test('Mob gets only its macOS download; mobd gets macOS and its Linux packages', t => {
   const file = (product, name) => ({ url: `${base}/${product}/v0.3.0/${name}`, sha256: 'b'.repeat(64) });
   const mob = release('mob', '0.3.0', 'mob_0.3.0_darwin_arm64.dmg');
   mob.downloads = { 'windows-x64': [file('mob', 'mob_0.3.0_windows_x64-setup.exe')], 'linux-x64': [file('mob', 'mob_0.3.0_linux_x64.AppImage'), file('mob', 'mob_0.3.0_linux_x64.deb')] };
@@ -138,5 +143,7 @@ test('only macOS, iPhone and Android clients get downloads, even when manifests 
   mobd.platforms = { 'linux-x86_64': { ...file('mobd', 'mobd_0.3.0_linux_amd64.tar.gz'), deb: file('mobd', 'mobd_0.3.0_amd64.deb') } };
   const download = build(t, {}, { mob: [mob], mobd: [mobd] }).read('download/index.html');
   assert.match(download, /href="https:\/\/download.mob.test\/mob\/v0.3.0\/mob_0.3.0_darwin_arm64.dmg"/);
-  assert.doesNotMatch(download, /\.exe"|\.AppImage"|\.deb"/);
+  assert.doesNotMatch(download, /\.exe"|\.AppImage"|mob_0\.3\.0_linux_x64\.deb"/, 'no Mob Desktop for Windows or Linux yet');
+  assert.match(download, /href="https:\/\/download.mob.test\/mobd\/v0.3.0\/mobd_0.3.0_amd64.deb"[^>]*>\.deb \(amd64\)/, 'mobd .deb');
+  assert.match(download, /mobd_0.3.0_linux_amd64.tar.gz/, 'mobd Linux tarball');
 });

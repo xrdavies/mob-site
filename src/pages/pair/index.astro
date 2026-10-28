@@ -1,0 +1,42 @@
+---
+import DocLayout from '../../layouts/DocLayout.astro';
+
+const sections: [string, string][] = [['link', 'Create an invitation'], ['add', 'Add the machine in Mob'], ['addresses', 'Several addresses'], ['devices', 'Paired devices']];
+---
+<DocLayout title="Pair devices" description="Pair Mob on your laptop or phone with mobd: mobd link prints a one-use QR code and link; manage and revoke paired devices." lead="Each device pairs once with each office computer. It keeps its own credential in the system's secure storage and reconnects on its own afterwards." sections={sections}>
+  <section id="link">
+    <h2>Create an invitation</h2>
+    <p>On the office computer:</p>
+    <pre>mobd link</pre>
+    <p>It prints a QR code and a link, <strong>valid for 10 minutes and for one use</strong>, with the address it used:</p>
+    <ul>
+      <li>the <a href="/remote/">remote address</a>, once <code>mobd remote setup</code> has set one up;</li>
+      <li>otherwise the office network address: <code>http://&lt;name&gt;.local:8080</code> on a Mac, the computer's network IP on Linux.</li>
+    </ul>
+    <p><code>mobd link --lan</code> always uses the network address; <code>mobd link --url ADDRESS</code> uses exactly the one you give. Run <code>mobd link</code> again if it expires; <code>mobd link --close</code> cancels unused invitations. While no invitation is open, mobd refuses every pairing attempt.</p>
+  </section>
+
+  <section id="add">
+    <h2>Add the machine in Mob</h2>
+    <ol>
+      <li>Open <strong>Settings → Machines → Add machine</strong>.</li>
+      <li>On a phone, scan the QR code; on any device, you can paste the whole link instead.</li>
+      <li>Check the address, give the machine a name and pair.</li>
+      <li>Start a conversation and try something simple, such as “Look at the screen and tell me what you see.”</li>
+    </ol>
+    <p>An <code>http://</code> address is not encrypted: Mob warns about it. Use it only on a network you trust, or set up <a href="/remote/">remote access</a> over HTTPS.</p>
+  </section>
+
+  <section id="addresses">
+    <h2>Several addresses</h2>
+    <p>A computer can be reached at more than one address, such as the office network at your desk and Tailscale elsewhere. Pair once per address: the second code for the same computer adds its address to the same machine, with the same conversations, and you choose which route Mob uses. See <a href="/remote/#both">At the office and away</a>.</p>
+  </section>
+
+  <section id="devices">
+    <h2>Paired devices</h2>
+    <pre>mobd clients list              # paired devices
+mobd clients revoke CLIENT_ID  # revoke one and disconnect it now
+mobd auth reset --yes          # revoke every device and invitation</pre>
+    <p>A revoked device shows <strong>Needs pairing</strong> in Mob; pair it again with a new <code>mobd link</code>. Conversations stay on the office computer either way.</p>
+  </section>
+</DocLayout>

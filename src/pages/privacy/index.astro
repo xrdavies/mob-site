@@ -16,7 +16,7 @@ import Layout from '../../layouts/Layout.astro';
     <ul>
       <li>Pairing credentials are kept in the system's secure storage: the Keychain (macOS, iPhone, iPad), the Android Keystore, Windows Credential Manager or the Linux Secret Service.</li>
       <li>Added computers, settings and a cache of recent conversations are stored in the app and removed when you uninstall it.</li>
-      <li>mobd keeps its settings and conversations on your office computer (<code>~/.mobd</code> and <code>~/Library/Application Support/mob</code> on macOS). You manage and delete them.</li>
+      <li>mobd keeps its settings and conversations on your office computer (<code>~/.mobd</code>, and <code>~/Library/Application Support/mob</code> on macOS or <code>~/.local/share/mob</code> on Linux, where each conversation's desktop files and browser profiles also live). You manage and delete them.</li>
     </ul>
     <h2>Third-party services</h2>
     <p>The agents you run in mobd, such as Codex, Claude Code or Pi, send task content to their model providers under your agreement with those providers. Network services such as Tailscale or Cloudflare apply their own privacy policies.</p>

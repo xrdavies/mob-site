@@ -122,8 +122,19 @@ const platform = /android/i.test(ua) ? 'android'
   : /macintosh|mac os x/i.test(ua) ? 'mac' : '';
 if (platform) document.querySelector(`[data-platform="${platform}"]`)?.setAttribute('data-recommended', '');
 
-// Docs: the sidebar follows the section in view.
-const docLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-doc-nav] a')];
+// Get started was one long page; its old anchors now live on their own pages.
+const moved: Record<string, string> = {
+  requirements: '/start/', install: '/install/macos/', config: '/configure/', permissions: '/install/macos/#permissions',
+  run: '/install/macos/#start', connect: '/pair/', remote: '/remote/', cloudflare: '/remote/#cloudflare',
+  upgrade: '/install/macos/#upgrade', commands: '/commands/', faq: '/faq/', report: '/faq/#report',
+};
+if (location.pathname === '/start/' && moved[location.hash.slice(1)] && moved[location.hash.slice(1)] !== '/start/') {
+  location.replace(moved[location.hash.slice(1)]);
+}
+
+// Docs: the sidebar follows the section in view (this page's #section links only).
+const docLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-doc-nav] a')]
+  .filter(link => link.hash && link.pathname === location.pathname);
 if (docLinks.length && 'IntersectionObserver' in window) {
   const observer = new IntersectionObserver(entries => {
     for (const entry of entries) {
