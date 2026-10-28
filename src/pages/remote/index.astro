@@ -44,7 +44,6 @@ const routes = {
         <p class="eyebrow">Docs</p>
         <h1 class="mt-3 text-4xl">Remote access</h1>
         <p class="mt-4 text-lg text-zinc-400">How your phone and laptop reach mobd on the office computer: on the office network, or from anywhere. Set the route up once, then pair each device with <code>mobd link</code>.</p>
-        <p class="callout"><code>mobd remote</code> and <code>mobd link</code> without <code>--url</code> arrive in the next mobd release. With mobd 0.2.0, follow the <strong>By hand</strong> steps under each method, and pair with <code>mobd link --url ADDRESS</code>.</p>
       </header>
 
       <section id="choose">
@@ -151,7 +150,7 @@ mobd link --url https://office-mac.your-tailnet.ts.net</pre>
         <pre>mobd link --lan   # scan: the office network address
 mobd link         # scan: the remote address</pre>
         <p>The second code for the same computer adds its address to its row in <strong>Settings → Machines</strong>, labelled <strong>LAN</strong> or <strong>Remote</strong>; there is still one row, with the same conversations. The row shows which route is in use and whether it answers. To switch, long-press the computer in the list (on the desktop app, click the route next to its name), or tap the route under the chat title. When the route in use doesn't answer, Mob shows <strong>LAN not reachable · Use Remote</strong>; it never switches by itself. Each address is paired on its own, so the device credential only goes to addresses it was paired on.</p>
-        <p>With Tailscale or Cloudflare the remote address also works at the office, so one address is often enough. The LAN address mainly makes the live view faster at your desk. This needs the next Mob release; current versions replace the address instead.</p>
+        <p>With Tailscale or Cloudflare the remote address also works at the office, so one address is often enough. The LAN address mainly makes the live view faster at your desk.</p>
       </section>
 
       <section id="security">

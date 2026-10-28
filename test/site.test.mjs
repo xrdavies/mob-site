@@ -105,6 +105,7 @@ test('released products get downloads and notes; the site is English, CSP-clean 
     assert.doesNotMatch(html, /[一-鿿]/, `${page}: English only`);
     assert.doesNotMatch(html, /changelog|\bMOB\b/, `${page}: no changelog links, product written "Mob"`);
     assert.doesNotMatch(html, /office Mac/i, `${page}: mobd runs on an office computer, not only a Mac`);
+    assert.doesNotMatch(html, /next (Mob |mobd )?release|[Ww]ith mobd \d|from mobd \d|codexPermissions|defaultRunner/, `${page}: describes the latest version only`);
     assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)[^>]*>|<style|\sstyle="/, `${page}: nothing inline (CSP)`);
     for (const [, src] of html.matchAll(/(?:src|href)="(\/[^"#?]*)"/g)) {
       const file = src.endsWith('/') ? `${src}index.html` : src;
