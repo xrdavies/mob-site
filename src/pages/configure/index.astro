@@ -8,16 +8,16 @@ const sections: [string, string][] = [
 <DocLayout title="Configure agents" description="Choose which agents mobd runs (Codex, Claude Code, Pi) and where they work, then set models, effort and permissions in Mob." lead="<code>config.json</code> on the office computer says which agents mobd runs and where. Everything else about them is set in Mob and shared by every device." sections={sections}>
   <section id="agents">
     <h2>Install the agents</h2>
-    <p>Install each agent you want on the office computer, as the user that runs mobd, and sign it in once in a terminal:</p>
+    <p>Install each agent you want on the office computer, as the user that runs mobd, and set it up once in a terminal: sign in with its account, or configure an API key the way the agent supports it.</p>
     <div class="overflow-x-auto"><table>
       <thead><tr><th scope="col">Agent</th><th scope="col">Install</th><th scope="col">In <code>runners</code></th></tr></thead>
       <tbody>
-        <tr><td><a href="https://developers.openai.com/codex/cli/" rel="noreferrer">Codex</a></td><td><code>npm install -g @openai/codex</code>, then <code>codex</code> to sign in</td><td><code>codex</code></td></tr>
-        <tr><td><a href="https://code.claude.com/docs/en/quickstart" rel="noreferrer">Claude Code</a></td><td><code>curl -fsSL https://claude.ai/install.sh | bash</code>, then <code>claude</code> to sign in</td><td><code>claude</code></td></tr>
+        <tr><td><a href="https://developers.openai.com/codex/cli/" rel="noreferrer">Codex</a></td><td><code>npm install -g @openai/codex</code>, then <code>codex</code> to sign in or use an API key</td><td><code>codex</code></td></tr>
+        <tr><td><a href="https://code.claude.com/docs/en/quickstart" rel="noreferrer">Claude Code</a></td><td><code>curl -fsSL https://claude.ai/install.sh | bash</code>, then <code>claude</code> to sign in or use an API key</td><td><code>claude</code></td></tr>
         <tr><td><a href="https://www.npmjs.com/package/@earendil-works/pi-coding-agent" rel="noreferrer">Pi</a></td><td><code>npm install -g --ignore-scripts @earendil-works/pi-coding-agent@1.4.0</code>, then set up its model provider</td><td><code>pi</code></td></tr>
       </tbody>
     </table></div>
-    <p>mobd checks that each agent is installed in a supported version; Mob's machine settings list every agent with its state and, when one is missing, the command to install it. The agent's own sign-in is not checked: a problem there shows as the agent's error on the first turn.</p>
+    <p>mobd checks that each agent is installed in a supported version; Mob's machine settings list every agent with its state and, when one is missing, the command to install it. The agent's own sign-in or API key is not checked: a problem there shows as the agent's error on the first turn.</p>
   </section>
 
   <section id="config">

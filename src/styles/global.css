@@ -26,8 +26,8 @@
   @media (min-width: 640px) { .container-x { width: min(1120px, 100% - 80px); } }
   .wrapd { width: min(1120px, 100% - 48px); margin-inline: auto; }
   @media (min-width: 640px) { .wrapd { width: min(1120px, 100% - 80px); } }
-  /* Home on large screens: the page shifts left to leave the right edge to the phone. */
-  @media (min-width: 1024px) { .room .wrapd { width: min(1040px, 100% - 360px); margin-left: max(64px, calc((100% - 1040px - 280px) / 2)); } }
+  /* Home where the phone shows (1440 px+): centred, with equal room on both sides for it. */
+  @media (min-width: 1440px) { .room .wrapd { width: min(1040px, 100% - 600px); } }
 
   /* Type */
   .gmono { @apply font-mono; }
@@ -131,7 +131,7 @@
 
   /* The phone in the corner of the home page follows the hour */
   .remote [data-phone] { display: none; }
-  .remote [data-phone].on { display: block; animation: rise .35s ease; }
+  .remote [data-phone].on { display: block; animation: fade .35s ease; }
 
   /* Display asleep */
   .asleep .screen, .asleep .hourglow { filter: brightness(.06) blur(2px); transition: filter 1.2s ease; }
@@ -144,6 +144,7 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes pulse { 50% { opacity: .4; } }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+@keyframes fade { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
   .caret::after, .think, .step i, .live-dot { animation: none !important; }
   .js [data-stream] .w { opacity: 1; filter: none; transition: none; }

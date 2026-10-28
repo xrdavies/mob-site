@@ -29,7 +29,7 @@ const groups: [string, string, [string, string][]][] = [
     ['mobd remote', 'Show remote access and check it reaches this mobd'],
     ['mobd remote setup', 'Set up Tailscale Serve or a Cloudflare Tunnel (asks before each command)'],
     ['mobd remote setup --tailscale --yes', 'The same, without questions'],
-    ['mobd remote setup --cloudflare --hostname HOST --token TOKEN --yes', 'Cloudflare, without questions'],
+    ['mobd remote setup --cloudflare …', 'Cloudflare, without questions (full command below)'],
     ['mobd remote off', 'Turn remote access off; paired devices stay paired'],
   ]],
   ['desktops', 'Desktops (Linux)', [
@@ -48,9 +48,10 @@ const sections: [string, string][] = [...groups.map(([id, label]) => [id, label]
     <section id={id}>
       <h2>{label}</h2>
       <div class="overflow-x-auto"><table>
-        <thead><tr><th scope="col">Command</th><th scope="col">What it does</th></tr></thead>
+        <thead><tr><th scope="col" class="w-[46%]">Command</th><th scope="col">What it does</th></tr></thead>
         <tbody>{rows.map(([c, d]) => <tr><td class="whitespace-nowrap"><code>{c}</code></td><td>{d}</td></tr>)}</tbody>
       </table></div>
+      {id === 'remote' && <pre>mobd remote setup --cloudflare --hostname mob.example.com --token TOKEN --yes</pre>}
     </section>
   ))}
   <section id="config">

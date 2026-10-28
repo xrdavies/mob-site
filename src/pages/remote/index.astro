@@ -15,7 +15,7 @@ const sections: [string, string][] = [
 // One route from a device to mobd, drawn as a row of boxes (no inline styles: the CSP forbids them).
 const routes = {
   lan: ['Phone or laptop', 'Office Wi-Fi', 'Office computer · mobd'],
-  tailscale: ['Phone with Tailscale', 'Your private tailnet (encrypted, usually direct)', 'Office computer · Tailscale Serve → mobd'],
+  tailscale: ['Phone with Tailscale', 'Your tailnet (encrypted)', 'Office computer · Tailscale Serve → mobd'],
   cloudflare: ['Phone, no extra app', 'Cloudflare (HTTPS, your domain)', 'Office computer · cloudflared → mobd'],
   funnel: ['Phone, no extra app', 'Tailscale relays (public HTTPS)', 'Office computer · Tailscale Funnel → mobd'],
 };

@@ -98,6 +98,8 @@ test('released products get downloads and notes; the site is English, CSP-clean 
   assert.match(home, /href="\/faq\/#report"/, 'the footer links Report a problem');
   assert.match(home, /id="how"[\s\S]*href="\/start\/"/, 'the home page explains how it works');
   assert.match(home, /data-search-open/, 'search in the header');
+  assert.match(home, /id="features"[\s\S]*Live view/, 'features, the live view first');
+  assert.match(site.read('configure/index.html'), /API key/, 'agents can use an API key');
   assert.match(home, /aria-label="Main"[\s\S]*href="https:\/\/github.com\/xrdavies"[\s\S]*<\/nav>/, 'GitHub in the header');
   assert.match(download, /href="https:\/\/github.com\/xrdavies\/mob\/releases"/, 'all desktop releases');
   assert.match(site.read('faq/index.html'), /Do mobd and the apps need the same version\?/);

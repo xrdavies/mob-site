@@ -2,6 +2,7 @@
 // "A day away from your desk", seen through Mob's live view.
 import Layout from '../layouts/Layout.astro';
 import { install } from '../data/site.mjs';
+import HomePhone from '../components/HomePhone.astro';
 
 // One entry per hour: the readout, the glow of the screen (RGB) and the phone panel all follow it.
 const H = {
@@ -68,6 +69,46 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
     </div>
   </section>
 
+  <!-- Features: the live view first -->
+  <section id="features" class="border-t border-[var(--line)] py-24">
+    <div class="wrapd">
+      <p class="cap">What you can do</p>
+      <h2 class="mt-4 text-3xl sm:text-4xl">Everything the agent does, from wherever you are.</h2>
+      <div class="mt-10 grid grid-cols-1 gap-5 md:grid-cols-3">
+        <article class="panel grid gap-6 p-6 md:col-span-3 md:grid-cols-[1fr_1.2fr] md:items-center">
+          <div>
+            <p class="flex items-center gap-2"><span class="live-dot"></span><span class="cap text-[var(--ok)]">Live view</span></p>
+            <h3 class="mt-3 text-2xl font-medium">Watch the agent's screen. Take the wheel.</h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-[var(--dim)]">See the office computer's screen live on your phone or laptop while the agent works. Switch to Control for a sign-in, a captcha or a click it can't make, then hand it back. WebRTC when it can, a WebSocket through tunnels; quality follows your connection.</p>
+            <a href="/desktops/" class="mt-4 inline-block text-sm text-accent-400 hover:text-white">Desktops &amp; live view →</a>
+          </div>
+          <div class="overflow-hidden rounded-xl border border-[var(--line)] bg-black/40" aria-hidden="true">
+            <div class="flex items-center gap-2 border-b border-[var(--line)] px-4 py-2"><span class="live-dot"></span><span class="vcr text-[15px]">Live · Control</span><span class="vcr ml-auto text-[15px] text-[var(--dim)]">1408×792 · 30 fps</span></div>
+            <div class="relative grid place-items-center bg-[#16151d] p-8">
+              <div class="w-52 rounded-xl border border-[var(--line)] bg-[#1d1c26] p-4">
+                <p class="text-sm font-medium">Sign in to staging</p>
+                <div class="mt-3 h-6 rounded-md border border-white/10"></div>
+                <div class="mt-2 h-6 rounded-md border border-white/10"></div>
+                <div class="mt-3 h-6 rounded-md bg-accent-400"></div>
+              </div>
+              <svg class="absolute bottom-8 left-[58%]" width="20" height="20" viewBox="0 0 24 24"><path d="M4 2l16 9-7 1.5L9.5 20z" fill="#fff" stroke="#0b0b0f" stroke-width="1.5"/></svg>
+            </div>
+          </div>
+        </article>
+        {[
+          ['Questions and approvals', 'When the agent needs a decision or asks before a command, your phone buzzes. Answer from the notification.'],
+          ['Codex, Claude Code or Pi', 'Choose per conversation. Models, effort and permissions are set once in Mob and shared by every device.'],
+          ['Side by side on Linux', 'On Linux every conversation gets its own desktop, so several run at once. Idle ones sleep.'],
+          ['From anywhere', 'On the office network, or through Tailscale or Cloudflare. One computer can have a LAN and a remote address.'],
+          ['Steer it as it works', 'Add to a running Codex or Pi turn without stopping it, or stop any turn. Every reply, command and edit stays in the conversation, on every device.'],
+          ['Private and open source', 'Your devices talk to your computer; there is no server of ours in between. MIT licensed.'],
+        ].map(([t, d]) => (
+          <article class="panel p-6"><h3 class="text-lg font-medium">{t}</h3><p class="mt-2 text-[15px] leading-relaxed text-[var(--dim)]">{d}</p></article>
+        ))}
+      </div>
+    </div>
+  </section>
+
   <!-- 08:47 · At the desk -->
   <section id="desk" class="turn" {...hour('desk')}>
     <div class="wrapd grid grid-cols-1 items-center gap-14 lg:grid-cols-2">
@@ -101,15 +142,15 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
         <h2 data-stream class="display mt-6 text-[clamp(44px,5.5vw,76px)]">It asks. <span class="text-accent-400">You tap.</span></h2>
         <p class="mt-6 max-w-md text-lg leading-relaxed text-[var(--dim)]">
           When the agent needs a decision, your phone buzzes. Four seconds of your morning, and it's back to work.
-          <span class="hidden lg:inline">Go on: answer it on the phone.</span>
+          <span class="hidden min-[1440px]:inline">Go on: answer it on the phone.</span>
         </p>
         <!-- On small screens the question lives here; on large ones, on the phone in the corner. -->
-        <div data-question class="panel mt-8 p-4 lg:hidden">
+        <div data-question class="panel mt-8 p-4 min-[1440px]:hidden">
           <p class="cap text-[#ffc98a]">Codex asks</p>
           <p class="mt-1">48 tests pass. Deploy this build?</p>
           <div class="mt-3 flex flex-wrap gap-2"><button type="button" data-answer="Staging" class="btn-light min-h-9 px-4">Staging</button><button type="button" data-answer="Production" class="btn-ghost min-h-9 px-4">Production</button><button type="button" data-answer="Not yet" class="btn-ghost min-h-9 px-4">Not yet</button></div>
         </div>
-        <p data-answered hidden class="mt-8 font-mono text-sm text-[var(--ok)] lg:hidden">✓ Answered: <b class="font-normal">Staging</b></p>
+        <p data-answered hidden class="mt-8 font-mono text-sm text-[var(--ok)] min-[1440px]:hidden">✓ Answered: <b class="font-normal">Staging</b></p>
       </div>
       <div class="panel min-w-0 p-5" aria-hidden="true">
         <p class="flex items-center justify-between"><span class="cap">Codex · Turn 01</span><span class="font-mono text-xs text-[#ffc98a]">needs you</span></p>
@@ -219,38 +260,7 @@ Tests: <span class="text-[var(--ok)]">48 passed</span>, 48 total</pre>
   </section>
 
   <Fragment slot="overlay">
-    <!-- The "remote": your phone, following the hour (large screens) -->
-    <aside class="remote fixed bottom-9 right-9 z-[55] hidden w-[210px] lg:block" aria-label="Your phone">
-      <div class="rounded-[2.2rem] border border-white/10 bg-black p-2 shadow-[0_30px_80px_-20px_rgb(0_0_0/.9)]">
-        <div class="min-h-[280px] rounded-[1.8rem] bg-gradient-to-b from-[#1d1b27] to-[#0f0e15] px-4 pb-5 pt-3">
-          <div class="mx-auto h-5 w-20 rounded-full bg-black"></div>
-          <div data-phone="morning" class="on pt-10 text-center"><p class="vcr text-[44px] leading-none">08:30</p><p class="cap mt-2">No notifications</p></div>
-          <div data-phone="desk" class="pt-8"><p class="cap">Mob · Office computer</p><p class="mt-3 text-sm">Fix login error</p><p class="think mt-1 font-mono text-xs">Codex is working…</p></div>
-          <div data-phone="train" class="pt-6">
-            <p class="vcr text-center text-[44px] leading-none">09:12</p>
-            <div class="mt-5 rounded-2xl bg-white/10 p-3">
-              <p class="flex items-center gap-1.5 text-[11px] text-[var(--dim)]"><img src="/assets/app-icon.svg" width="14" height="14" alt="" class="rounded">Mob<span class="ml-auto">now</span></p>
-              <p class="mt-1 text-[13px] font-semibold">Codex asks</p>
-              <p class="text-[13px] leading-snug text-[#d9d7e6]">48 tests pass. Deploy this build?</p>
-            </div>
-            <div data-question class="mt-2 grid grid-cols-3 gap-1.5 text-[11px]">
-              <button type="button" data-answer="Staging" class="rounded-xl bg-white py-2 font-semibold text-black hover:bg-accent-400 hover:text-white">Staging</button>
-              <button type="button" data-answer="Production" class="rounded-xl bg-white/10 py-2 hover:bg-white/20">Production</button>
-              <button type="button" data-answer="Not yet" class="rounded-xl bg-white/10 py-2 hover:bg-white/20">Not yet</button>
-            </div>
-            <p data-answered hidden class="mt-3 text-center font-mono text-xs text-[var(--ok)]">✓ Answered: <b class="font-normal">Staging</b></p>
-          </div>
-          <div data-phone="noon" class="pt-8"><p class="flex items-center gap-2"><span class="live-dot"></span><span class="vcr text-[16px]">Live</span></p>
-            <pre class="mt-3 rounded-lg bg-black/50 p-2.5 font-mono text-[9.5px] leading-4 text-[#c9c7d9]"><span class="bg-[var(--ok)] px-0.5 text-black">PASS</span> login.test.ts
-<span class="bg-[var(--ok)] px-0.5 text-black">PASS</span> session.test.ts
-Tests: <span class="text-[var(--ok)]">48 passed</span></pre></div>
-          <div data-phone="cafe" class="pt-8"><p class="cap">Live · Control</p><p class="mt-3 rounded-lg bg-accent-400/20 p-3 text-xs">Tap to click · two fingers to scroll · pinch to zoom</p></div>
-          <div data-phone="dusk" class="pt-10 text-center"><p class="vcr text-[44px] leading-none text-[var(--ok)]">✓ Done</p><p class="mt-3 text-sm">Fix login error</p><p class="cap mt-1">4 turns · 48 tests</p></div>
-          <div data-phone="night" class="pt-10 text-center"><img src="/assets/logo.svg" width="48" height="48" alt="" class="mx-auto opacity-80"><p class="cap mt-4">mobd is still on</p><p class="vcr mt-1 text-[22px] text-[var(--dim)]">Idle · 21:40</p></div>
-        </div>
-      </div>
-      <p class="vcr mt-2 text-center text-[14px] text-[#5f5d72]">Your phone</p>
-    </aside>
+    <HomePhone />
 
     <div class="zzz">
       <div class="text-center">

@@ -17,7 +17,7 @@ const packages = 'sudo apt install xvfb openbox dbus-daemon x11-xkb-utils gstrea
       <li>systemd with cgroup v2, as these releases have by default. mobd runs as a systemd user service and puts each desktop in its own cgroup, so idle desktops can sleep.</li>
       <li>A normal user account for mobd and the agents. Nothing runs as root.</li>
       <li>Memory for the desktops you keep open: each runs its own X server and apps. mobd warns when memory or disk runs low (<a href="/desktops/#limits">limits</a>).</li>
-      <li>At least one agent installed and signed in as that user: Codex, Claude Code or Pi (<a href="/configure/#agents">how</a>).</li>
+      <li>At least one agent installed and set up (account or API key) as that user: Codex, Claude Code or Pi (<a href="/configure/#agents">how</a>).</li>
     </ul>
     <p>Other distributions (Fedora, Arch, openSUSE, …) build mobd from source: <a href="https://github.com/xrdavies/mobd/blob/main/docs/linux-build.md" rel="noreferrer">building on Linux</a> lists the packages for each.</p>
   </section>

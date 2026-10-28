@@ -1,0 +1,111 @@
+---
+// The phone in the corner of the home page: Mob Mobile as it really looks, following the hour.
+// Shown only where the page has room beside centred content (1440 px and wider).
+const tabs = ['Chat', 'Tasks', 'Settings'];
+---
+<aside class="remote fixed bottom-8 right-8 z-[55] hidden w-[224px] min-[1440px]:block" aria-label="Your phone">
+  <div class="rounded-[2.6rem] border border-white/15 bg-black p-[7px] shadow-[0_30px_80px_-20px_rgb(0_0_0/.9)]">
+    <!-- 9:19.5, like a current iPhone -->
+    <div class="relative flex h-[456px] flex-col overflow-hidden rounded-[2.2rem] bg-[#f2f2f7] text-[#111]">
+      <div class="absolute left-1/2 top-2 z-10 h-[22px] w-[76px] -translate-x-1/2 rounded-full bg-black"></div>
+
+      <!-- 08:30 lock screen -->
+      <div data-phone="morning" class="on h-full bg-gradient-to-b from-[#2a2438] to-[#0f0e15] pt-16 text-center text-white">
+        <p class="text-[13px] font-medium opacity-80">Tuesday</p>
+        <p class="text-[58px] font-semibold leading-none tracking-tight">8:30</p>
+        <p class="mt-auto pt-56 text-[11px] opacity-60">No notifications</p>
+      </div>
+
+      <!-- 08:47 a chat, the agent working -->
+      <div data-phone="desk" class="h-full">
+        <div class="flex h-full flex-col">
+          <div class="bg-white/80 px-3 pb-2 pt-9 text-center backdrop-blur">
+            <p class="text-[13px] font-semibold">Fix login error</p>
+            <p class="flex items-center justify-center gap-1 text-[10px] text-[#6b6b70]"><span class="size-1.5 rounded-full bg-[#1aa34a]"></span>Office computer</p>
+          </div>
+          <div class="flex-1 space-y-2 px-3 pt-3 text-[11.5px] leading-snug">
+            <p class="ml-auto w-fit max-w-[80%] rounded-2xl rounded-br-md bg-[#6559e8] px-3 py-2 text-white">Fix the login error and run the tests. Ask me before you deploy.</p>
+            <div class="rounded-xl bg-white p-2.5 shadow-sm">
+              <p class="text-[10px] font-medium text-[#6b6b70]">Codex · working 0:42</p>
+              <p class="mt-1 font-mono text-[10px]">✓ read src/pages/login.ts</p>
+              <p class="font-mono text-[10px] text-[#c2410c]">✗ npm test -- login · 1 failed</p>
+              <p class="think font-mono text-[10px]">edit src/pages/login.ts…</p>
+            </div>
+          </div>
+          <div class="mx-3 mb-2 rounded-full border border-black/10 bg-white px-3 py-2 text-[10.5px] text-[#9a9aa0]">Ask Mob to do something…</div>
+          <nav class="grid grid-cols-3 border-t border-black/10 bg-white/90 pb-4 pt-1.5 text-center text-[9px]">{tabs.map((t, i) => <span class={i ? 'text-[#8e8e93]' : 'font-medium text-[#6559e8]'}>{t}</span>)}</nav>
+        </div>
+      </div>
+
+      <!-- 09:12 the question as a notification -->
+      <div data-phone="train" class="h-full bg-gradient-to-b from-[#3a2a32] to-[#120f15] px-2.5 pt-14 text-white">
+        <p class="text-center text-[52px] font-semibold leading-none tracking-tight">9:12</p>
+        <div class="mt-6 rounded-[18px] bg-white/20 p-3 backdrop-blur">
+          <p class="flex items-center gap-1.5 text-[10px] opacity-80"><img src="/assets/app-icon.svg" width="14" height="14" alt="" class="rounded">Mob<span class="ml-auto">now</span></p>
+          <p class="mt-1 text-[12px] font-semibold">Codex asks · Fix login error</p>
+          <p class="text-[12px] leading-snug opacity-90">48 tests pass. Deploy this build?</p>
+        </div>
+        <div data-question class="mt-1.5 grid gap-1 text-[12px]">
+          <button type="button" data-answer="Staging" class="rounded-[14px] bg-white/25 py-2 font-medium backdrop-blur hover:bg-white/40">Staging</button>
+          <button type="button" data-answer="Production" class="rounded-[14px] bg-white/15 py-2 backdrop-blur hover:bg-white/30">Production</button>
+          <button type="button" data-answer="Not yet" class="rounded-[14px] bg-white/15 py-2 backdrop-blur hover:bg-white/30">Not yet</button>
+        </div>
+        <p data-answered hidden class="mt-3 text-center text-[11px] text-[#7ee2a0]">✓ Answered: <b class="font-medium">Staging</b></p>
+      </div>
+
+      <!-- 12:30 the live view -->
+      <div data-phone="noon" class="h-full bg-black text-white">
+        <div class="flex items-center gap-1.5 px-3 pb-2 pt-9 text-[10px]"><span class="live-dot"></span>Live · Office computer<span class="ml-auto rounded-full bg-white/15 px-2 py-0.5">View</span></div>
+        <div class="mx-1.5 mt-10 overflow-hidden rounded-md border border-white/10">
+          <div class="flex gap-1 bg-[#2b2a33] px-2 py-1"><i class="size-1.5 rounded-full bg-[#ff5f57]"></i><i class="size-1.5 rounded-full bg-[#febc2e]"></i><i class="size-1.5 rounded-full bg-[#28c840]"></i></div>
+          <pre class="bg-[#16151d] p-2 font-mono text-[8px] leading-[11px] text-[#c9c7d9]"><span class="text-[#8a879c]">$ npm test</span>
+<span class="bg-[#1aa34a] px-0.5 text-black">PASS</span> login.test.ts
+<span class="bg-[#1aa34a] px-0.5 text-black">PASS</span> session.test.ts
+Tests: <span class="text-[#7ee2a0]">48 passed</span></pre>
+        </div>
+        <p class="mt-24 text-center text-[9.5px] text-white/50">Auto · 1408×792 · 30 fps</p>
+      </div>
+
+      <!-- 15:05 the live view, in control -->
+      <div data-phone="cafe" class="h-full bg-black text-white">
+        <div class="flex items-center gap-1.5 px-3 pb-2 pt-9 text-[10px]"><span class="live-dot"></span>Live<span class="ml-auto rounded-full bg-[#6559e8] px-2 py-0.5">Control</span></div>
+        <div class="relative mx-1.5 mt-10 grid h-32 place-items-center rounded-md border border-white/10 bg-[#16151d]">
+          <div class="w-32 rounded-md border border-white/10 bg-[#1d1c26] p-2.5">
+            <p class="text-[9px] font-medium">Verify it's you</p>
+            <p class="mt-1.5 flex items-center gap-1 rounded border border-white/10 px-1.5 py-1 text-[8px]"><span class="size-2 rounded-sm bg-[#8b7dff]"></span>I'm not a robot</p>
+          </div>
+          <span class="absolute bottom-6 left-[58%] size-5 rounded-full border-2 border-white/80 bg-white/20"></span>
+        </div>
+        <p class="mx-3 mt-8 rounded-xl bg-white/10 p-2.5 text-center text-[10px] leading-snug text-white/80">Tap to click · drag to move · two fingers to scroll</p>
+      </div>
+
+      <!-- 18:00 the finished chat -->
+      <div data-phone="dusk" class="h-full">
+        <div class="flex h-full flex-col">
+          <div class="bg-white/80 px-3 pb-2 pt-9 text-center"><p class="text-[13px] font-semibold">Fix login error</p><p class="text-[10px] text-[#6b6b70]">Office computer</p></div>
+          <div class="flex-1 space-y-2 px-3 pt-3 text-[11.5px] leading-snug">
+            <p class="rounded-xl bg-white p-2.5 shadow-sm">Fixed: <code class="font-mono text-[10px]">user.name</code> could be undefined. All 48 tests pass; deployed to staging.</p>
+            <p class="text-[10px] text-[#6b6b70]">✓ Codex · 4 turns · 6 min</p>
+          </div>
+          <div class="mx-3 mb-2 rounded-full border border-black/10 bg-white px-3 py-2 text-[10.5px] text-[#9a9aa0]">Ask Mob to do something…</div>
+          <nav class="grid grid-cols-3 border-t border-black/10 bg-white/90 pb-4 pt-1.5 text-center text-[9px]">{tabs.map((t, i) => <span class={i ? 'text-[#8e8e93]' : 'font-medium text-[#6559e8]'}>{t}</span>)}</nav>
+        </div>
+      </div>
+
+      <!-- 21:40 the chat list -->
+      <div data-phone="night" class="h-full">
+        <div class="flex h-full flex-col">
+          <p class="px-4 pb-1 pt-10 text-[20px] font-bold">Chats</p>
+          <p class="flex items-center gap-1 px-4 text-[10px] text-[#6b6b70]"><span class="size-1.5 rounded-full bg-[#1aa34a]"></span>Office computer</p>
+          <ul class="mx-3 mt-3 flex-1 space-y-px overflow-hidden text-[11.5px]">
+            <li class="rounded-t-xl bg-white px-3 py-2"><p class="font-medium">Nightly dependency update</p><p class="think text-[10px]">Working…</p></li>
+            <li class="bg-white px-3 py-2"><p class="font-medium">Fix login error</p><p class="text-[10px] text-[#1aa34a]">Done · 18:00</p></li>
+            <li class="rounded-b-xl bg-white px-3 py-2"><p class="font-medium">Review the API docs</p><p class="text-[10px] text-[#6b6b70]">Yesterday</p></li>
+          </ul>
+          <nav class="grid grid-cols-3 border-t border-black/10 bg-white/90 pb-4 pt-1.5 text-center text-[9px]">{tabs.map((t, i) => <span class={i ? 'text-[#8e8e93]' : 'font-medium text-[#6559e8]'}>{t}</span>)}</nav>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="vcr mt-2 text-center text-[14px] text-[#5f5d72]">Your phone</p>
+</aside>
