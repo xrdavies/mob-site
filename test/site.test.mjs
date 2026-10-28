@@ -75,6 +75,9 @@ test('released products get downloads and notes; the site is English, CSP-clean 
   const home = site.read('index.html');
   assert.match(home, /Mob 0.2.0 · mobd 0.0.2/, 'versions in the footer');
   assert.match(home, /Leave the desk\./);
+  assert.match(home, /Codex · Claude Code · Pi/, 'all three agents');
+  assert.match(download, /Mob Desktop for macOS/);
+  assert.match(download, /Mob Mobile for Android/);
   for (const hour of ['08:47', '09:12', '12:30', '15:05', '18:00', '21:40']) assert.match(home, new RegExp(`data-time="${hour}"`), hour);
   assert.match(home, /curl -fsSL https:\/\/download.mob.test\/mobd\/install.sh \| sh/);
   assert.match(site.read('start/index.html'), /curl -fsSL https:\/\/download.mob.test\/mobd\/install.sh/);
@@ -101,6 +104,7 @@ test('released products get downloads and notes; the site is English, CSP-clean 
     const html = site.read(page);
     assert.doesNotMatch(html, /[一-鿿]/, `${page}: English only`);
     assert.doesNotMatch(html, /changelog|\bMOB\b/, `${page}: no changelog links, product written "Mob"`);
+    assert.doesNotMatch(html, /office Mac/i, `${page}: mobd runs on an office computer, not only a Mac`);
     assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)[^>]*>|<style|\sstyle="/, `${page}: nothing inline (CSP)`);
     for (const [, src] of html.matchAll(/(?:src|href)="(\/[^"#?]*)"/g)) {
       const file = src.endsWith('/') ? `${src}index.html` : src;

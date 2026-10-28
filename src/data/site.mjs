@@ -36,8 +36,8 @@ const repos = { mob: 'mob', mobd: 'mobd', android: 'mob-android' };
 export const releasePage = (product, version) => `${github}/${repos[product]}/releases/tag/v${version}`;
 export const parts = [
   { name: 'mobd (office computer)', repo: 'mobd' },
-  { name: 'Mob for macOS', repo: 'mob' },
-  { name: 'Mob for iPhone & iPad', repo: 'mob-ios' },
-  { name: 'Mob for Android', repo: 'mob-android' },
+  { name: 'Mob Desktop (macOS, Windows, Linux)', repo: 'mob' },
+  { name: 'Mob Mobile for iPhone & iPad', repo: 'mob-ios' },
+  { name: 'Mob Mobile for Android', repo: 'mob-android' },
   { name: 'This website', repo: 'mob-site' },
 ];

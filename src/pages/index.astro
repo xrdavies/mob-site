@@ -17,7 +17,7 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
 ---
 <Layout
   title="Mob · Leave the desk. The work stays."
-  description="mobd runs coding agents such as Codex and Claude Code on your own computer. Mob lets you send tasks, answer their questions and watch the live desktop from your laptop or phone."
+  description="mobd runs coding agents (Codex, Claude Code and Pi) on your own computer. Mob, on your laptop or phone, sends them tasks, answers their questions and shows the live desktop."
   readout={H.morning}
   room>
 
@@ -34,7 +34,7 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
         <a href="#desk" class="btn-light">Start the day ↓</a>
         <a href="/download/" class="btn-ghost">Download</a>
       </div>
-      <p class="mt-16 flex flex-wrap items-center gap-3"><span class="think font-mono text-sm">thinking…</span><span class="cap">Codex · Claude Code · more agents soon</span></p>
+      <p class="mt-16 flex flex-wrap items-center gap-3"><span class="think font-mono text-sm">thinking…</span><span class="cap">Codex · Claude Code · Pi</span></p>
     </div>
   </section>
 
@@ -42,10 +42,10 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
   <section id="desk" class="turn" {...hour('desk')}>
     <div class="wrapd grid grid-cols-1 items-center gap-14 lg:grid-cols-2">
       <div>
-        <p class="stamp"><b>08:47</b><span class="cap">At the desk · Office Mac</span></p>
+        <p class="stamp"><b>08:47</b><span class="cap">At the desk · Office computer</span></p>
         <h2 data-stream class="display mt-6 text-[clamp(44px,5.5vw,76px)]">Hand it over.</h2>
         <p class="mt-6 max-w-md text-lg leading-relaxed text-[var(--dim)]">
-          One sentence. Codex or Claude Code runs right here, next to your files, your tools and your logins. Then pick up your coat.
+          One sentence. Codex, Claude Code or Pi runs right here, next to your files, your tools and your logins. Then pick up your coat.
         </p>
       </div>
       <div class="min-w-0 space-y-4" aria-hidden="true">
@@ -129,7 +129,7 @@ Tests: <span class="text-[var(--ok)]">48 passed</span>, 48 total</pre>
   <section class="turn" {...hour('cafe')}>
     <div class="wrapd grid grid-cols-1 items-center gap-14 lg:grid-cols-2">
       <div>
-        <p class="stamp"><b>15:05</b><span class="cap">A café · MacBook</span></p>
+        <p class="stamp"><b>15:05</b><span class="cap">A café · Laptop</span></p>
         <h2 data-stream class="display mt-6 text-[clamp(44px,5.5vw,76px)]">Take the wheel, <span class="text-accent-400">briefly.</span></h2>
         <p class="mt-6 max-w-md text-lg leading-relaxed text-[var(--dim)]">
           Some things need a human: a login, a captcha, one click the agent can't make. Switch to Control, use the office mouse and keyboard from here, switch back.
@@ -146,7 +146,7 @@ Tests: <span class="text-[var(--ok)]">48 passed</span>, 48 total</pre>
           </div>
           <svg class="absolute bottom-12 left-[56%]" width="22" height="22" viewBox="0 0 24 24"><path d="M4 2l16 9-7 1.5L9.5 20z" fill="#fff" stroke="#0b0b0f" stroke-width="1.5"/></svg>
         </div>
-        <p class="vcr mt-4 text-[16px] text-[var(--dim)]">Keys go to the office Mac · Esc to stop</p>
+        <p class="vcr mt-4 text-[16px] text-[var(--dim)]">Keys go to the office computer · Esc to stop</p>
       </div>
     </div>
   </section>
@@ -180,9 +180,9 @@ Tests: <span class="text-[var(--ok)]">48 passed</span>, 48 total</pre>
         <a href="/download/" class="btn-light">Download</a>
         <a href="/start/" class="btn-ghost">Read the guide</a>
       </div>
-      <p class="cap mt-12">mobd for macOS · Mob for macOS, iPhone, iPad, Android · Linux and Windows soon</p>
+      <p class="cap mt-12">mobd for macOS · Mob Desktop for macOS · Mob Mobile for iPhone, iPad and Android, soon · Linux and Windows on the way</p>
       <div class="mx-auto mt-16 max-w-md border-t border-[var(--line)] pt-8">
-        <p class="vcr text-[18px] tracking-[.25em] text-[var(--dim)]">Keep the Mac on. Turn the screen off.</p>
+        <p class="vcr text-[18px] tracking-[.25em] text-[var(--dim)]">Keep the computer on. Turn the screen off.</p>
         <button type="button" data-sleep class="btn-ghost mt-4">Put the display to sleep</button>
       </div>
     </div>
@@ -195,7 +195,7 @@ Tests: <span class="text-[var(--ok)]">48 passed</span>, 48 total</pre>
         <div class="min-h-[280px] rounded-[1.8rem] bg-gradient-to-b from-[#1d1b27] to-[#0f0e15] px-4 pb-5 pt-3">
           <div class="mx-auto h-5 w-20 rounded-full bg-black"></div>
           <div data-phone="morning" class="on pt-10 text-center"><p class="vcr text-[44px] leading-none">08:30</p><p class="cap mt-2">No notifications</p></div>
-          <div data-phone="desk" class="pt-8"><p class="cap">Mob · Office Mac</p><p class="mt-3 text-sm">Fix login error</p><p class="think mt-1 font-mono text-xs">Codex is working…</p></div>
+          <div data-phone="desk" class="pt-8"><p class="cap">Mob · Office computer</p><p class="mt-3 text-sm">Fix login error</p><p class="think mt-1 font-mono text-xs">Codex is working…</p></div>
           <div data-phone="train" class="pt-6">
             <p class="vcr text-center text-[44px] leading-none">09:12</p>
             <div class="mt-5 rounded-2xl bg-white/10 p-3">
