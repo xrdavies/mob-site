@@ -24,7 +24,7 @@ versions, download links, SHA-256 and release notes into the HTML, so browsers n
 
 | Variable | Required | Meaning |
 | --- | --- | --- |
-| `SITE_URL` | to deploy | Site HTTPS origin (custom domain): canonical links, sitemap, og:image |
+| `SITE_URL` | — | Site HTTPS origin, default `https://mymob.dev`: canonical links, sitemap, og:image, JSON-LD. Empty builds a preview that keeps crawlers out |
 | `DOWNLOAD_BASE_URL` | no | R2 download origin, default `https://dl.mymob.dev` |
 | `IOS_APP_URL` | no | App Store or TestFlight link; without it the iPhone card says “Coming to the App Store” |
 | `REQUIRE_PUBLIC_CONFIG` | — | `1` requires `SITE_URL` and fails if any manifest can't be read (CI deploys) |
@@ -37,8 +37,8 @@ versions, download links, SHA-256 and release notes into the HTML, so browsers n
    `A` records to `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153` and
    `AAAA` records to `2606:50c0:8000::153` … `2606:50c0:8003::153`; `www` as a CNAME to
    `xrdavies.github.io` (GitHub then redirects it). On Cloudflare, leave these records DNS-only.
-3. **Settings → Secrets and variables → Actions → Variables**: `SITE_URL` (same domain), and
-   `DOWNLOAD_BASE_URL` / `IOS_APP_URL` as needed.
+3. **Settings → Secrets and variables → Actions → Variables**: `DOWNLOAD_BASE_URL` / `IOS_APP_URL`
+   as needed. The site's own domain is in `lib/config.mjs`, not a variable.
 4. Push to `main`.
 
 `.github/workflows/pages.yml` tests and builds pull requests, and builds and deploys on pushes to

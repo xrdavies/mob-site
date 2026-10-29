@@ -55,7 +55,7 @@ test('manifests reject external URLs and wrong products; notes are escaped', asy
 });
 
 test('deployment requires SITE_URL and reachable release manifests', t => {
-  const noSite = build(t, { REQUIRE_PUBLIC_CONFIG: '1' });
+  const noSite = build(t, { REQUIRE_PUBLIC_CONFIG: '1', SITE_URL: '' });
   assert.equal(noSite.ok, false);
   assert.match(noSite.log, /SITE_URL is required/);
   const offline = build(t, { REQUIRE_PUBLIC_CONFIG: '1', SITE_URL: 'https://mob.test' }, { mob: 'offline' });
@@ -123,7 +123,7 @@ test('released products get downloads and notes; the site is English, CSP-clean 
     assert.doesNotMatch(html, /changelog|\bMOB\b/, `${page}: no changelog links, product written "Mob"`);
     assert.doesNotMatch(html, /office Mac/i, `${page}: mobd runs on an office computer, not only a Mac`);
     assert.doesNotMatch(html, /next (Mob |mobd )?release|[Ww]ith mobd \d|from mobd \d|codexPermissions|defaultRunner/, `${page}: describes the latest version only`);
-    assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)[^>]*>|<style|\sstyle="/, `${page}: nothing inline (CSP)`);
+    assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)(?![^>]*type="application\/ld\+json")[^>]*>|<style|\sstyle="/, `${page}: nothing inline but JSON-LD data (CSP)`);
     for (const [, src] of html.matchAll(/(?:src|href)="(\/[^"#?]*)"/g)) {
       const file = src.endsWith('/') ? `${src}index.html` : src;
       assert.ok(existsSync(join(site.out, file)), `${page} links to ${src}`);
@@ -132,11 +132,30 @@ test('released products get downloads and notes; the site is English, CSP-clean 
 });
 
 test('a local preview builds offline with a helpful status', t => {
-  const site = build(t, {}, { mob: 'offline', mobd: 'offline', android: 'offline' });
+  const site = build(t, { SITE_URL: '' }, { mob: 'offline', mobd: 'offline', android: 'offline' });
   assert.ok(site.ok, site.log);
   assert.match(site.read('download/index.html'), /Version unavailable/);
   assert.doesNotMatch(site.read('index.html'), /mobd \d+\.\d+\.\d+/, 'no versions without manifests');
   assert.match(site.read('robots.txt'), /Disallow/);
+});
+
+test('search engines get mymob.dev, structured data and share cards', t => {
+  const site = build(t, {});
+  assert.ok(site.ok, site.log);
+  const ld = page => JSON.parse(site.read(page).match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1])['@graph'];
+  const home = site.read('index.html');
+  assert.match(home, /rel="canonical" href="https:\/\/mymob.dev\/"/, 'the domain defaults to mymob.dev');
+  assert.match(home, /property="og:image" content="https:\/\/mymob.dev\/assets\/social.png"/);
+  assert.match(home, /name="twitter:card" content="summary_large_image"/);
+  assert.match(site.read('robots.txt'), /Sitemap: https:\/\/mymob.dev\/sitemap.xml/);
+  assert.deepEqual(ld('index.html').map(e => e['@type']), ['WebSite', 'SoftwareApplication']);
+  assert.match(home, /<meta name="description" content="[^"]{50,160}">/, 'the home description fits a search result');
+  const crumbs = ld('install/linux/index.html').find(e => e['@type'] === 'BreadcrumbList').itemListElement;
+  assert.deepEqual(crumbs.map(c => c.item), ['https://mymob.dev/', 'https://mymob.dev/start/', 'https://mymob.dev/install/linux/']);
+  const missing = site.read('404.html');
+  assert.match(missing, /name="robots" content="noindex"/);
+  assert.doesNotMatch(missing, /rel="canonical"/);
+  for (const file of ['assets/social.png', 'assets/apple-touch-icon.png']) assert.ok(existsSync(join(site.out, file)), file);
 });
 
 test('iOS card: coming soon, App Store link, or TestFlight link', t => {

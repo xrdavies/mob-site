@@ -2,6 +2,7 @@
 // A docs page: the list of all docs pages with this page's sections under it, then the article.
 import Layout from './Layout.astro';
 import { DOCS, DOC_PATHS } from '../data/docs.mjs';
+import { siteURL } from '../data/site.mjs';
 
 interface Props {
   title: string;
@@ -17,8 +18,14 @@ const i = DOC_PATHS.indexOf(path);
 const all = DOCS.flatMap(g => g.pages);
 const prev = i > 0 ? all[i - 1] : undefined;
 const next = i >= 0 && i < all.length - 1 ? all[i + 1] : undefined;
+// Search results show this trail instead of the URL: Mob › Docs › this page.
+const crumbs: [string, string][] = [['/', 'Mob'], ['/start/', 'Docs'], ...(path === '/start/' ? [] : [[path, title] as [string, string]])];
+const schema = siteURL ? [{
+  '@type': 'BreadcrumbList',
+  itemListElement: crumbs.map(([href, name], n) => ({ '@type': 'ListItem', position: n + 1, name, item: `${siteURL}${href}` })),
+}] : [];
 ---
-<Layout title={`${title} · Mob`} description={description} readout={{ turn: 'Docs', time: '', place: title }}>
+<Layout title={`${title} · Mob`} description={description} readout={{ turn: 'Docs', time: '', place: title }} schema={schema}>
   <div class="container-x grid grid-cols-1 gap-12 pt-28 lg:grid-cols-[230px_minmax(0,1fr)] lg:pt-36">
     <details data-mobile-toc class="fold sticky top-[72px] z-30 rounded-xl bg-[#0b0b0f]/95 backdrop-blur lg:hidden">
       <summary>Docs · {title}</summary>

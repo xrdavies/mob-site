@@ -1,7 +1,7 @@
 ---
 // "A day away from your desk", seen through Mob's live view.
 import Layout from '../layouts/Layout.astro';
-import { install } from '../data/site.mjs';
+import { install, siteURL } from '../data/site.mjs';
 import HomePhone from '../components/HomePhone.astro';
 
 // One entry per hour: the readout, the glow of the screen (RGB) and the phone panel all follow it.
@@ -14,11 +14,27 @@ const H = {
   dusk: { turn: 'Done', time: '18:00', place: 'Back at the desk', glow: '255 120 150' },
   night: { turn: 'Idle', time: '21:40', place: 'Night', glow: '139 125 255' },
 };
+// For search engines: what Mob is and where it runs. No ratings or prices beyond free.
+const app = siteURL ? [{
+  '@type': 'SoftwareApplication',
+  name: 'Mob',
+  description: 'Mob programming with your AI agents: mobd runs Codex, Claude Code and Pi on your own computer, and Mob on your laptop or phone sends them tasks, answers their questions and shows the live desktop.',
+  url: `${siteURL}/`,
+  downloadUrl: `${siteURL}/download/`,
+  image: `${siteURL}/assets/social.png`,
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'macOS, Linux, iOS, Android',
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  license: 'https://opensource.org/license/mit',
+  codeRepository: 'https://github.com/xrdavies/mob',
+}] : [];
 const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, 'data-time': H[k].time, 'data-place': H[k].place, 'data-glow': H[k].glow });
 ---
 <Layout
-  title="Mob · Leave the desk. The work stays."
-  description="Mob is mob programming with your AI agents. mobd runs coding agents (Codex, Claude Code and Pi) on your own computer. Mob, on your laptop or phone, sends them tasks, answers their questions and shows the live desktop."
+  title="Mob · Steer Codex and Claude Code on your computer from your phone"
+  description="Mob runs Codex, Claude Code and Pi on your own computer and lets you steer them from your phone or laptop: send tasks, answer questions, watch the live desktop."
+  schema={app}
   readout={H.morning}
   room>
 
