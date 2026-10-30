@@ -105,8 +105,10 @@ test('released products get downloads and notes; the site is English, CSP-clean 
   assert.match(home, /aria-label="Main"[\s\S]*href="https:\/\/github.com\/xrdavies"[\s\S]*<\/nav>/, 'GitHub in the header');
   assert.match(download, /href="https:\/\/github.com\/xrdavies\/mob\/releases"/, 'all desktop releases');
   assert.match(site.read('faq/index.html'), /Do mobd and the apps need the same version\?/);
+  const files = site.read('files/index.html');
+  for (const text of ['~/mob-files', 'filesDir', 'MOBD_FILES_DIR', '.uploads']) assert.ok(files.includes(text), `File transfers: ${text}`);
   const index = JSON.parse(site.read('search.json'));
-  for (const url of ['/install/linux/#firewall', '/pair/#link', '/faq/#report', '/privacy/']) assert.ok(index.some(e => e.url === url), `search finds ${url}`);
+  for (const url of ['/install/linux/#firewall', '/pair/#link', '/faq/#report', '/privacy/', '/files/#directory']) assert.ok(index.some(e => e.url === url), `search finds ${url}`);
   assert.ok(index.every(e => e.page && e.title && !/<\/[a-z]|<(a|code|span|strong|p|li|pre)[\s>]|class="|&amp;/.test(e.text)), 'search entries are plain text, no markup');
   const report = site.read('faq/index.html');
   for (const repo of ['mobd', 'mob', 'mob-ios', 'mob-android', 'mob-site']) assert.match(report, new RegExp(`href="https://github.com/xrdavies/${repo}/issues"`), `issues of ${repo}`);

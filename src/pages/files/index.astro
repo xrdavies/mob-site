@@ -7,7 +7,7 @@ const sections: [string, string][] = [
 <DocLayout title="File transfers" description="Upload local files to a paired machine and download files from its shared directory, with pause and continue." lead="Open Files in Mob for the selected machine. Upload with your device's file picker, or download a remote file and choose where to save it." sections={sections}>
   <section id="upload">
     <h2>Upload a file</h2>
-    <p>Choose <strong>Upload</strong> and select a local file. Mob prepares a private copy, shows progress, then verifies the received file before making it available in the remote directory shown on screen. If the name already exists, the new file receives a suffix; the existing file is kept.</p>
+    <p>Choose <strong>Upload file</strong> and select a local file. Mob prepares a private copy, shows progress, then verifies the received file before making it available in the remote directory shown on screen. If the name already exists, the new file receives a suffix; the existing file is kept.</p>
     <p>Copy the displayed directory path into your conversation and ask the agent to use the uploaded file. File uploads are separate from chat image attachments.</p>
   </section>
   <section id="download">
@@ -22,15 +22,16 @@ const sections: [string, string][] = [
   </section>
   <section id="directory">
     <h2>The shared directory</h2>
-    <p>Files are stored in the <code>files</code> directory inside mobd's data directory. Use the absolute path shown by the app. The directory belongs to the machine and is shared by its paired devices and agents. Deleting a conversation does not remove these files.</p>
-    <p>Only ordinary files directly inside this directory appear in the list. Subdirectories and symbolic links are excluded.</p>
+    <p>Files are stored in <code>~/mob-files</code> on the office computer, on macOS and Linux. It is an ordinary folder, so you can also open it there and add or remove files yourself. The app shows its absolute path. The folder belongs to the machine and is shared by its paired devices and agents. Deleting a conversation does not remove these files.</p>
+    <p>To use another folder, set <code>filesDir</code> in <code>config.json</code> or <code>MOBD_FILES_DIR</code>, then restart mobd. History, pairings and settings are stored separately and do not move with it.</p>
+    <p>Only ordinary files directly inside this folder appear in the list. Subfolders, symbolic links and names starting with a dot are excluded. Unfinished uploads wait in its hidden <code>.uploads</code> folder and appear only once they are complete and verified.</p>
   </section>
   <section id="limits">
     <h2>Limits</h2>
     <ul>
-      <li>Use matching versions of Mob and mobd that support Files. An older mobd displays an upgrade explanation.</li>
+      <li>Files needs a mobd that supports it. An older mobd displays an upgrade explanation.</li>
       <li>Uploads are limited to 20 GiB per file. Leave free disk space on both devices for the file and temporary copies.</li>
-      <li>Keep Mob open while transferring on iOS and Android. Continuous background transfer is not supported in this version.</li>
+      <li>Keep Mob open while transferring on iOS and Android. Transfers do not continue in the background.</li>
       <li>Paused uploads remain on the remote machine until canceled. There is no automatic expiry.</li>
       <li>Manage completed remote files through the agent or on the remote machine. Files has no remote delete or folder synchronization action.</li>
     </ul>
