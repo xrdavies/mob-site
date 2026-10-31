@@ -10,6 +10,7 @@ export const DOCS = [
   { group: 'Use', pages: [
     ['/remote/', 'Remote access'],
     ['/desktops/', 'Desktops & live view'],
+    ['/files/', 'File transfers'],
   ] },
   { group: 'Reference', pages: [
     ['/commands/', 'Commands'],

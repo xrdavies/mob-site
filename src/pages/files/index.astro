@@ -1,0 +1,52 @@
+---
+import DocLayout from '../../layouts/DocLayout.astro';
+const sections: [string, string][] = [
+  ['desktop', 'Mob Desktop'], ['mobile', 'Mob Mobile'], ['manage', 'Rename and delete'], ['continue', 'Pause and continue'], ['directory', 'The shared folder'], ['limits', 'Limits'],
+];
+---
+<DocLayout title="File transfers" description="Move files between your office computer and your laptop or phone with Mob: upload files and folders, download into a folder you choose, rename and delete, pause and continue." lead="Open Files in Mob to move files to and from the shared folder on the office computer." sections={sections}>
+  <section id="desktop">
+    <h2>Mob Desktop</h2>
+    <p>Choose <strong>Files</strong> in the title bar, next to <strong>Desktop</strong>, or <strong>Open Files</strong> in the command palette (⌘K). The left pane is the office computer's shared folder; the right pane is this computer, starting in Downloads. Click an item to select it, double-click a folder to open it, and use the breadcrumb or the up arrow to go back. The left pane never goes above the shared folder.</p>
+    <p>To upload, select a file or folder on the right and choose <strong>Upload</strong>. It goes into the folder open on the left, and a folder keeps its subfolders, including empty ones. To download, select a file on the left and choose <strong>Download</strong>. It is saved in the folder open on the right, with no save dialog. Folders on the office computer cannot be downloaded as a whole; ask the agent to create a ZIP archive and download that.</p>
+    <p>Right-click for more: <strong>Download</strong>, <strong>Rename</strong> and <strong>Delete</strong> on the left, <strong>Upload</strong> and <strong>Show in Finder</strong> on the right.</p>
+    <p>On macOS, the system asks before Mob can open Downloads, Documents or Desktop. If you declined, allow it in System Settings → Privacy &amp; Security → Files and Folders, then refresh.</p>
+  </section>
+  <section id="mobile">
+    <h2>Mob Mobile</h2>
+    <p>Open the <strong>Files</strong> tab. It lists the shared folder, folders first: tap a folder to open it, and use the breadcrumb to go back. Tap a file to download it:</p>
+    <ul>
+      <li><strong>iPhone and iPad:</strong> the file is saved in Mob's folder, which the Files app shows as <em>On My iPhone › Mob</em>. <strong>Share</strong> sends it to another app.</li>
+      <li><strong>Android:</strong> the file is saved in Downloads, and <strong>Open</strong> opens it. On Android 8 and 9 it is saved in the app's own Downloads folder instead.</li>
+    </ul>
+    <p>Tap <strong>+</strong> to upload one or more files into the open folder. Whole folders cannot be uploaded or downloaded on a phone; use Mob Desktop, or ask the agent for a ZIP archive.</p>
+  </section>
+  <section id="manage">
+    <h2>Rename and delete</h2>
+    <p>Right-click an item on the office computer in Mob Desktop. On iPhone and iPad, touch and hold it or swipe left; on Android, touch and hold it or use its <strong>⋮</strong> menu.</p>
+    <p><strong>Rename</strong> never replaces another file. <strong>Delete</strong> asks first; deleting a folder removes everything in it, from the office computer, and cannot be undone.</p>
+  </section>
+  <section id="continue">
+    <h2>Pause and continue</h2>
+    <p>Transfers show their progress in Files. Use <strong>Pause</strong> to keep the partial transfer. After a network interruption or app restart, choose <strong>Continue</strong> or <strong>Retry</strong>. At most two transfers run at once; the others wait. Mobile transfers pause when Mob goes into the background; return to the app and continue them.</p>
+    <p><strong>Cancel</strong> removes the local transfer copy and any unfinished upload on the remote machine. A completed file stays where it is. If a remote file changes during download, cancel that download and start it again so that its contents come from one version.</p>
+  </section>
+  <section id="directory">
+    <h2>The shared folder</h2>
+    <p>Files are stored in <code>~/mob-files</code> on the office computer, on macOS and Linux. It is an ordinary folder, so you can also open it there and add or remove files yourself. It belongs to the machine and is shared by its paired devices and agents. Deleting a conversation does not remove these files.</p>
+    <p>To work with a file in a conversation, give the agent its path, such as <code>~/mob-files/report.pdf</code>. To get a file from somewhere else on the office computer, ask the agent to copy it into <code>~/mob-files</code>, then refresh the list.</p>
+    <p>To use another folder, set <code>filesDir</code> in <code>config.json</code> or <code>MOBD_FILES_DIR</code>, then restart mobd. History, pairings and settings are stored separately and do not move with it.</p>
+    <p>Files and folders appear in the list; symbolic links and names starting with a dot do not. Unfinished uploads wait in the hidden <code>.uploads</code> folder and appear only once they are complete and verified. If a name already exists, an upload gets a suffix and a download gets a number, so nothing is overwritten.</p>
+  </section>
+  <section id="limits">
+    <h2>Limits</h2>
+    <ul>
+      <li>Files needs a mobd that supports it, and folders, rename and delete need a recent one. With an older mobd, Mob explains what to update.</li>
+      <li>Uploads are limited to 20 GiB per file. Leave free disk space on both devices for the file and temporary copies.</li>
+      <li>Keep Mob open while transferring on iOS and Android. Transfers do not continue in the background.</li>
+      <li>Paused uploads remain on the remote machine until canceled. There is no automatic expiry.</li>
+      <li>A folder upload from Mob Desktop can hold up to 10,000 items, and files starting with a dot are skipped.</li>
+      <li>Files moves what you choose; it does not keep folders in sync.</li>
+    </ul>
+  </section>
+</DocLayout>
