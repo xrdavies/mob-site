@@ -4,6 +4,9 @@ The product site for Mob, mob programming with your AI agents: home, download, d
 Built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com) into static
 files, hosted on **GitHub Pages**. English only for now; the structure leaves room for more languages.
 
+The [USB documentation plan](docs/usb-redirection.md) tracks the shared Desktop-to-mobd
+design and Apple authorization gate. It is a draft, not a released feature or a public guide.
+
 ## Develop
 
 Node.js 24+.
