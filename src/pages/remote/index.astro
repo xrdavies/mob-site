@@ -32,6 +32,7 @@ const routes = {
             <tr><th scope="row">Who can reach mobd</th><td>your network</td><td>only your devices</td><td>anyone, pairing required</td><td>anyone, pairing required</td></tr>
             <tr><th scope="row">Who can read traffic</th><td>your network (plain HTTP)</td><td>only you</td><td>you and Cloudflare</td><td>only you</td></tr>
             <tr><th scope="row">Live view</th><td>WebRTC</td><td>WebRTC</td><td>WebSocket</td><td>WebSocket</td></tr>
+            <tr><th scope="row">Live view sound</th><td>yes</td><td>yes</td><td>no</td><td>no</td></tr>
             <tr><th scope="row">Speed</th><td>fastest</td><td>fast when direct</td><td>good</td><td>slower (relayed)</td></tr>
           </tbody>
         </table></div>
@@ -162,7 +163,7 @@ mobd link         # scan: the remote address</pre>
           <p><code>mobd remote</code> reached the address, but another program answered: often something else on port 8080 of the office computer. <code>lsof -nP -iTCP:8080 -sTCP:LISTEN</code> (macOS) or <code>sudo ss -ltnp 'sport = :8080'</code> (Linux) lists what listens there; move that program to another port.</p>
         </details>
         <details class="fold"><summary>Chat works, but the live view is slow</summary>
-          <p>Over Cloudflare Tunnel and Funnel the live view always uses the WebSocket stream. Over Tailscale it uses WebRTC on UDP 9527; if your access control or a firewall blocks UDP, it falls back to WebSocket too.</p>
+          <p>Over Cloudflare Tunnel and Funnel the live view always uses the WebSocket stream. Over Tailscale it uses WebRTC on UDP 9527; if your access control or a firewall blocks UDP, it falls back to WebSocket too. The WebSocket stream has no sound.</p>
         </details>
         <details class="fold"><summary>The pairing link is “invalid, expired or already used”</summary>
           <p>Invitations last 10 minutes and work once. Run <code>mobd link</code> again and scan the new code.</p>
