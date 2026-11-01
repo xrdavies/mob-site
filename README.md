@@ -7,6 +7,10 @@ files, hosted on **GitHub Pages**. English only for now; the structure leaves ro
 The [USB documentation plan](docs/usb-redirection.md) tracks the shared Desktop-to-mobd
 design and Apple authorization gate. It is a draft, not a released feature or a public guide.
 
+The [agent collaboration documentation plan](docs/agent-collaboration.md) records
+shared terminology, guide scope and release wording. It adds no rendered page
+or claim that cross-agent messaging is already available.
+
 ## Develop
 
 Node.js 24+.
