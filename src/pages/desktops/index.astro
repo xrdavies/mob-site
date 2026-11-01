@@ -13,6 +13,7 @@ const sections: [string, string][] = [
       <li><strong>Take control:</strong> switch from <strong>View</strong> to <strong>Control</strong> to use the mouse and keyboard yourself, for a sign-in or a captcha, then switch back.</li>
       <li><strong>Quality:</strong> Auto, High or Low per machine in Mob.</li>
       <li><strong>Transport:</strong> WebRTC over UDP (port 9527), or a WebSocket where UDP can't pass, such as through a Cloudflare Tunnel.</li>
+      <li><strong>Sound:</strong> the speaker button plays the office computer's sound: on a Mac its own sound, on Linux the conversation's desktop. It starts off in every live view. Sound needs WebRTC: over the WebSocket the button explains why there is none, because sound that stutters is worse than none.</li>
     </ul>
   </section>
 
@@ -21,14 +22,14 @@ const sections: [string, string][] = [
     <ul>
       <li><strong>One screen for everything:</strong> the agent works on the Mac's own screen, with the apps and logins of the logged-in user.</li>
       <li><strong>One turn at a time:</strong> because conversations share that screen, their turns wait in a queue; Mob shows the queue.</li>
-      <li><strong>Permissions:</strong> Screen Recording and Accessibility (<a href="/install/macos/#permissions">how</a>).</li>
+      <li><strong>Permissions:</strong> Screen &amp; System Audio Recording and Accessibility (<a href="/install/macos/#permissions">how</a>).</li>
       <li><strong>Awake:</strong> the Mac must not sleep; the display may, the live view wakes it.</li>
     </ul>
   </section>
 
   <section id="linux">
     <h2>On Linux</h2>
-    <p>Each conversation gets its own virtual desktop: an X display with a window manager, invisible on the computer itself. Conversations don't share a screen, so their turns run side by side (up to <code>maxRunning</code>, 4 by default).</p>
+    <p>Each conversation gets its own virtual desktop: an X display with a window manager, invisible on the computer itself. Conversations don't share a screen, so their turns run side by side (up to <code>maxRunning</code>, 4 by default). Each desktop also has its own sound output, so in the live view you hear only that conversation's apps; this needs PulseAudio (<a href="/install/linux/#install">install</a>).</p>
     <div class="overflow-x-auto"><table>
       <thead><tr><th scope="col">When</th><th scope="col">What happens</th></tr></thead>
       <tbody>
@@ -56,7 +57,6 @@ mobd desktops seed SESSION        # its profiles become the start of every new c
     <ul>
       <li><strong>Memory:</strong> every open desktop has its own apps. Below <code>memoryWarnPercent</code> (15%) available memory Mob warns; below <code>memoryFloorPercent</code> (5%), or with too little disk, no new desktop starts; running ones keep going. mobd never closes a desktop to free memory: close those you don't need.</li>
       <li><strong>No GPU:</strong> pages render in software. Normal sites work; WebGL-heavy sites and video are slow.</li>
-      <li><strong>No sound.</strong></li>
       <li><strong>One size:</strong> every desktop is <code>desktopSize</code> (1920×1080), also when watched from a phone; Mob scales the picture.</li>
       <li><strong>Not the computer's own screen:</strong> a Linux PC's physical display is not watched or controlled.</li>
       <li><strong>Not isolated:</strong> desktops, agents and mobd run as one user; agents can read each other's files and profiles.</li>
