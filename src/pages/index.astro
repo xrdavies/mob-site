@@ -112,6 +112,12 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
             </div>
           </div>
         </article>
+        <article class="panel p-6 md:col-span-3">
+          <p class="cap text-accent-400">Agents together</p>
+          <h3 class="mt-3 text-2xl font-medium">Your agents ask each other.</h3>
+          <p class="mt-3 max-w-3xl text-[15px] leading-relaxed text-[var(--dim)]">Each conversation is an agent that knows its part. Mention <code>@api</code> in the app's conversation, and its agent asks the API's, gets the answer and carries on. You follow every request, and stop any of them, from any device.</p>
+          <a href="/collaborate/" class="mt-4 inline-block text-sm text-accent-400 hover:text-white">Agents together →</a>
+        </article>
         {[
           ['Questions and approvals', 'When the agent needs a decision or asks before a command, your phone buzzes. Answer from the notification.'],
           ['Codex, Claude Code or Pi', 'Choose per conversation. Models, effort and permissions are set once in Mob and shared by every device.'],

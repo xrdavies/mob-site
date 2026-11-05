@@ -1,6 +1,6 @@
 # Agent collaboration documentation plan
 
-Status: architecture draft COLLAB-1, 2026-11-02. Not implemented or released.
+Status: architecture COLLAB-1, 2026-11-02. Implemented; the user guide is `/collaborate/` (Agents together).
 
 Use the shared [Mob vocabulary](https://github.com/xrdavies/mobd/blob/ddd731dfa64c0070345d423d9ff6add507d877cd/docs/agent-concepts.md) and
 [mobd architecture](https://github.com/xrdavies/mobd/blob/ddd731dfa64c0070345d423d9ff6add507d877cd/docs/agent-collaboration.md)
@@ -29,6 +29,5 @@ Future guides should show one complete A/B exchange and its user controls.
 Automatic agent creation, cross-host communication, group chat and automatic
 code merging are outside this first scope.
 
-This is a repository planning document. Publish user-facing claims and supported
-client versions only after the end-to-end behavior has been implemented and
-verified. No rendered website page or deployment is part of this revision.
+This is a repository planning document; the rendered guide describes what mobd
+and the apps do now.

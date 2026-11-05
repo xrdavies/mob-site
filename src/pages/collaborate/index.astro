@@ -1,0 +1,51 @@
+---
+import DocLayout from '../../layouts/DocLayout.astro';
+
+const sections: [string, string][] = [
+  ['agents', 'Agents and handles'], ['ask', 'Ask another agent'], ['follow', 'Follow and stop it'], ['approvals', 'Approvals'], ['limits', 'Limits'],
+];
+---
+<DocLayout title="Agents together" description="Let your agents work together in Mob: give a conversation a handle, @-mention it in another, and follow the request, its questions and its result on every device." lead="Every conversation in Mob is an agent with its own context. Mention one in another conversation, and the agent there can ask it for help, then carry on with your task." sections={sections}>
+  <section id="agents">
+    <h2>Agents and handles</h2>
+    <p>Each conversation keeps its agent (Codex, Claude Code or Pi), its history and what it has learned. One knows your API, another the app; instead of explaining the API again, let the app's agent ask the API's.</p>
+    <p>A <strong>handle</strong> names an agent, such as <code>@api</code>; the title keeps describing its work. Handles are optional and unique on the office computer: 2 to 32 lowercase letters, digits and <code>-</code>, starting with a letter. A conversation without a handle can still be mentioned by its short ID, such as <code>@b9b040</code>.</p>
+    <ul>
+      <li><strong>Mob Desktop:</strong> hover a conversation in the sidebar, choose <strong>Set handle…</strong> in its <strong>⋯</strong> menu.</li>
+      <li><strong>iPhone and iPad:</strong> in the chat list, choose <strong>Set handle…</strong> after touching and holding a conversation.</li>
+      <li><strong>Android:</strong> use the chat's menu.</li>
+    </ul>
+    <p>Mob suggests a handle from the title and explains a rule as soon as you break it. If another conversation already has the handle, Mob says which one and offers <strong>Move @handle here</strong>; that conversation is left without one. Archiving keeps a handle, deleting frees it. The handle shows as a badge next to the title.</p>
+  </section>
+  <section id="ask">
+    <h2>Ask another agent</h2>
+    <p>In the conversation where you want the work done, type <code>@</code> and pick the agent: agents with a handle are listed first, then other conversations. Picking one without a handle offers to name it first. Then say what to ask, for example: <em>Ask @api which fields the orders endpoint returns, then update the table.</em></p>
+    <ol>
+      <li>Your agent sends a focused request to <code>@api</code> and finishes its turn.</li>
+      <li><code>@api</code> works on it in its own conversation, as soon as it is free. If something is unclear, it asks your agent, which answers.</li>
+      <li>The answer comes back and your agent continues your task with it.</li>
+    </ol>
+    <p>All of this happens on the office computer: you can close Mob, and every device shows the same progress when it opens. A mention you type without the picker works too, if it names a known agent; an archived one stops the send until you unarchive it or move its handle.</p>
+  </section>
+  <section id="follow">
+    <h2>Follow and stop it</h2>
+    <p>Your messages are on the right; agents are on the left. The conversation's own agent is <strong>Mob</strong>; another agent appears with its own colour, name and what it did, such as <em>@api · Claude Code · replied</em>. Its name, and a mention in your message, open its conversation.</p>
+    <p>A strip above the conversation lists its open requests, to and from other agents: waiting, handling, needs clarification, answered. Open one to see the request, the questions and the result, and to <strong>Cancel</strong> it. Cancel ends the request; a turn already working on it keeps running, so stop that turn in the other conversation if needed. Finished requests can be dismissed.</p>
+  </section>
+  <section id="approvals">
+    <h2>Approvals</h2>
+    <p>Mentioning an agent is your permission for that message to ask it; you are not asked again. Everything else follows the usual rules: an agent asks you before sending email, spending money or deleting data. What another agent writes never counts as your approval, and questions and approvals always come to you.</p>
+  </section>
+  <section id="limits">
+    <h2>Limits</h2>
+    <ul>
+      <li>An agent can ask only the agents you mentioned in that message, and the agent it asks cannot pass the work on.</li>
+      <li>Messages between agents arrive between turns, never in the middle of one. Your own message goes first. On a Mac turns take turns, so an exchange takes a few turns' time.</li>
+      <li>An exchange gets 6 turns across both agents; a request still open after 24 hours expires. Mob shows either as <em>needs you</em>.</li>
+      <li>Stopping a turn that handles a request, or archiving or deleting either conversation, ends the request; it is not retried.</li>
+      <li>Agents must be on the same office computer.</li>
+      <li>Agents share the office computer's files and run as the same user, so they can read each other's work. Mentions decide who may ask whom, not who may read what.</li>
+      <li>Needs a recent mobd and apps. On iPhone and iPad the picker opens for an <code>@</code> at the end of the message.</li>
+    </ul>
+  </section>
+</DocLayout>
