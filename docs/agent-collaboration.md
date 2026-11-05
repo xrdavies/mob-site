@@ -2,8 +2,8 @@
 
 Status: architecture COLLAB-1, 2026-11-02. Implemented; the user guide is `/collaborate/` (Agents together).
 
-Use the shared [Mob vocabulary](https://github.com/xrdavies/mobd/blob/ddd731dfa64c0070345d423d9ff6add507d877cd/docs/agent-concepts.md) and
-[mobd architecture](https://github.com/xrdavies/mobd/blob/ddd731dfa64c0070345d423d9ff6add507d877cd/docs/agent-collaboration.md)
+Use the shared [Mob vocabulary](https://github.com/xrdavies/mobd/blob/main/docs/agent-concepts.md) and
+[mobd architecture](https://github.com/xrdavies/mobd/blob/main/docs/agent-collaboration.md)
 as the source for future guides. The website explains the feature; collaboration
 runs in mobd and the agents' existing sessions.
 
