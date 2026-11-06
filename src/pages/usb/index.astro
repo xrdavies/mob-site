@@ -1,0 +1,50 @@
+---
+import DocLayout from '../../layouts/DocLayout.astro';
+
+const sections: [string, string][] = [
+  ['what', 'What it does'], ['setup', 'Set up the office computer'], ['share', 'Share a device'], ['stop', 'Stop sharing'], ['devices', 'Which devices'], ['limits', 'Limits'],
+];
+---
+<DocLayout title="USB devices" description="Share a USB device plugged into your laptop with the office computer in Mob: debug probes, development boards and other devices, used there by its own tools as if plugged in." lead="Plug a device into your laptop, share it from Mob Desktop, and the office computer uses it as if it were plugged in there." sections={sections}>
+  <section id="what">
+    <h2>What it does</h2>
+    <p>The office computer's operating system sees the device itself, so its drivers and tools work unchanged: flash a board with its usual tool, talk to a debug probe, update firmware. The agent can use it too, like any device on that computer.</p>
+    <p>Mob carries the device over USB/IP, through the same connection as the rest of Mob, encrypted where that connection is (HTTPS, Tailscale). Nothing listens for USB on the office network.</p>
+    <p>To copy a file onto a drive, <a href="/files/">File transfers</a> is simpler: sharing gives the office computer the whole device, not a file.</p>
+  </section>
+  <section id="setup">
+    <h2>Set up the office computer</h2>
+    <p>The office computer must run <strong>Linux</strong>. Once, as the user that runs mobd:</p>
+    <pre>sudo mobd usb setup
+mobd usb status</pre>
+    <p>Setup loads the kernel's USB/IP importer (<code>vhci-hcd</code>, at every boot too) and installs a small root helper that only attaches and detaches shared devices for that user; mobd itself keeps running as you. <code>mobd usb status</code> says <em>ready</em> or why not. <code>sudo mobd usb remove</code> undoes it.</p>
+    <p>A tool on the office computer that opens the device directly (through <code>/dev/bus/usb</code>) needs permission for it, as with a device plugged in there: usually the udev rule its install instructions give.</p>
+  </section>
+  <section id="share">
+    <h2>Share a device</h2>
+    <p>In Mob Desktop, choose <strong>USB</strong> in the title bar, or <strong>Share a USB device</strong> in the command palette (⌘K). The dialog says whether the office computer is ready (and gives the command to copy if not), and lists the devices plugged into this computer. Choose <strong>Share</strong>.</p>
+    <p>When the office computer has it, the share shows <em>Shared</em> with where it appeared there, such as <code>3-1</code>. A share belongs to Mob, not to a conversation: it keeps going while you switch chats or machines. The title bar counts the shared devices.</p>
+  </section>
+  <section id="stop">
+    <h2>Stop sharing</h2>
+    <p>Choose <strong>Stop sharing</strong>. The office computer unplugs the device first, then the connection closes, and the device is yours again.</p>
+    <p>If a drive from it is still mounted on the office computer, Mob says so and keeps it shared: unmount it there first. <strong>Detach anyway</strong> unplugs it regardless, and writes not yet saved there can be lost.</p>
+    <p>Quitting Mob, unplugging the device, losing the connection or revoking the laptop's pairing also unplug it on the office computer, at once. A write or firmware flash in progress is then cut off, as when you pull a cable; Mob does not resume it.</p>
+  </section>
+  <section id="devices">
+    <h2>Which devices</h2>
+    <p>On a <strong>Mac</strong>, Mob can share devices that macOS does not drive itself: many debug probes, development boards and DFU bootloaders. Drives, keyboards and mice, audio devices, cameras and many serial adapters are held by macOS's own drivers; the dialog lists them folded, each with why, and they can't be shared from a Mac.</p>
+    <p>Audio and video devices, which stream isochronously, are not supported from any computer, and neither are hubs.</p>
+  </section>
+  <section id="limits">
+    <h2>Limits</h2>
+    <ul>
+      <li>The office computer must run Linux. An office computer running macOS can't receive devices yet: that needs a USB entitlement from Apple.</li>
+      <li>Sharing is from Mob Desktop on macOS. Phones and tablets neither share devices nor control shares.</li>
+      <li>While shared, only the office computer can use the device. One computer at a time.</li>
+      <li>Speed depends on the connection: fine for flashing and debugging on the office network, slower through a relay.</li>
+      <li>A device that restarts into another mode (a bootloader) appears as a new device: share it again.</li>
+      <li>Agents and programs on the office computer run as its user and can use the device while it is shared there.</li>
+    </ul>
+  </section>
+</DocLayout>

@@ -40,10 +40,15 @@ const groups: [string, string, [string, string][]][] = [
     ['mobd desktops logs SESSION', "Show a desktop's logs"],
     ['mobd desktops seed SESSION', "Make this conversation's browser profiles the start of every new conversation's"],
   ]],
+  ['usb', 'USB devices (Linux)', [
+    ['sudo mobd usb setup', 'Let this computer use USB devices shared from Mob Desktop (once, as the user that runs mobd)'],
+    ['mobd usb status', 'Whether shared devices can be used here, or why not'],
+    ['sudo mobd usb remove', 'Undo setup'],
+  ]],
 ];
 const sections: [string, string][] = [...groups.map(([id, label]) => [id, label] as [string, string]), ['config', 'Configuration']];
 ---
-<DocLayout title="Commands" description="Every mobd command: running the service, pairing devices, remote access and Linux desktops." lead="Run them on the office computer, as the user that runs mobd. <code>mobd --help</code> lists them too." sections={sections}>
+<DocLayout title="Commands" description="Every mobd command: running the service, pairing devices, remote access, Linux desktops and USB devices." lead="Run them on the office computer, as the user that runs mobd. <code>mobd --help</code> lists them too." sections={sections}>
   {groups.map(([id, label, rows]) => (
     <section id={id}>
       <h2>{label}</h2>
