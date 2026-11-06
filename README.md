@@ -4,11 +4,10 @@ The product site for Mob, mob programming with your AI agents: home, download, d
 Built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com) into static
 files, hosted on **GitHub Pages**. English only for now; the structure leaves room for more languages.
 
-The [USB documentation plan](docs/usb-redirection.md) tracks the shared Desktop-to-mobd
-design and Apple authorization gate. It is a draft, not a released feature or a public guide.
-
-The [agent collaboration documentation plan](docs/agent-collaboration.md) records the
-terminology and scope behind the [Agents together](src/pages/collaborate/index.astro) guide.
+`docs/` holds the notes behind some guides: [agent collaboration](docs/agent-collaboration.md)
+(`/collaborate/`), [file transfers](docs/file-transfers.md) (`/files/`) and
+[USB devices](docs/usb-redirection.md) (`/usb/`). The pages describe what mobd and the apps on
+`main` do; the canonical designs are in [mobd's docs](https://github.com/xrdavies/mobd/tree/main/docs).
 
 ## Develop
 
