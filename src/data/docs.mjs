@@ -12,6 +12,7 @@ export const DOCS = [
     ['/desktops/', 'Desktops & live view'],
     ['/collaborate/', 'Agents together'],
     ['/files/', 'File transfers'],
+    ['/usb/', 'USB devices'],
   ] },
   { group: 'Reference', pages: [
     ['/commands/', 'Commands'],

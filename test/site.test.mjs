@@ -17,7 +17,7 @@ const manifests = {
   mob: [release('mob', '0.2.0', 'mob_0.2.0_darwin_arm64.dmg', '**New** live view'), release('mob', '0.1.0', 'mob_0.1.0_darwin_arm64.dmg')],
   mobd: [release('mobd', '0.0.2', 'mobd_0.0.2_darwin_arm64.tar.gz')],
 };
-const DOCS = ['start', 'install/macos', 'install/linux', 'configure', 'pair', 'remote', 'desktops', 'collaborate', 'files', 'commands', 'faq'];
+const DOCS = ['start', 'install/macos', 'install/linux', 'configure', 'pair', 'remote', 'desktops', 'collaborate', 'files', 'usb', 'commands', 'faq'];
 const PAGES = ['index.html', 'download/index.html', ...DOCS.map(d => `${d}/index.html`), 'privacy/index.html', '404.html'];
 
 // Builds the site with Astro into a temporary directory, with release manifests from a fixture.
@@ -111,8 +111,11 @@ test('released products get downloads and notes; the site is English, CSP-clean 
   const collab = site.read('collaborate/index.html');
   for (const text of ['Set handle…', 'Move @handle here', 'Cancel', 'needs you', '24 hours', 'same office computer']) assert.ok(collab.includes(text), `Agents together: ${text}`);
   assert.match(home, /href="\/collaborate\/"/, 'the home page links Agents together');
+  const usb = site.read('usb/index.html');
+  for (const text of ['sudo mobd usb setup', 'mobd usb status', 'Stop sharing', 'Detach anyway', 'Linux', 'entitlement']) assert.ok(usb.includes(text), `USB devices: ${text}`);
+  assert.match(site.read('commands/index.html'), /mobd usb remove/, 'commands list mobd usb');
   const index = JSON.parse(site.read('search.json'));
-  for (const url of ['/install/linux/#firewall', '/pair/#link', '/faq/#report', '/privacy/', '/files/#directory', '/collaborate/#ask', '/files/#desktop', '/files/#mobile']) assert.ok(index.some(e => e.url === url), `search finds ${url}`);
+  for (const url of ['/install/linux/#firewall', '/pair/#link', '/faq/#report', '/privacy/', '/files/#directory', '/collaborate/#ask', '/usb/#setup', '/files/#desktop', '/files/#mobile']) assert.ok(index.some(e => e.url === url), `search finds ${url}`);
   assert.ok(index.every(e => e.page && e.title && !/<\/[a-z]|<(a|code|span|strong|p|li|pre)[\s>]|class="|&amp;/.test(e.text)), 'search entries are plain text, no markup');
   const report = site.read('faq/index.html');
   for (const repo of ['mobd', 'mob', 'mob-ios', 'mob-android', 'mob-site']) assert.match(report, new RegExp(`href="https://github.com/xrdavies/${repo}/issues"`), `issues of ${repo}`);
