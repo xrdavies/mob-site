@@ -47,7 +47,7 @@ versions, download links, SHA-256 and release notes into the HTML, so browsers n
    for the domain. If GitHub can't issue or renew that certificate, switch the records to DNS-only
    until it has, then proxy them again. In **Web Analytics → Manage site**, keep RUM on
    **Enable with JS Snippet installation**: the site loads the beacon itself (`CF_BEACON_TOKEN`),
-   and Cloudflare's automatic injection would be blocked by the CSP and count visits twice.
+   and automatic injection would count every visit twice (or, without the token, be blocked by the CSP).
 3. **Settings → Secrets and variables → Actions → Variables**: `DOWNLOAD_BASE_URL` / `IOS_APP_URL` / `CF_BEACON_TOKEN`
    as needed. The site's own domain is in `lib/config.mjs`, not a variable.
 4. Push to `main`.
