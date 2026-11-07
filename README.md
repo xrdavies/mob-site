@@ -32,6 +32,7 @@ versions, download links, SHA-256 and release notes into the HTML, so browsers n
 | `SITE_URL` | — | Site HTTPS origin, default `https://mymob.dev`: canonical links, sitemap, og:image, JSON-LD. Empty builds a preview that keeps crawlers out |
 | `DOWNLOAD_BASE_URL` | no | R2 download origin, default `https://dl.mymob.dev` |
 | `IOS_APP_URL` | no | App Store or TestFlight link; without it the iPhone card says “Coming to the App Store” |
+| `CF_BEACON_TOKEN` | no | Cloudflare Web Analytics token (cookieless visit counts); without it the site loads no analytics |
 | `REQUIRE_PUBLIC_CONFIG` | — | `1` requires `SITE_URL` and fails if any manifest can't be read (CI deploys) |
 | `RELEASES_FIXTURE` | — | JSON file of release histories by product used instead of R2 (tests, offline previews) |
 
@@ -42,7 +43,7 @@ versions, download links, SHA-256 and release notes into the HTML, so browsers n
    `A` records to `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153` and
    `AAAA` records to `2606:50c0:8000::153` … `2606:50c0:8003::153`; `www` as a CNAME to
    `xrdavies.github.io` (GitHub then redirects it). On Cloudflare, leave these records DNS-only.
-3. **Settings → Secrets and variables → Actions → Variables**: `DOWNLOAD_BASE_URL` / `IOS_APP_URL`
+3. **Settings → Secrets and variables → Actions → Variables**: `DOWNLOAD_BASE_URL` / `IOS_APP_URL` / `CF_BEACON_TOKEN`
    as needed. The site's own domain is in `lib/config.mjs`, not a variable.
 4. Push to `main`.
 

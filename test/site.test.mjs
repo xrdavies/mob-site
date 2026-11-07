@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { iosURL, origin, renderNotes } from '../lib/config.mjs';
+import { beaconToken, iosURL, origin, renderNotes } from '../lib/config.mjs';
 import { fetchReleases, validateRelease } from '../lib/releases.mjs';
 
 const base = 'https://download.mob.test';
@@ -40,6 +40,8 @@ test('configuration rejects unsafe or placeholder values', () => {
   assert.throws(() => origin('https://mob.test/?key=value'), /HTTPS/);
   assert.throws(() => iosURL('https://evil.test/app'), /apps.apple.com/);
   assert.equal(iosURL('https://testflight.apple.com/join/abc'), 'https://testflight.apple.com/join/abc');
+  assert.throws(() => beaconToken('"><script>'), /CF_BEACON_TOKEN/);
+  assert.equal(beaconToken('0123456789abcdef0123456789abcdef'), '0123456789abcdef0123456789abcdef');
 });
 
 test('manifests reject external URLs and wrong products; notes are escaped', async () => {
@@ -173,6 +175,19 @@ test('iOS card: coming soon, App Store link, or TestFlight link', t => {
   assert.doesNotMatch(store, /Coming to the App Store/);
   const beta = build(t, { IOS_APP_URL: 'https://testflight.apple.com/join/abc' }).read('download/index.html');
   assert.match(beta, /href="https:\/\/testflight.apple.com\/join\/abc"[^>]*>Join on TestFlight/);
+});
+
+test('Cloudflare Web Analytics loads only with a token, and the CSP and privacy page follow', t => {
+  const off = build(t, {});
+  assert.doesNotMatch(off.read('index.html'), /cloudflareinsights/);
+  assert.match(off.read('privacy/index.html'), /uses no cookies, analytics or third-party scripts/);
+  const token = '0123456789abcdef0123456789abcdef';
+  const on = build(t, { CF_BEACON_TOKEN: token });
+  const home = on.read('index.html');
+  assert.match(home, /script-src 'self' https:\/\/static.cloudflareinsights.com;/);
+  assert.match(home, /connect-src 'self' https:\/\/cloudflareinsights.com;/);
+  assert.match(home, new RegExp(`<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&#34;token&#34;:&#34;${token}&#34;}"></script>`));
+  assert.match(on.read('privacy/index.html'), /Cloudflare Web Analytics/);
 });
 
 test('Mob gets only its macOS download; mobd gets macOS and its Linux packages', t => {

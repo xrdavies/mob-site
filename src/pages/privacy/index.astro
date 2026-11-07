@@ -1,11 +1,12 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { beacon } from '../../data/site.mjs';
 ---
 <Layout title="Privacy Policy · Mob" description="Mob collects no personal data. The apps connect only to your own mobd." readout={{ turn: 'Legal', time: '', place: 'Privacy' }}>
   <article class="doc container-x max-w-3xl pt-32 sm:pt-40">
     <p class="eyebrow">Legal</p>
     <h1 class="mt-3 text-4xl">Privacy Policy</h1>
-    <p class="font-mono text-xs text-zinc-500">Updated October 31, 2026</p>
+    <p class="font-mono text-xs text-zinc-500">Updated November 7, 2026</p>
     <p>Mob is made of mobd, which runs on your office computer, and the Mob apps: Mob Desktop (macOS; Windows and Linux on the way) and Mob Mobile (iPhone, iPad and Android). It runs on your own computers and devices. We operate no server that receives your data. Mob is open source under the MIT License, so you can check all of this in the <a href="https://github.com/xrdavies">source code</a>.</p>
     <h2>We collect no data</h2>
     <ul>
@@ -29,7 +30,9 @@ import Layout from '../../layouts/Layout.astro';
       <li><strong>Microphone:</strong> Mob does not record audio. The description comes from the WebRTC component used for the live view.</li>
     </ul>
     <h2>This website</h2>
-    <p>This website uses no cookies, analytics or third-party scripts. Downloads are served from our download server, which may keep standard access logs.</p>
+    {beacon
+      ? <p>This website uses <a href="https://www.cloudflare.com/web-analytics/">Cloudflare Web Analytics</a> to count visits. It sets no cookies, stores nothing on your device and does not track you across sites. Downloads are served from our download server, which may keep standard access logs.</p>
+      : <p>This website uses no cookies, analytics or third-party scripts. Downloads are served from our download server, which may keep standard access logs.</p>}
     <h2>Contact</h2>
     <p>Questions about this policy: <a href="mailto:mob@taoist.dev">mob@taoist.dev</a>. When the policy changes, the date above changes too.</p>
   </article>
