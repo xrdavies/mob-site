@@ -32,6 +32,7 @@ jobs:
           REQUIRE_PUBLIC_CONFIG: ${{ github.event_name == 'pull_request' && '0' || '1' }}
           DOWNLOAD_BASE_URL: ${{ vars.DOWNLOAD_BASE_URL }}
           IOS_APP_URL: ${{ vars.IOS_APP_URL }}
+          CF_BEACON_TOKEN: ${{ vars.CF_BEACON_TOKEN }}
         run: npm run build
       - if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v4

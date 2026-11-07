@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { latest, siteURL } from '../data/site.mjs';
+import { beacon, latest, siteURL } from '../data/site.mjs';
 import { DOC_PATHS } from '../data/docs.mjs';
 
 interface Props {
@@ -29,6 +29,8 @@ const ld = siteURL && JSON.stringify({
   '@context': 'https://schema.org',
   '@graph': [{ '@type': 'WebSite', '@id': `${siteURL}/#website`, name: 'Mob', url: `${siteURL}/` }, ...schema],
 }).replace(/</g, '\\u003c');
+// Cloudflare Web Analytics, when configured: the beacon script and the endpoint it reports to.
+const csp = `default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'${beacon ? ' https://static.cloudflareinsights.com' : ''}; font-src 'self'; connect-src 'self'${beacon ? ' https://cloudflareinsights.com' : ''}; object-src 'none'; base-uri 'self'; form-action 'none'`;
 ---
 <!doctype html>
 <html lang="en">
@@ -36,7 +38,7 @@ const ld = siteURL && JSON.stringify({
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   {/* The dev server injects inline styles and scripts; the built site has none. */}
-  {import.meta.env.PROD && <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">}
+  {import.meta.env.PROD && <meta http-equiv="Content-Security-Policy" content={csp}>}
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#0b0b0f">
@@ -58,6 +60,7 @@ const ld = siteURL && JSON.stringify({
   <link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   {ld && <script is:inline type="application/ld+json" set:html={ld}></script>}
+  {import.meta.env.PROD && beacon && <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: beacon })}></script>}
 </head>
 <body>
   <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-6 focus:top-6 focus:z-[70] focus:rounded-md focus:bg-zinc-900 focus:px-3 focus:py-2">Skip to content</a>

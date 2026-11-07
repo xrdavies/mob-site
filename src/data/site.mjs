@@ -1,6 +1,6 @@
 // Everything the pages need from the environment and the release manifests, read once per build.
 import { readFileSync } from 'node:fs';
-import { DEFAULT_DOWNLOAD_BASE_URL, DEFAULT_SITE_URL, iosURL, origin } from '../../lib/config.mjs';
+import { DEFAULT_DOWNLOAD_BASE_URL, DEFAULT_SITE_URL, beaconToken, iosURL, origin } from '../../lib/config.mjs';
 import { PRODUCTS, fetchReleases, validateRelease } from '../../lib/releases.mjs';
 
 const env = process.env;
@@ -9,6 +9,7 @@ const env = process.env;
 export const siteURL = origin(env.SITE_URL ?? DEFAULT_SITE_URL);
 export const base = origin(env.DOWNLOAD_BASE_URL || DEFAULT_DOWNLOAD_BASE_URL);
 export const ios = iosURL(env.IOS_APP_URL);
+export const beacon = beaconToken(env.CF_BEACON_TOKEN);
 export const testflight = Boolean(ios) && new URL(ios).hostname === 'testflight.apple.com';
 const strict = env.REQUIRE_PUBLIC_CONFIG === '1';
 if (strict && !siteURL) throw Error('SITE_URL is required for deployment');
