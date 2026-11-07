@@ -42,7 +42,12 @@ versions, download links, SHA-256 and release notes into the HTML, so browsers n
 2. **Settings → Pages → Custom domain**: `mymob.dev`, then **Enforce HTTPS**. DNS for the apex:
    `A` records to `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153` and
    `AAAA` records to `2606:50c0:8000::153` … `2606:50c0:8003::153`; `www` as a CNAME to
-   `xrdavies.github.io` (GitHub then redirects it). On Cloudflare, leave these records DNS-only.
+   `xrdavies.github.io` (GitHub then redirects it). On Cloudflare these records are proxied
+   (orange cloud): set **SSL/TLS** to **Full (strict)**, since GitHub serves its own certificate
+   for the domain. If GitHub can't issue or renew that certificate, switch the records to DNS-only
+   until it has, then proxy them again. In **Web Analytics → Manage site**, keep RUM on
+   **Enable with JS Snippet installation**: the site loads the beacon itself (`CF_BEACON_TOKEN`),
+   and Cloudflare's automatic injection would be blocked by the CSP and count visits twice.
 3. **Settings → Secrets and variables → Actions → Variables**: `DOWNLOAD_BASE_URL` / `IOS_APP_URL` / `CF_BEACON_TOKEN`
    as needed. The site's own domain is in `lib/config.mjs`, not a variable.
 4. Push to `main`.
