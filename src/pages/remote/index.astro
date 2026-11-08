@@ -63,9 +63,22 @@ const routes = {
         <p>Your devices join a private network (a tailnet) with the office computer. mobd gets an HTTPS address that only they can reach, and the live view keeps WebRTC.</p>
         <h3>What you need</h3>
         <ul>
-          <li><a href="https://tailscale.com/download" rel="noreferrer">Tailscale</a> on the office computer and on each device, signed in to the <strong>same account</strong>. On Linux: <code>curl -fsSL https://tailscale.com/install.sh | sh</code>, then <code>sudo tailscale up</code>.</li>
+          <li>Tailscale on the office computer and on each device, signed in to the <strong>same account</strong>. Each system has more than one way to install it; follow Tailscale's guide for yours (all of them: <a href="https://tailscale.com/docs/install" rel="noreferrer">Install Tailscale</a>).</li>
           <li>In the <a href="https://login.tailscale.com/admin/dns" rel="noreferrer">admin console → DNS</a>: <strong>MagicDNS</strong> and <strong>HTTPS Certificates</strong> turned on.</li>
         </ul>
+        <div class="overflow-x-auto"><table>
+          <thead><tr><th scope="col"></th><th scope="col">Install</th><th scope="col">Notes</th></tr></thead>
+          <tbody>
+            <tr><th scope="row" rowspan="2">Office computer</th><td><a href="https://tailscale.com/docs/install/mac" rel="noreferrer">macOS</a></td><td>The standalone or App Store app (<a href="https://tailscale.com/docs/concepts/macos-variants" rel="noreferrer">differences</a>). Open it and sign in.</td></tr>
+            <tr><td><a href="https://tailscale.com/docs/install/linux" rel="noreferrer">Linux</a></td><td>Then sign in: <code>sudo tailscale up</code>.</td></tr>
+            <tr><th scope="row" rowspan="4">Devices</th><td><a href="https://tailscale.com/docs/install/ios" rel="noreferrer">iPhone, iPad</a></td><td>App Store. One VPN at a time.</td></tr>
+            <tr><td><a href="https://tailscale.com/docs/install/android" rel="noreferrer">Android</a></td><td>Google Play.</td></tr>
+            <tr><td><a href="https://tailscale.com/docs/install/mac" rel="noreferrer">Mac</a></td><td>Either app.</td></tr>
+            <tr><td><a href="https://tailscale.com/docs/install/windows" rel="noreferrer">Windows</a></td><td>For Mob Desktop on Windows, once it ships.</td></tr>
+          </tbody>
+        </table></div>
+        <p>On macOS, <code>mobd remote setup</code> finds the Tailscale app by itself. To type the <code>tailscale</code> commands on this page, turn on <strong>Settings → CLI integration</strong> in the standalone app; with the App Store app, type its full path instead of <code>tailscale</code>:</p>
+        <pre>/Applications/Tailscale.app/Contents/MacOS/Tailscale</pre>
         <h3>Set it up</h3>
         <pre>mobd remote setup --tailscale</pre>
         <p>It checks Tailscale is installed and signed in and that HTTPS is on, shows the <code>tailscale serve</code> command and asks before running it, then checks the new address reaches this mobd and saves it. Then pair each device with Tailscale switched on:</p>
