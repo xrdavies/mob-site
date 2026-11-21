@@ -2,7 +2,7 @@
 import DocLayout from '../../layouts/DocLayout.astro';
 
 const sections: [string, string][] = [
-  ['live', 'The live view'], ['macos', 'On macOS'], ['linux', 'On Linux'], ['browsers', 'Browsers and sign-ins'], ['limits', 'Limits on Linux'],
+  ['live', 'The live view'], ['desktop', 'In Mob Desktop'], ['macos', 'On macOS'], ['linux', 'On Linux'], ['browsers', 'Browsers and sign-ins'], ['limits', 'Limits on Linux'],
 ];
 ---
 <DocLayout title="Desktops & live view" description="Where the agent works: the Mac's own screen, or a virtual desktop per conversation on Linux. Watching and taking control from Mob, sleeping and closing desktops." lead="The agent sees a screen and clicks and types on it. On a Mac that is the Mac's own screen; on Linux every conversation gets its own virtual desktop." sections={sections}>
@@ -10,11 +10,24 @@ const sections: [string, string][] = [
     <h2>The live view</h2>
     <ul>
       <li><strong>Watch:</strong> Mob shows the screen the agent is using, live. On Linux that is the open conversation's desktop.</li>
-      <li><strong>Take control:</strong> switch from <strong>View</strong> to <strong>Control</strong> to use the mouse and keyboard yourself, for a sign-in or a captcha, then switch back.</li>
-      <li><strong>Quality:</strong> Auto, High or Low per machine in Mob.</li>
+      <li><strong>Take control:</strong> use the mouse and keyboard yourself, for a sign-in or a captcha, then hand it back. In Mob Desktop choose <strong>Take control</strong> (⇧⌘C): the screen gets a purple border and <em>You're in control</em>; <strong>Release</strong> or <kbd>Esc</kbd> gives it back (⇧Esc sends Esc to the computer). On a phone, switch from <strong>View</strong> to <strong>Control</strong> and back.</li>
+      <li><strong>Quality:</strong> Auto, High or Low per computer: in the expanded screen's header, or <strong>Settings → the computer → Connection</strong>.</li>
       <li><strong>Transport:</strong> WebRTC over UDP (port 9527), or a WebSocket where UDP can't pass, such as through a Cloudflare Tunnel.</li>
       <li><strong>Sound:</strong> the speaker button plays the office computer's sound: on a Mac its own sound, on Linux the conversation's desktop. It starts off in every live view. Sound needs WebRTC: over the WebSocket the button explains why there is none, because sound that stutters is worse than none.</li>
     </ul>
+  </section>
+
+  <section id="desktop">
+    <h2>In Mob Desktop</h2>
+    <p>The screen of another computer is at the top of a conversation's side panel (⇧⌘B shows the panel). There is none for the Mac Mob Desktop runs on: you are sitting at it.</p>
+    <ul>
+      <li><strong>Asleep until you click it:</strong> the panel shows the last picture, dimmed. A click wakes it into the live view. It sleeps again after two minutes without anything happening on it, and when you leave the conversation, so nothing streams while you are not looking.</li>
+      <li><strong>Open in the window:</strong> the expand button shows the screen as large as the window. While it sleeps that is a sharp snapshot, refreshed every few seconds: easy to read and light on a weak network. <strong>Go live</strong> or <strong>Take control</strong> wakes it.</li>
+      <li><strong>When the live view cannot connect</strong>, for example on a network that blocks it, Mob keeps showing snapshots with the reason; a click tries again.</li>
+      <li><strong>Sound, own window and sleep</strong> are buttons on the live screen.</li>
+    </ul>
+    <figure class="shot"><img src="/assets/screens/desktop-screen-expanded.webp" width="2880" height="1800" loading="lazy" alt="Mob Desktop showing the Studio Mac's screen as large as the window: a snapshot of a fare page in Safari, with Go live and Take control in the header."><figcaption>A sleeping screen, opened in the window: a sharp snapshot until you go live.</figcaption></figure>
+    <p>On iPhone, iPad and Android the screen connects live while it is shown, and falls back to snapshots when it can't.</p>
   </section>
 
   <section id="macos">
@@ -46,7 +59,7 @@ const sections: [string, string][] = [
   <section id="browsers">
     <h2>Browsers and sign-ins</h2>
     <p>On Linux, Chrome, Chromium and Firefox started by the agent use a browser profile and <code>Downloads</code> folder of the conversation's own, so conversations don't share cookies or sign-ins.</p>
-    <p>To start new conversations already signed in: in one conversation, sign in to the sites (from the live view, in Control), close the browser, then make its profiles the template:</p>
+    <p>To start new conversations already signed in: in one conversation, sign in to the sites (from the live view, with Take control), close the browser, then make its profiles the template:</p>
     <pre>mobd desktops list                # find the conversation's ID
 mobd desktops seed SESSION        # its profiles become the start of every new conversation's</pre>
     <p>On macOS the agent uses your normal browser with your own profile.</p>

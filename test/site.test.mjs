@@ -108,8 +108,15 @@ test('released products get downloads and notes; the site is English, CSP-clean 
   assert.match(download, /href="https:\/\/github.com\/xrdavies\/mob\/releases"/, 'all desktop releases');
   assert.match(site.read('faq/index.html'), /Do mobd and the apps need the same version\?/);
   const files = site.read('files/index.html');
-  for (const text of ['~/mob-files', 'filesDir', 'MOBD_FILES_DIR', '.uploads', 'title bar', 'Open Files', 'Show in Finder', 'On My iPhone', 'everything in it']) assert.ok(files.includes(text), `File transfers: ${text}`);
+  for (const text of ['~/mob-files', 'filesDir', 'MOBD_FILES_DIR', '.uploads', 'Shared folder', 'search field (⌘K)', 'Show in Finder', 'On My iPhone', 'everything in it']) assert.ok(files.includes(text), `File transfers: ${text}`);
   assert.doesNotMatch(files, /save picker|choose <strong>Save|no remote delete/i, 'File transfers: no old save or delete wording');
+  // Mob Desktop's redesign: no title bar, Take control instead of a View/Control switch on Desktop.
+  for (const page of ['files/index.html', 'usb/index.html', 'index.html']) assert.doesNotMatch(site.read(page), /title bar|Switch to Control/, `${page}: no old Desktop wording`);
+  const desktop = site.read('desktop/index.html');
+  for (const text of ['Needs you', 'Search or ask', 'This computer', 'Devices &amp; access', 'Release control']) assert.ok(desktop.includes(text), `Mob Desktop: ${text}`);
+  for (const shot of desktop.match(/\/assets\/screens\/[a-z-]+\.webp/g)) assert.ok(existsSync(join(site.out, shot)), `screenshot ${shot}`);
+  assert.match(site.read('start/index.html'), /id="desktop"[\s\S]*Start with this computer/, 'Get started offers Mob Desktop on the Mac');
+  assert.match(home, /Not only code/, 'the home page shows work beyond code');
   const collab = site.read('collaborate/index.html');
   for (const text of ['Set handle…', 'Move @handle here', 'Cancel', 'needs you', '24 hours', 'same office computer']) assert.ok(collab.includes(text), `Agents together: ${text}`);
   assert.match(home, /href="\/collaborate\/"/, 'the home page links Agents together');

@@ -17,7 +17,7 @@ const sections: [string, string][] = [
         <tr><td><a href="https://www.npmjs.com/package/@earendil-works/pi-coding-agent" rel="noreferrer">Pi</a></td><td><code>npm install -g --ignore-scripts @earendil-works/pi-coding-agent@1.4.0</code>, then set up its model provider</td><td><code>pi</code></td></tr>
       </tbody>
     </table></div>
-    <p>mobd checks that each agent is installed in a supported version; Mob's machine settings list every agent with its state and, when one is missing, the command to install it. The agent's own sign-in or API key is not checked: a problem there shows as the agent's error on the first turn.</p>
+    <p>mobd checks that each agent is installed in a supported version; Mob's settings for the computer list every agent with its state and, when one is missing, the command to install it. The agent's own sign-in or API key is not checked: a problem there shows as the agent's error on the first turn.</p>
   </section>
 
   <section id="config">
@@ -40,13 +40,15 @@ const sections: [string, string][] = [
 
   <section id="settings">
     <h2>Agent settings in Mob</h2>
-    <p>Once a device is paired, open the machine in Mob (<strong>Settings → Machines</strong>, then its <strong>Agents</strong> settings) to set, for every device at once:</p>
+    <p>Once a device is paired, open the computer's agents in Mob, <strong>Settings → the computer → Agents</strong> in Mob Desktop or <strong>Settings → Machines</strong> on a phone, to set, for every device at once:</p>
     <ul>
       <li>the <strong>default agent</strong> for new conversations;</li>
       <li>the <strong>models</strong> offered for each agent, and its <strong>default model</strong> and <strong>effort</strong>;</li>
       <li><strong>permissions:</strong> <em>Run without asking</em> (the default), or <em>Ask before commands and edits</em>, where the agent waits for your approval in Mob.</li>
     </ul>
     <p>Changes apply from the next turn, without a restart. A conversation keeps its agent; its model and effort can be changed in the message box.</p>
+    <p>Mob Desktop also changes what <code>config.json</code> says, for any paired computer with a recent mobd: turn an agent on or off, set its program and, for Claude Code, which of its settings it loads, and choose the folder agents work in (<strong>Settings → the computer → General</strong>). mobd checks the change first and applies it when you choose <strong>Restart to apply</strong>, which is possible only while no task runs or waits; if mobd does not come back with the new settings, it goes back to the last ones that worked.</p>
+    <figure class="shot"><img src="/assets/screens/desktop-settings.webp" width="2880" height="1800" loading="lazy" alt="Mob Desktop Settings for the Studio Mac, Agents tab: Claude Code, Codex and Pi with their model, effort and permissions, each Ready and switched on, and the default agent for new chats."><figcaption>Settings → Studio Mac → Agents in Mob Desktop.</figcaption></figure>
   </section>
 
   <section id="linux">

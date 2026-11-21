@@ -1,7 +1,7 @@
 ---
 import DocLayout from '../../layouts/DocLayout.astro';
 
-const sections: [string, string][] = [['link', 'Create an invitation'], ['add', 'Add the machine in Mob'], ['addresses', 'Several addresses'], ['devices', 'Paired devices']];
+const sections: [string, string][] = [['link', 'Create an invitation'], ['add', 'Add the computer in Mob'], ['addresses', 'Several addresses'], ['devices', 'Paired devices']];
 ---
 <DocLayout title="Pair devices" description="Pair Mob on your laptop or phone with mobd: mobd link prints a one-use QR code and link; manage and revoke paired devices." lead="Each device pairs once with each office computer. It keeps its own credential in the system's secure storage and reconnects on its own afterwards." sections={sections}>
   <section id="link">
@@ -17,11 +17,12 @@ const sections: [string, string][] = [['link', 'Create an invitation'], ['add', 
   </section>
 
   <section id="add">
-    <h2>Add the machine in Mob</h2>
+    <h2>Add the computer in Mob</h2>
+    <p>On a Mac, Mob Desktop connects to mobd on that same Mac by itself, and can install and start it (<a href="/start/#desktop">Start with Mob Desktop</a>). For another computer:</p>
     <ol>
-      <li>Open <strong>Settings → Machines → Add machine</strong>.</li>
+      <li>In Mob Desktop choose <strong>＋</strong> next to <strong>Computers</strong> in the sidebar (or <strong>Add a computer</strong> in Settings). On a phone open <strong>Settings → Machines → Add machine</strong>.</li>
       <li>On a phone, scan the QR code; on any device, you can paste the whole link instead.</li>
-      <li>Check the address, give the machine a name and pair.</li>
+      <li>Check the address, give the computer a name and pair.</li>
       <li>Start a conversation and try something simple, such as “Look at the screen and tell me what you see.”</li>
     </ol>
     <p>An <code>http://</code> address is not encrypted: Mob warns about it. Use it only on a network you trust, or set up <a href="/remote/">remote access</a> over HTTPS.</p>
@@ -29,7 +30,7 @@ const sections: [string, string][] = [['link', 'Create an invitation'], ['add', 
 
   <section id="addresses">
     <h2>Several addresses</h2>
-    <p>A computer can be reached at more than one address, such as the office network at your desk and Tailscale elsewhere. Pair once per address: the second code for the same computer adds its address to the same machine, with the same conversations, and you choose which route Mob uses. See <a href="/remote/#both">At the office and away</a>.</p>
+    <p>A computer can be reached at more than one address, such as the office network at your desk and Tailscale elsewhere. Pair once per address: the second code for the same computer adds its address to the same computer in Mob, with the same conversations, and you choose which route Mob uses. See <a href="/remote/#both">At the office and away</a>.</p>
   </section>
 
   <section id="devices">
@@ -38,5 +39,7 @@ const sections: [string, string][] = [['link', 'Create an invitation'], ['add', 
 mobd clients revoke CLIENT_ID  # revoke one and disconnect it now
 mobd auth reset --yes          # revoke every device and invitation</pre>
     <p>A revoked device shows <strong>Needs pairing</strong> in Mob; pair it again with a new <code>mobd link</code>. Conversations stay on the office computer either way.</p>
+    <p>On a Mac running Mob Desktop, <strong>Settings → This computer → Devices &amp; access</strong> lists the devices paired with it, removes one, and shows the pairing QR code for your phone.</p>
+    <p>Removing a computer in Mob also removes that device's pairing there.</p>
   </section>
 </DocLayout>

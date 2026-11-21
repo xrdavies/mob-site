@@ -63,11 +63,13 @@ mobd stop &amp;&amp; mobd start --login   # optional: also start at login</pre>
 
   <section id="upgrade">
     <h2>Upgrade</h2>
-    <p>Let running turns finish, then:</p>
+    <pre>mobd upgrade --check   # current and latest version; changes nothing
+mobd upgrade           # download, verify, install and restart</pre>
+    <p><code>mobd upgrade</code> downloads and checks the new version while mobd keeps running, then installs it only when no task runs or waits. If the new mobd does not start, the previous one runs again. Settings, pairings and conversations are kept. On the Mac you use it on, Mob Desktop does the same from <strong>Settings → This computer → Service</strong>.</p>
+    <p>If <code>mobd upgrade</code> is not there yet, let running turns finish, then</p>
     <pre>mobd stop          # the installer refuses while mobd runs
 {install}
 mobd start --login # or mobd start, if it should not start at login</pre>
-    <p><code>mobd stop</code> also turns off starting at login, so start it the way you want it again. Settings and conversations are kept.</p>
   </section>
 
   <section id="uninstall">

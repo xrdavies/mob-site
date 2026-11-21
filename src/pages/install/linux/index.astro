@@ -76,10 +76,10 @@ sudo ufw allow 9527/udp     # live view over WebRTC</pre>
 
   <section id="upgrade">
     <h2>Upgrade</h2>
-    <p>Let running turns finish. Desktops stay open and re-attach to the new mobd.</p>
+    <p>Desktops stay open and re-attach to the new mobd.</p>
     <ul>
-      <li><strong>.deb:</strong> install the new one the same way, then <code>mobd restart</code>.</li>
-      <li><strong>Installer:</strong> <code>mobd stop --keep-desktops</code>, run the install command again, then <code>mobd start</code> (or <code>mobd start --login</code>).</li>
+      <li><strong>Installer:</strong> <code>mobd upgrade</code> downloads and checks the new version while mobd keeps running, then installs it once no task runs or waits, and restarts. If the new mobd does not start, the previous one runs again. <code>mobd upgrade --check</code> only shows the current and latest version. If <code>mobd upgrade</code> is not there yet: <code>mobd stop --keep-desktops</code>, run the install command again, then <code>mobd start</code> (or <code>mobd start --login</code>).</li>
+      <li><strong>.deb:</strong> install the new one the same way, then <code>mobd restart</code>. <code>mobd upgrade</code> refuses and says so.</li>
     </ul>
   </section>
 
