@@ -5,7 +5,7 @@ const sections: [string, string][] = [
   ['agents', 'Install the agents'], ['config', 'config.json'], ['settings', 'Agent settings in Mob'], ['linux', 'Linux desktops'], ['security', 'Security'],
 ];
 ---
-<DocLayout title="Configure agents" description="Choose which agents mobd runs (Codex, Claude Code, Pi) and where they work, then set models, effort and permissions in Mob." lead="<code>config.json</code> on the office computer says which agents mobd runs and where. Everything else about them is set in Mob and shared by every device." sections={sections}>
+<DocLayout title="Configure agents" description="Choose which agents mobd runs (Codex, Claude Code, Pi, OpenCode, DeepSeek Harness or any Agent Client Protocol agent) and where they work, then set models, effort and permissions in Mob." lead="<code>config.json</code> on the office computer says which agents mobd runs and where. Everything else about them is set in Mob and shared by every device." sections={sections}>
   <section id="agents">
     <h2>Install the agents</h2>
     <p>Install each agent you want on the office computer, as the user that runs mobd, and set it up once in a terminal: sign in with its account, or configure an API key the way the agent supports it.</p>
@@ -15,8 +15,11 @@ const sections: [string, string][] = [
         <tr><td><a href="https://developers.openai.com/codex/cli/" rel="noreferrer">Codex</a></td><td><code>npm install -g @openai/codex</code>, then <code>codex</code> to sign in or use an API key</td><td><code>codex</code></td></tr>
         <tr><td><a href="https://code.claude.com/docs/en/quickstart" rel="noreferrer">Claude Code</a></td><td><code>curl -fsSL https://claude.ai/install.sh | bash</code>, then <code>claude</code> to sign in or use an API key</td><td><code>claude</code></td></tr>
         <tr><td><a href="https://www.npmjs.com/package/@earendil-works/pi-coding-agent" rel="noreferrer">Pi</a></td><td><code>npm install -g --ignore-scripts @earendil-works/pi-coding-agent@1.4.0</code>, then set up its model provider</td><td><code>pi</code></td></tr>
+        <tr><td><a href="https://opencode.ai" rel="noreferrer">OpenCode</a></td><td><code>npm install -g opencode-ai</code>, then <code>opencode auth login</code> for your providers (its free models work without)</td><td><code>opencode</code></td></tr>
+        <tr><td><a href="https://www.npmjs.com/package/@deepseek-ai/dsh" rel="noreferrer">DeepSeek Harness</a></td><td><code>npm install -g @deepseek-ai/dsh</code> (a release candidate), then store <code>DEEPSEEK_API_KEY</code> on its web Models page</td><td><code>dsh</code></td></tr>
       </tbody>
     </table></div>
+    <p>OpenCode and DeepSeek Harness are connected through the <a href="https://agentclientprotocol.com" rel="noreferrer">Agent Client Protocol</a>, and so can any agent that speaks it: name it in <code>agents</code> (<a href="#config">below</a>) and add it to <code>runners</code>. These agents finish a turn before taking the next message; adding to a running turn is for Codex and Pi.</p>
     <p>mobd checks that each agent is installed in a supported version; Mob's settings for the computer list every agent with its state and, when one is missing, the command to install it. The agent's own sign-in or API key is not checked: a problem there shows as the agent's error on the first turn.</p>
   </section>
 
@@ -27,10 +30,15 @@ const sections: [string, string][] = [
     <pre>{`{
   "listen": "0.0.0.0:8080",
   "workdir": "/Users/you/Projects",
-  "runners": ["codex", "claude", "pi"]
+  "runners": ["codex", "claude", "opencode"],
+  "agents": {
+    "claude": { "bin": "/Users/you/.local/bin/claude" },
+    "my-agent": { "protocol": "acp", "label": "My agent", "bin": "my-agent", "args": ["--acp"] }
+  }
 }`}</pre>
     <ul>
-      <li><code>runners</code>: the agents to enable. mobd finds <code>codex</code>, <code>claude</code> and <code>pi</code> on your PATH; otherwise set <code>codexBin</code>, <code>claudeBin</code> or <code>piBin</code> to the full path (<code>command -v codex</code> shows it).</li>
+      <li><code>runners</code>: the agents to enable. mobd finds each agent's program on your PATH; otherwise set its <code>bin</code> in <code>agents</code> to the full path (<code>command -v codex</code> shows it).</li>
+      <li><code>agents</code> (optional): a section per agent with its program (<code>bin</code>), the folder it works in (<code>workdir</code>, Claude Code and agents connected through the Agent Client Protocol) and its own settings. An Agent Client Protocol agent mobd does not know takes <code>"protocol": "acp"</code>, its <code>bin</code> and <code>args</code>, and optionally <code>env</code>.</li>
       <li><code>workdir</code>: the folder the agents work in, as a full path: <code>/Users/you/…</code> on macOS, <code>/home/you/…</code> on Linux. JSON does not expand <code>~</code> or <code>$HOME</code>.</li>
       <li><code>listen</code>: <code>0.0.0.0:8080</code> lets devices on your network and VPN connect. With <a href="/remote/">Tailscale or a Cloudflare Tunnel</a> only, use <code>127.0.0.1:8080</code>.</li>
       <li>Run <code>mobd restart</code> after a change.</li>
@@ -47,8 +55,9 @@ const sections: [string, string][] = [
       <li><strong>permissions:</strong> <em>Run without asking</em> (the default), or <em>Ask before commands and edits</em>, where the agent waits for your approval in Mob.</li>
     </ul>
     <p>Changes apply from the next turn, without a restart. A conversation keeps its agent; its model and effort can be changed in the message box.</p>
-    <p>Mob Desktop also changes what <code>config.json</code> says, for any paired computer with a recent mobd: turn an agent on or off, set its program and, for Claude Code, which of its settings it loads, and choose the folder agents work in (<strong>Settings → the computer → General</strong>). mobd checks the change first and applies it when you choose <strong>Restart to apply</strong>, which is possible only while no task runs or waits; if mobd does not come back with the new settings, it goes back to the last ones that worked.</p>
-    <figure class="shot"><img src="/assets/screens/desktop-settings.webp" width="2880" height="1800" loading="lazy" alt="Mob Desktop Settings for the Studio Mac, Agents tab: Claude Code, Codex and Pi with their model, effort and permissions, each Ready and switched on, and the default agent for new chats."><figcaption>Settings → Studio Mac → Agents in Mob Desktop.</figcaption></figure>
+    <p>Agents connected through the Agent Client Protocol report their own models: until you list some, chats offer all of them.</p>
+    <p>Mob also changes what <code>config.json</code> says, for any paired computer with a recent mobd: turn an agent on or off and set what mobd lists for it, such as its program, its folder, which of its settings Claude Code loads or how Codex runs, on each agent's page in Mob Desktop and under <strong>Agents</strong> on a phone; choose the folder agents work in under <strong>Settings → the computer → General</strong> in Mob Desktop. mobd checks the change first and applies it when you choose <strong>Restart to apply</strong>, which is possible only while no task runs or waits; if mobd does not come back with the new settings, it goes back to the last ones that worked.</p>
+    <figure class="shot"><img src="/assets/screens/desktop-settings.webp" width="2880" height="1800" loading="lazy" alt="Mob Desktop Settings for the Studio Mac, Agents tab: Claude Code, Codex, OpenCode and Pi with their model, effort and permissions, each Ready and switched on, DeepSeek Harness not installed with its install command, and the default agent for new chats."><figcaption>Settings → Studio Mac → Agents in Mob Desktop.</figcaption></figure>
   </section>
 
   <section id="linux">

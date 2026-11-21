@@ -18,7 +18,7 @@ const H = {
 const app = siteURL ? [{
   '@type': 'SoftwareApplication',
   name: 'Mob',
-  description: 'Mob programming with your AI agents: mobd runs Codex, Claude Code and Pi on your own computer, and Mob on your laptop or phone sends them tasks, answers their questions and shows the live desktop.',
+  description: 'Mob programming with your AI agents: mobd runs Codex, Claude Code, Pi, OpenCode and other agents on your own computer, and Mob on your laptop or phone sends them tasks, answers their questions and shows the live desktop.',
   url: `${siteURL}/`,
   downloadUrl: `${siteURL}/download/`,
   image: `${siteURL}/assets/social.png`,
@@ -33,7 +33,7 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
 ---
 <Layout
   title="Mob · Steer Codex and Claude Code on your computer from your phone"
-  description="Mob runs Codex, Claude Code and Pi on your own computer and lets you steer them from your phone or laptop: send tasks, answer questions, watch the live desktop."
+  description="Mob runs Codex, Claude Code, OpenCode and more on your own computer and lets you steer them from your phone or laptop: send tasks, answer, watch the desktop."
   schema={app}
   readout={H.morning}
   room>
@@ -65,7 +65,7 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
         <li class="panel p-6">
           <p class="vcr text-[28px] text-accent-400">01</p>
           <h3 class="mt-2 text-lg font-medium">mobd on the office computer</h3>
-          <p class="mt-2 text-[15px] leading-relaxed text-[var(--dim)]">A Mac or a Linux machine that stays on. mobd runs Codex, Claude Code or Pi there, next to your code, tools and logins, and gives the agent a screen to work on.</p>
+          <p class="mt-2 text-[15px] leading-relaxed text-[var(--dim)]">A Mac or a Linux machine that stays on. mobd runs Codex, Claude Code, Pi or OpenCode there, next to your code, tools and logins, and gives the agent a screen to work on.</p>
         </li>
         <li class="panel p-6">
           <p class="vcr text-[28px] text-accent-400">02</p>
@@ -137,7 +137,7 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
         </article>
         {[
           ['Questions and approvals', 'When an agent needs a decision or asks before a command, your phone buzzes. Answer from the notification, or from Needs you on your laptop.'],
-          ['Codex, Claude Code or Pi', 'Choose per conversation. Models, effort and permissions are set once in Mob and shared by every device.'],
+          ['Codex, Claude Code, Pi and more', 'Choose per conversation, including OpenCode, DeepSeek Harness and other Agent Client Protocol agents. Models, effort and permissions are set once in Mob and shared by every device.'],
           ['Side by side on Linux', 'On Linux every conversation gets its own desktop, so several run at once. Idle ones sleep.'],
           ['From anywhere', 'On the office network, or through Tailscale or Cloudflare. One computer can have a LAN and a remote address.'],
           ['Steer it as it works', 'Add to a running Codex or Pi turn without stopping it, or stop any turn. Every reply, command and edit stays in the conversation, on every device.'],

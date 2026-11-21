@@ -13,6 +13,19 @@ const RUNNERS = {
   claude: { label: "Claude Code", models: ["opus", "sonnet", "haiku"], efforts: ["low", "medium", "high"] },
   codex: { label: "Codex", models: ["gpt-5.5", "gpt-5.5-mini"], efforts: ["low", "medium", "high", "xhigh"] },
   pi: { label: "Pi", models: [], efforts: ["low", "medium", "high"] },
+  opencode: { label: "OpenCode", models: [], efforts: [], protocol: "acp" },
+};
+// What each agent takes in config.json (feature agentOptions), as mobd's adapters list it.
+const path = (key, label, help, value) => ({ key, label, help, type: "path", value, restart: true });
+const OPTIONS = {
+  claude: [path("bin", "Program", "Claude Code's executable", "/usr/local/bin/claude"), path("workdir", "Works in", "The folder Claude Code works in", "/Users/sam/Projects"),
+    { key: "settingSources", label: "Settings it loads", type: "choice", value: "project", restart: true,
+      choices: [{ value: "project", label: "Project" }, { value: "all", label: "All" }] }],
+  codex: [path("bin", "Program", "Codex's executable", "/usr/local/bin/codex"),
+    { key: "mode", label: "Mode", type: "choice", value: "app-server", restart: true, choices: [{ value: "app-server", label: "App server" }, { value: "exec", label: "Exec" }] }],
+  pi: [path("bin", "Program", "Pi's executable", "/usr/local/bin/pi")],
+  opencode: [path("bin", "Program", 'OpenCode\'s executable, started with "acp"', "opencode"), path("workdir", "Works in", "The folder OpenCode works in", "/Users/sam/Projects")],
+  dsh: [path("bin", "Program", 'DeepSeek Harness\'s executable, started with "--profile acp"', "dsh"), path("workdir", "Works in", "The folder DeepSeek Harness works in", "/Users/sam/Projects")],
 };
 
 let seq = 0;
@@ -104,22 +117,27 @@ const byId = new Map(sessions.map((c) => [c.session.id, c]));
 
 const health = () => ({
   ok: true, service: "mobd", apiVersion: 3, version: "0.5.3", runner: "claude", maxRunning: 1, workdir: DATA.workdir,
-  features: ["queue", "activities", "sessionAdmin", "events", "screen", "uploads", "taskOptions", "runners", "questions", "steer", "pairing", "stream", "streamResize", "settings", "fileTransfers", "agentCollaboration", "unpair", "maintenance"],
-  runners: Object.entries(RUNNERS).map(([name, r]) => ({ name, ...r, images: true, resume: true, cost: name === "claude", steer: name !== "claude", available: true, default: name === "claude" })),
-  agents: Object.entries(RUNNERS).map(([name, r]) => ({ name, label: r.label, state: "ready", enabled: true, bin: `/usr/local/bin/${name}`, version: "1.0" })),
+  features: ["queue", "activities", "sessionAdmin", "events", "screen", "uploads", "taskOptions", "runners", "questions", "steer", "pairing", "stream", "streamResize", "settings", "fileTransfers", "agentCollaboration", "unpair", "maintenance", "agentOptions"],
+  runners: Object.entries(RUNNERS).map(([name, r]) => ({ name, ...r, images: true, resume: true, cost: name === "claude", steer: name !== "claude" && !r.protocol, available: true, default: name === "claude" })),
+  agents: [
+    ...Object.entries(RUNNERS).map(([name, r]) => ({ name, label: r.label, state: "ready", enabled: true, bin: `/usr/local/bin/${name}`, version: "1.0",
+      protocol: r.protocol ?? "native", options: OPTIONS[name] })),
+    { name: "dsh", label: "DeepSeek Harness", state: "missing", enabled: false, detail: "\"dsh\" not found", install: "npm install -g @deepseek-ai/dsh", protocol: "acp", options: OPTIONS.dsh },
+  ],
   checks: { accessibility: { ok: true }, screenRecording: { ok: true }, claude: { ok: true }, codex: { ok: true } },
 });
 const settings = () => ({
   settings: {
     rev: 3, defaultAgent: "claude",
-    agents: Object.fromEntries(Object.entries(RUNNERS).map(([n, r]) => [n, { models: r.models, defaultModel: r.models[1] ?? "", defaultEffort: "high", permissions: n === "claude" ? "approve" : "bypass" }])),
+    agents: Object.fromEntries(Object.entries(RUNNERS).map(([n, r]) => [n, { models: r.models, defaultModel: r.models[1] ?? "", defaultEffort: r.efforts.length ? "high" : "", permissions: n === "claude" ? "approve" : "bypass" }])),
   },
   agents: Object.fromEntries(Object.entries(RUNNERS).map(([n, r]) => [n, { label: r.label, efforts: r.efforts }])),
   installed: health().agents,
 });
 const config = () => ({
-  rev: "a1", values: { runners: ["claude", "codex", "pi"] }, editable: ["runners", "codexBin", "claudeBin", "piBin", "workdir", "claudeWorkdir", "claudeSettingSources", "codexMode", "maxRunning", "questionTimeout", "filesDir"],
-  effective: { runners: ["claude", "codex", "pi"], workdir: DATA.workdir, claudeBin: "/usr/local/bin/claude", codexBin: "/usr/local/bin/codex", piBin: "/usr/local/bin/pi", claudeSettingSources: "project" },
+  rev: "a1", values: { runners: ["claude", "codex", "pi", "opencode"] },
+  editable: ["runners", "workdir", "maxRunning", "questionTimeout", "filesDir", ...Object.entries(OPTIONS).flatMap(([n, os]) => os.map((o) => `agents.${n}.${o.key}`))],
+  effective: { runners: ["claude", "codex", "pi", "opencode"], workdir: DATA.workdir, claudeBin: "/usr/local/bin/claude", codexBin: "/usr/local/bin/codex", piBin: "/usr/local/bin/pi", claudeSettingSources: "project" },
   overridden: [], pendingRestart: false, canRestart: true,
 });
 
