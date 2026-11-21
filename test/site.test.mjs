@@ -197,7 +197,7 @@ test('Cloudflare Web Analytics loads only with a token, and the CSP and privacy 
   assert.match(on.read('privacy/index.html'), /Cloudflare Web Analytics/);
 });
 
-test('Mob gets only its macOS download; mobd gets macOS and its Linux packages', t => {
+test('Mob Desktop gets macOS, Windows and Linux downloads; mobd gets macOS and its Linux packages', t => {
   const file = (product, name) => ({ url: `${base}/${product}/v0.3.0/${name}`, sha256: 'b'.repeat(64) });
   const mob = release('mob', '0.3.0', 'mob_0.3.0_darwin_arm64.dmg');
   mob.downloads = { 'windows-x64': [file('mob', 'mob_0.3.0_windows_x64-setup.exe')], 'linux-x64': [file('mob', 'mob_0.3.0_linux_x64.AppImage'), file('mob', 'mob_0.3.0_linux_x64.deb')] };
@@ -205,7 +205,10 @@ test('Mob gets only its macOS download; mobd gets macOS and its Linux packages',
   mobd.platforms = { 'linux-x86_64': { ...file('mobd', 'mobd_0.3.0_linux_amd64.tar.gz'), deb: file('mobd', 'mobd_0.3.0_amd64.deb') } };
   const download = build(t, {}, { mob: [mob], mobd: [mobd] }).read('download/index.html');
   assert.match(download, /href="https:\/\/download.mob.test\/mob\/v0.3.0\/mob_0.3.0_darwin_arm64.dmg"/);
-  assert.doesNotMatch(download, /\.exe"|\.AppImage"|mob_0\.3\.0_linux_x64\.deb"/, 'no Mob Desktop for Windows or Linux yet');
-  assert.match(download, /href="https:\/\/download.mob.test\/mobd\/v0.3.0\/mobd_0.3.0_amd64.deb"[^>]*>\.deb \(amd64\)/, 'mobd .deb');
+  for (const f of ['mob_0.3.0_windows_x64-setup.exe', 'mob_0.3.0_linux_x64.AppImage', 'mob_0.3.0_linux_x64.deb']) assert.match(download, new RegExp(`href="https://download.mob.test/mob/v0.3.0/${f.replaceAll('.', '\\.')}"`), `Mob Desktop ${f}`);
+  assert.match(download, /data-os="windows"[\s\S]*data-os="linux"/, 'a row per system, so the visitor’s own can be marked');
+  assert.match(download, /mob_0\.3\.0_linux_x64\.AppImage<\/dt>/, 'each file has its checksum');
+  assert.match(download, /href="https:\/\/download.mob.test\/mobd\/v0.3.0\/mobd_0.3.0_amd64.deb"[^>]*>\.deb ↓/, 'mobd .deb');
+  assert.match(download, /amd64 · Ubuntu/, 'mobd .deb in the amd64 row');
   assert.match(download, /mobd_0.3.0_linux_amd64.tar.gz/, 'mobd Linux tarball');
 });

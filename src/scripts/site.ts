@@ -115,12 +115,14 @@ for (const tabs of document.querySelectorAll('[data-tabs]')) {
   });
 }
 
-// Mark the client that fits this device.
+// Mark the client that fits this device: a phone app, or Mob Desktop and the row of this system.
 const ua = navigator.userAgent;
-const platform = /android/i.test(ua) ? 'android'
+const os = /android/i.test(ua) ? 'android'
   : /iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && navigator.maxTouchPoints > 1) ? 'ios'
-  : /macintosh|mac os x/i.test(ua) ? 'mac' : '';
+  : /macintosh|mac os x/i.test(ua) ? 'mac' : /windows/i.test(ua) ? 'windows' : /linux|x11/i.test(ua) ? 'linux' : '';
+const platform = os === 'android' || os === 'ios' ? os : os ? 'desktop' : '';
 if (platform) document.querySelector(`[data-platform="${platform}"]`)?.setAttribute('data-recommended', '');
+if (platform === 'desktop') document.querySelector(`[data-os="${os}"]`)?.setAttribute('data-recommended', '');
 
 // Get started was one long page; its old anchors now live on their own pages.
 const moved: Record<string, string> = {

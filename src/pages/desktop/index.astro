@@ -11,7 +11,7 @@ const keys: [string, string][] = [
   ['Esc', 'Release control'], ['A / D', 'Approve or deny in Needs you'], ['⌘,', 'Settings'],
 ];
 ---
-<DocLayout title="Mob Desktop" description="Mob Desktop on your Mac: every computer and its conversations in one window, Needs you for every waiting question, ⌘K to search or ask an agent, the other computer's screen, and settings per computer." lead="One window for every computer you use with Mob: what each agent is doing, what waits for you, and each computer's settings." sections={sections}>
+<DocLayout title="Mob Desktop" description="Mob Desktop for macOS, Windows and Linux: every computer and its conversations in one window, Needs you for every waiting question, ⌘K to search or ask an agent, the other computer's screen, and settings per computer." lead="One window for every computer you use with Mob: what each agent is doing, what waits for you, and each computer's settings." sections={sections}>
   <section id="window">
     <h2>The window</h2>
     <figure class="shot"><img src="/assets/screens/desktop-conversation.webp" width="2880" height="1800" alt="Mob Desktop: the sidebar lists This computer, Studio Mac and an offline Linux box with their conversations; the open conversation shows the agent's steps, its reply and an approval card; the side panel shows the conversation's activity."><figcaption>Every computer in the sidebar; a conversation waiting for approval; its activity on the right.</figcaption></figure>
@@ -23,7 +23,7 @@ const keys: [string, string][] = [
       <li><strong>Queued:</strong> waiting for its turn on the computer's screen.</li>
       <li><strong>Done</strong> or <strong>Failed:</strong> how the last turn ended.</li>
     </ul>
-    <p>The Mac Mob Desktop runs on is <strong>This computer</strong>: Mob Desktop connects to its mobd by itself, or sets mobd up (<a href="/start/#desktop">how</a>).</p>
+    <p>On a Mac or Linux PC, the computer Mob Desktop runs on is <strong>This computer</strong>: Mob Desktop connects to its mobd by itself, or sets mobd up (<a href="/start/#desktop">how</a>). On Windows, Mob Desktop works with your other computers.</p>
   </section>
 
   <section id="needs">
@@ -78,6 +78,7 @@ const keys: [string, string][] = [
 
   <section id="keys">
     <h2>Keyboard</h2>
+    <p>On Windows and Linux, Ctrl takes the place of ⌘.</p>
     <div class="overflow-x-auto"><table>
       <thead><tr><th scope="col">Keys</th><th scope="col">Does</th></tr></thead>
       <tbody>{keys.map(([k, d]) => <tr><td><kbd>{k}</kbd></td><td>{d}</td></tr>)}</tbody>

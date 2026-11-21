@@ -2,96 +2,127 @@
 import Layout from '../../layouts/Layout.astro';
 import Command from '../../components/Command.astro';
 import ReleaseMeta from '../../components/ReleaseMeta.astro';
-import ReleaseFolds from '../../components/ReleaseFolds.astro';
+import ReleaseDetails from '../../components/ReleaseDetails.astro';
 import { install, ios, latest, testflight } from '../../data/site.mjs';
 
 const mob = latest('mob');
 const mobd = latest('mobd');
 const android = latest('android');
+// The file type as people know it: .tar.gz, not .gz.
+const ext = (url: string) => url.match(/(\.tar)?\.[a-z0-9]+$/i)?.[0] ?? '';
 // mobd's Linux packages per architecture (.deb first), when the release has them.
 const linux = Object.entries({ amd64: 'linux-x86_64', arm64: 'linux-aarch64' })
   .map(([arch, key]): [string, { url: string }[]] => [arch, [...(mobd?.files[key] ?? [])].sort((a, b) => Number(b.url.endsWith('.deb')) - Number(a.url.endsWith('.deb')))])
   .filter(([, files]) => files.length);
+// Mob Desktop per system: the first file is the button, the others small links beside it.
+const desktop = [
+  { os: 'mac', name: 'macOS', needs: '13+ · Apple Silicon', files: mob ? [{ url: mob.url }] : [] },
+  { os: 'windows', name: 'Windows', needs: '10 or 11 · x64', files: mob?.files['windows-x64'] ?? [] },
+  { os: 'linux', name: 'Linux', needs: 'x64 · Ubuntu 22.04+', files: [...(mob?.files['linux-x64'] ?? [])].sort((a, b) => Number(b.url.endsWith('.AppImage')) - Number(a.url.endsWith('.AppImage'))) },
+];
+// A row per system: name, requirements, downloads. On a phone the requirements go under the name.
+const row = 'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 py-2.5 text-sm sm:grid-cols-[88px_minmax(0,1fr)_auto]';
+const needs = 'col-start-1 row-start-2 text-xs text-zinc-400 sm:col-start-auto sm:row-start-auto sm:text-sm';
+const acts = 'row-span-2 flex flex-wrap items-center justify-end gap-x-3 gap-y-2 sm:row-span-1';
 ---
-<Layout title="Download · Mob" description="Download mobd for your office computer (macOS or Linux), Mob Desktop for macOS, and Mob Mobile for iPhone, iPad and Android." readout={{ turn: 'Download', time: '', place: 'mobd · Mob' }}>
-  <section class="container-x pt-32 sm:pt-40">
+<Layout title="Download · Mob" description="Download mobd for your office computer (macOS or Linux), Mob Desktop for macOS, Windows and Linux, and Mob Mobile for iPhone, iPad and Android." readout={{ turn: 'Download', time: '', place: 'mobd · Mob' }}>
+  <section class="container-x pt-28 sm:pt-32">
     <p class="eyebrow">Download</p>
-    <h1 class="mt-3 text-4xl sm:text-5xl">Two parts, one setup.</h1>
-    <p class="section-lead">mobd runs on the computer that does the work, a Mac or a Linux machine, with Codex, Claude Code or Pi. Mob runs on the devices you carry: Mob Desktop on your laptop, Mob Mobile on your phone. Install mobd first so the apps have something to pair with.</p>
+    <h1 class="mt-2 text-4xl">Two parts, one setup.</h1>
+    <p class="mt-3 max-w-2xl text-[15px] leading-relaxed text-zinc-400">mobd on the computer that does the work, Mob on the devices you carry. Install mobd first, then pair Mob with it.</p>
   </section>
 
-  <!-- Step 1: mobd -->
-  <section class="container-x pt-16" aria-labelledby="step-office">
-    <h2 id="step-office" class="flex items-center gap-3 text-xl"><span class="grid size-7 place-items-center rounded-full border border-accent-400/40 font-mono text-xs text-accent-400">1</span>Office computer: mobd</h2>
-    <article id="mobd" class="card mt-6 p-6 sm:p-8">
-      <div class="flex flex-wrap items-center gap-3">
-        <h3 class="text-2xl">mobd</h3>
+  <!-- 1: mobd -->
+  <section class="container-x pt-10" aria-labelledby="step-office">
+    <article id="mobd" class="card p-5 sm:p-6">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <span class="grid size-6 place-items-center rounded-full border border-accent-400/40 font-mono text-[11px] text-accent-400" aria-hidden="true">1</span>
+        <h2 id="step-office" class="text-xl">mobd <span class="text-zinc-500">· office computer</span></h2>
         <ReleaseMeta product="mobd" />
       </div>
-      <p class="mt-2 text-sm text-zinc-400">Runs Codex, Claude Code or Pi on the computer that does the work. Installs without sudo and checks the SHA-256 (and on macOS the Apple signature).</p>
-      <div class="mt-6"><Command command={install} label="Run in Terminal on the office computer (macOS or Linux)" /></div>
-      <div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div id="mobd-macos">
-          <h4 class="font-medium">macOS</h4>
-          <p class="mt-1 text-sm text-zinc-400">macOS 13+ on Apple Silicon. The agent works on the Mac's own screen.</p>
-          <div class="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-            {mobd && <a class="link" href={mobd.url}>Download .tar.gz ↓</a>}
-            <a class="link" href="/install/macos/">Install on macOS →</a>
-          </div>
+      <div class="mt-4"><Command command={install} label="Run in Terminal on the office computer: installs without sudo, checks the SHA-256 and on macOS the Apple signature" /></div>
+      <div class="mt-3 divide-y divide-white/[0.06]">
+        <div id="mobd-macos" class={row}>
+          <span class="font-medium">macOS</span><span class={needs}>13+ · Apple Silicon</span>
+          <span class={acts}>{mobd && <a class="link" href={mobd.url}>.tar.gz ↓</a>}<a class="link" href="/install/macos/">Guide →</a></span>
         </div>
-        <div id="mobd-linux">
-          <h4 class="font-medium">Linux</h4>
-          <p class="mt-1 text-sm text-zinc-400">Ubuntu 22.04/24.04 and Debian 12/13, amd64 and arm64. A virtual desktop per conversation; servers and VMs work.</p>
-          <div class="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-            {linux.map(([arch, files]) => files.map(f => <a class="link" href={f.url}>{f.url.endsWith('.deb') ? `.deb (${arch})` : `.tar.gz (${arch})`} ↓</a>))}
-            <a class="link" href="/install/linux/">Install on Linux →</a>
+        {linux.map(([arch, files], i) => (
+          <div id={i === 0 ? 'mobd-linux' : undefined} class={row}>
+            <span class="font-medium">{i === 0 ? 'Linux' : <span class="sm:hidden">Linux</span>}</span><span class={needs}>{arch} · Ubuntu 22.04/24.04, Debian 12/13</span>
+            <span class={acts}>{files.map(f => <a class="link" href={f.url}>{ext(f.url)} ↓</a>)}{i === 0 && <a class="link" href="/install/linux/">Guide →</a>}</span>
           </div>
-        </div>
+        ))}
+        {!linux.length && <div id="mobd-linux" class={row}><span class="font-medium">Linux</span><span class={needs}>Ubuntu 22.04/24.04, Debian 12/13</span><span class={acts}><a class="link" href="/install/linux/">Guide →</a></span></div>}
+        <div class={row}><span class="font-medium text-zinc-500">Windows</span><span class={`${needs} text-zinc-500`}>planned</span><span></span></div>
       </div>
-      <div class="mt-5 grid gap-2"><ReleaseFolds product="mobd" /></div>
-      <p class="mt-6 flex flex-wrap items-center gap-2 border-t border-white/[0.08] pt-5 text-sm text-zinc-400"><span class="tag-soon">Soon</span>mobd for Windows is planned.</p>
+      <div class="mt-3"><ReleaseDetails product="mobd" /></div>
     </article>
   </section>
 
-  <!-- Step 2: clients -->
-  <section class="container-x pt-16" aria-labelledby="step-clients">
-    <h2 id="step-clients" class="flex items-center gap-3 text-xl"><span class="grid size-7 place-items-center rounded-full border border-accent-400/40 font-mono text-xs text-accent-400">2</span>Your devices: Mob</h2>
-    <div class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-3">
-      <article id="mac" data-platform="mac" class="card group flex flex-col p-6 data-[recommended]:border-accent-400/50">
-        <div class="flex items-center justify-between"><img src="/assets/app-icon.svg" width="44" height="44" alt=""><span class="tag-accent hidden group-data-[recommended]:inline-flex">Your device</span></div>
-        <h3 class="mt-5 text-xl">Mob Desktop for macOS</h3>
-        <div class="mt-2 flex flex-wrap items-center gap-2"><ReleaseMeta product="mob" /></div>
-        <ul class="mt-4 space-y-1 text-sm text-zinc-400"><li>macOS 13+ · Apple Silicon</li><li>Signed and notarized</li><li>Updates itself</li></ul>
-        <div class="mt-auto pt-6">{mob ? <a class="btn-primary w-full" href={mob.url} data-download="mob">Download .dmg ↓</a> : <span class="btn-disabled w-full" aria-disabled="true">Coming soon</span>}</div>
-        <div class="mt-4 grid gap-2"><ReleaseFolds product="mob" /></div>
+  <!-- 2: Mob -->
+  <section class="container-x pt-5" aria-labelledby="step-clients">
+    <div class="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+      <article id="mac" data-platform="desktop" class="card group p-5 data-[recommended]:border-accent-400/50 sm:p-6">
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <span class="grid size-6 place-items-center rounded-full border border-accent-400/40 font-mono text-[11px] text-accent-400" aria-hidden="true">2</span>
+          <img src="/assets/app-icon.svg" width="24" height="24" alt="">
+          <h2 id="step-clients" class="text-xl">Mob Desktop</h2>
+          <ReleaseMeta product="mob" />
+          <span class="tag-accent ml-auto hidden group-data-[recommended]:inline-flex">Your device</span>
+        </div>
+        <p class="mt-2 text-sm text-zinc-400">Updates itself. On a Mac or Linux PC it can also set up mobd on that computer.</p>
+        <div class="mt-3 divide-y divide-white/[0.06]">
+          {desktop.map(d => (
+            <div id={d.os === 'mac' ? undefined : d.os} data-os={d.os} class={`group/os ${row}`}>
+              <span class="font-medium">{d.name}</span><span class={needs}>{d.needs}</span>
+              <span class={acts}>
+                {d.files.slice(1).map(f => <a class="link" href={f.url}>{ext(f.url)} ↓</a>)}
+                {d.files[0]
+                  ? <a class="btn-secondary min-h-9 px-4 group-data-[recommended]/os:border-transparent group-data-[recommended]/os:bg-[var(--ink)] group-data-[recommended]/os:text-[var(--bg)]" href={d.files[0].url} data-download="mob">Download {ext(d.files[0].url)} ↓</a>
+                  : <span class="btn-disabled min-h-9 px-4" aria-disabled="true">Coming soon</span>}
+              </span>
+            </div>
+          ))}
+        </div>
+        <div class="mt-3"><ReleaseDetails product="mob">
+          <p><strong class="text-zinc-300">Windows:</strong> the installer isn't signed yet, so SmartScreen may warn the first time: choose <em>More info</em>, then <em>Run anyway</em>. Mob Desktop on Windows works with your other computers; mobd doesn't run on Windows yet.</p>
+          <p><strong class="text-zinc-300">Linux:</strong> make the AppImage executable (<code>chmod +x</code>) and open it, or install the .deb with <code>sudo apt install ./mob_*.deb</code>.</p>
+        </ReleaseDetails></div>
       </article>
 
-      <article id="ios" data-platform="ios" class="card group flex flex-col p-6 data-[recommended]:border-accent-400/50">
-        <div class="flex items-center justify-between"><img src="/assets/app-icon.svg" width="44" height="44" alt=""><span class="tag-accent hidden group-data-[recommended]:inline-flex">Your device</span></div>
-        <h3 class="mt-5 text-xl">Mob Mobile for iPhone & iPad</h3>
-        <div class="mt-2 flex flex-wrap items-center gap-2">{ios ? <span class="tag-live">{testflight ? 'TestFlight' : 'App Store'}</span> : <span class="tag-soon">Coming soon</span>}</div>
-        <ul class="mt-4 space-y-1 text-sm text-zinc-400"><li>iOS 17+</li><li>iPhone and iPad</li><li>Updates through the App Store</li></ul>
-        <div class="mt-auto pt-6">{ios
-          ? <a class="btn-primary w-full" href={ios} rel="noreferrer">{testflight ? 'Join on TestFlight' : 'Get it on the App Store'} ↗</a>
-          : <span class="btn-disabled w-full" aria-disabled="true">Coming to the App Store</span>}</div>
-      </article>
+      <div class="grid content-start gap-5">
+        <article id="ios" data-platform="ios" class="card group p-5 data-[recommended]:border-accent-400/50">
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <img src="/assets/app-icon.svg" width="24" height="24" alt="">
+            <h3 class="text-lg">Mob Mobile for iPhone &amp; iPad</h3>
+            {ios ? <span class="tag-live">{testflight ? 'TestFlight' : 'App Store'}</span> : <span class="tag-soon">Coming soon</span>}
+            <span class="tag-accent ml-auto hidden group-data-[recommended]:inline-flex">Your device</span>
+          </div>
+          <p class="mt-2 text-sm text-zinc-400">iOS 17+ · updates through the App Store</p>
+          <div class="mt-3">{ios
+            ? <a class="btn-primary min-h-10 w-full" href={ios} rel="noreferrer">{testflight ? 'Join on TestFlight' : 'Get it on the App Store'} ↗</a>
+            : <span class="btn-disabled min-h-10 w-full" aria-disabled="true">Coming to the App Store</span>}</div>
+        </article>
 
-      <article id="android" data-platform="android" class="card group flex flex-col p-6 data-[recommended]:border-accent-400/50">
-        <div class="flex items-center justify-between"><img src="/assets/app-icon.svg" width="44" height="44" alt=""><span class="tag-accent hidden group-data-[recommended]:inline-flex">Your device</span></div>
-        <h3 class="mt-5 text-xl">Mob Mobile for Android</h3>
-        <div class="mt-2 flex flex-wrap items-center gap-2"><ReleaseMeta product="android" /></div>
-        <ul class="mt-4 space-y-1 text-sm text-zinc-400"><li>Android 8.0+</li><li>Signed APK</li><li>Install updates over the old version</li></ul>
-        <div class="mt-auto pt-6">{android ? <a class="btn-primary w-full" href={android.url} data-download="android">Download APK ↓</a> : <span class="btn-disabled w-full" aria-disabled="true">Coming soon</span>}</div>
-        <div class="mt-4 grid gap-2"><ReleaseFolds product="android">
-          {android && <details class="fold"><summary>Installing an APK</summary><p>Open the downloaded file on the phone. The first time, allow your browser to install unknown apps. Updates install over the existing app and keep your conversations and settings.</p></details>}
-        </ReleaseFolds></div>
-      </article>
+        <article id="android" data-platform="android" class="card group p-5 data-[recommended]:border-accent-400/50">
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <img src="/assets/app-icon.svg" width="24" height="24" alt="">
+            <h3 class="text-lg">Mob Mobile for Android</h3>
+            <ReleaseMeta product="android" />
+            <span class="tag-accent ml-auto hidden group-data-[recommended]:inline-flex">Your device</span>
+          </div>
+          <p class="mt-2 text-sm text-zinc-400">Android 8.0+ · signed APK, updates install over it</p>
+          <div class="mt-3">{android ? <a class="btn-primary min-h-10 w-full" href={android.url} data-download="android">Download APK ↓</a> : <span class="btn-disabled min-h-10 w-full" aria-disabled="true">Coming soon</span>}</div>
+          <div class="mt-3"><ReleaseDetails product="android">
+            <p><strong class="text-zinc-300">Installing:</strong> open the downloaded file on the phone. The first time, allow your browser to install unknown apps. Updates install over the existing app and keep your conversations and settings.</p>
+          </ReleaseDetails></div>
+        </article>
+      </div>
     </div>
-    <p class="mt-6 flex flex-wrap items-center gap-2 text-sm text-zinc-400"><span class="tag-soon">Soon</span>Mob Desktop for Windows and Linux.</p>
 
-    <div class="card mt-12 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
-      <p class="text-zinc-300">Next: run <code class="font-mono text-accent-200">mobd link</code> on the office computer and pair your device.</p>
-      <a href="/pair/" class="btn-secondary">Pairing guide →</a>
-    </div>
+    <p class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-400">
+      <span>Next: run <code class="font-mono text-accent-200">mobd link</code> on the office computer and pair your device.</span>
+      <a href="/pair/" class="link">Pairing guide →</a>
+    </p>
   </section>
 </Layout>
