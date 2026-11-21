@@ -91,5 +91,7 @@ publishing a release.
 - `src/styles/global.css`: Tailwind layers and the shared component classes.
 - `lib/`: manifest validation and helpers shared with the tests.
 - `public/assets/screens/`: product screenshots; a page leaves a slot out until its file exists.
+- `tools/screens/`: makes those screenshots from Mob Desktop's dev server and a stand-in for mobd with
+  made-up conversations (`python3 tools/screens/shoot.py`; see its header). Re-run it after UI changes.
 
 Brand assets come from `../mob/public/logo.svg` and `../mob/app-icon.svg`; update both together.

@@ -8,6 +8,7 @@ export const DOCS = [
     ['/pair/', 'Pair devices'],
   ] },
   { group: 'Use', pages: [
+    ['/desktop/', 'Mob Desktop'],
     ['/remote/', 'Remote access'],
     ['/desktops/', 'Desktops & live view'],
     ['/collaborate/', 'Agents together'],

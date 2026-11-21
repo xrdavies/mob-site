@@ -1,7 +1,7 @@
 ---
 import DocLayout from '../../layouts/DocLayout.astro';
 
-const sections: [string, string][] = [['need', 'What you need'], ['systems', 'macOS or Linux'], ['steps', 'Steps']];
+const sections: [string, string][] = [['need', 'What you need'], ['systems', 'macOS or Linux'], ['desktop', 'Start with Mob Desktop'], ['steps', 'Steps']];
 ---
 <DocLayout title="Get started" description="Set up Mob: install mobd on your office computer (macOS or Linux), configure Codex, Claude Code or Pi, and pair Mob on your laptop or phone." lead="About ten minutes: install mobd on the computer that does the work, tell it which agents to run, then pair your laptop or phone." sections={sections}>
   <section id="need">
@@ -34,6 +34,13 @@ const sections: [string, string][] = [['need', 'What you need'], ['systems', 'ma
       </tbody>
     </table></div>
     <p>More in <a href="/desktops/">Desktops &amp; live view</a>.</p>
+  </section>
+
+  <section id="desktop">
+    <h2>Start with Mob Desktop</h2>
+    <p>When the agents should work on the Mac you are using, Mob Desktop sets it up: <a href="/download/#mac">install Mob Desktop</a> and choose <strong>Start with this computer</strong>. It installs mobd with the same checks as the install command, asks which folder the agents work in, starts mobd at login and connects to it. If mobd already runs on the Mac, Mob Desktop connects to it as soon as it opens. The agents still need to be installed and signed in (<a href="/configure/#agents">how</a>).</p>
+    <p>That Mac is then <strong>This computer</strong> in Mob. Its settings show mobd's service (start, stop, update, logs), the devices paired with it with a QR code for your phone, and the macOS permissions, each with <strong>Allow…</strong>. It is always listed and cannot be removed; <strong>Uninstall mobd</strong> in its Service settings removes mobd and keeps settings and conversations.</p>
+    <p>For another computer, a Mac or a Linux server, follow the steps below.</p>
   </section>
 
   <section id="steps">

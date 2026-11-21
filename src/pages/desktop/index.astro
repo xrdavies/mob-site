@@ -1,0 +1,86 @@
+---
+import DocLayout from '../../layouts/DocLayout.astro';
+
+const sections: [string, string][] = [
+  ['window', 'The window'], ['needs', 'Needs you'], ['search', 'Search or ask'], ['conversation', 'A conversation'],
+  ['panel', 'The side panel'], ['settings', 'Settings'], ['keys', 'Keyboard'],
+];
+const keys: [string, string][] = [
+  ['⌘K', 'Search or ask an agent'], ['⌘N', 'New chat on the open computer'], ['⌘1–9', 'Open one of the open computer’s recent conversations'],
+  ['⌘B', 'Hide or show the sidebar'], ['⇧⌘B', 'Hide or show the side panel'], ['⇧⌘C', 'Take control of the screen'],
+  ['Esc', 'Release control'], ['A / D', 'Approve or deny in Needs you'], ['⌘,', 'Settings'],
+];
+---
+<DocLayout title="Mob Desktop" description="Mob Desktop on your Mac: every computer and its conversations in one window, Needs you for every waiting question, ⌘K to search or ask an agent, the other computer's screen, and settings per computer." lead="One window for every computer you use with Mob: what each agent is doing, what waits for you, and each computer's settings." sections={sections}>
+  <section id="window">
+    <h2>The window</h2>
+    <figure class="shot"><img src="/assets/screens/desktop-conversation.webp" width="2880" height="1800" alt="Mob Desktop: the sidebar lists This computer, Studio Mac and an offline Linux box with their conversations; the open conversation shows the agent's steps, its reply and an approval card; the side panel shows the conversation's activity."><figcaption>Every computer in the sidebar; a conversation waiting for approval; its activity on the right.</figcaption></figure>
+    <p>The sidebar lists every paired computer, always: its status dot, how many conversations need you, and its latest conversations (<strong>Show more</strong> for the rest). A computer that is offline stays listed, folded. Hover a computer for <strong>＋</strong>, a new chat on it; <strong>＋</strong> next to <strong>Computers</strong> adds one.</p>
+    <p>Each conversation shows its agent and its state, in the same words everywhere:</p>
+    <ul>
+      <li><strong>Working:</strong> the agent is on a turn.</li>
+      <li><strong>Needs you:</strong> a question or an approval waits for you.</li>
+      <li><strong>Queued:</strong> waiting for its turn on the computer's screen.</li>
+      <li><strong>Done</strong> or <strong>Failed:</strong> how the last turn ended.</li>
+    </ul>
+    <p>The Mac Mob Desktop runs on is <strong>This computer</strong>: Mob Desktop connects to its mobd by itself, or sets mobd up (<a href="/start/#desktop">how</a>).</p>
+  </section>
+
+  <section id="needs">
+    <h2>Needs you</h2>
+    <p><strong>Needs you</strong> at the top of the sidebar collects every question and approval waiting on any computer, the longest waiting first. Answer it right there, without opening the conversation: <kbd>A</kbd> approves and <kbd>D</kbd> denies the selected one, <kbd>↑</kbd> <kbd>↓</kbd> choose.</p>
+    <figure class="shot"><img src="/assets/screens/desktop-needs-you.webp" width="2880" height="1800" loading="lazy" alt="Needs you: two approvals waiting on two computers, a push to origin/main on This computer and a payment on the Studio Mac, each with Approve, Deny and Reply."><figcaption>Two agents on two computers, waiting for you.</figcaption></figure>
+    <p>Mob also tells you when an agent needs you, finishes or fails, on any computer, as a notification while Mob is in the background. Choose what and from which computer in <strong>Settings → Notifications</strong>.</p>
+  </section>
+
+  <section id="search">
+    <h2>Search or ask</h2>
+    <p>One field for three things: press <kbd>⌘K</kbd> (or click <strong>Search or ask an agent…</strong>) and type.</p>
+    <ul>
+      <li><strong>Ask:</strong> <kbd>Enter</kbd> starts a new conversation with what you typed. <kbd>Tab</kbd> changes the agent, <kbd>⌘1</kbd>–<kbd>⌘9</kbd> the computer.</li>
+      <li><strong>Find:</strong> conversations on every computer that match.</li>
+      <li><strong>Do:</strong> commands, such as a new chat on a computer, Files, sharing a USB device or the theme.</li>
+    </ul>
+    <figure class="shot"><img src="/assets/screens/desktop-search.webp" width="2880" height="1800" loading="lazy" alt="The search field with “report” typed: Ask Claude Code on the Studio Mac, and the matching conversation Weekly sales report."><figcaption>Ask an agent on any computer, or find a conversation.</figcaption></figure>
+  </section>
+
+  <section id="conversation">
+    <h2>A conversation</h2>
+    <ul>
+      <li><strong>The title line</strong> names the agent, its <code>@handle</code>, the agents it works with and the computer; click the computer for its checks. The <strong>⋯</strong> menu renames, pins, archives, stops the agent or deletes the conversation.</li>
+      <li><strong>Steps:</strong> each reply starts with what the agent did, folded as <em>Worked for …</em>. Unfold it for every command with its result, every file edit and every request to another agent. <strong>Settings → Appearance</strong> can show them unfolded.</li>
+      <li><strong>Approvals and questions</strong> appear in the conversation: <strong>Approve</strong>, <strong>Deny</strong>, or <strong>Reply…</strong> with a note; on another computer also <strong>Look at the screen</strong>.</li>
+      <li><strong>The message box</strong> picks the agent, model and effort for a new chat, attaches images and mentions another agent with <strong>@</strong> (<a href="/collaborate/">Agents together</a>).</li>
+      <li>While an agent clicks and types on this Mac, <strong>Agent is using the screen</strong> shows at the top, so the pointer moving is no surprise.</li>
+    </ul>
+  </section>
+
+  <section id="panel">
+    <h2>The side panel</h2>
+    <p><kbd>⇧⌘B</kbd> shows it:</p>
+    <ul>
+      <li><strong>Screen</strong>, for another computer: asleep until you click it, then live; open it in the window, take control, release with <kbd>Esc</kbd>. See <a href="/desktops/#desktop">Desktops &amp; live view</a>.</li>
+      <li><strong>Activity:</strong> everything the agent did in this conversation, with the time.</li>
+      <li><strong>Details</strong>, folded: the computer, the folder the agent works in, model, time worked, tokens and cost, and the conversation's ID.</li>
+    </ul>
+    <figure class="shot"><img src="/assets/screens/desktop-screen.webp" width="2880" height="1800" loading="lazy" alt="A conversation on the Studio Mac booking flights: the agent asks to pay ¥84,200; the side panel shows the Studio Mac's screen asleep, with a dimmed fare page and Click to wake."><figcaption>Not only code: an agent books a flight on the Studio Mac and asks before paying.</figcaption></figure>
+  </section>
+
+  <section id="settings">
+    <h2>Settings</h2>
+    <ul>
+      <li><strong>General:</strong> version and updates, saved copies of conversations, keyboard shortcuts, the app log.</li>
+      <li><strong>Appearance:</strong> System, Light or Dark; text size; how many conversations each computer lists; steps folded or not.</li>
+      <li><strong>Notifications:</strong> what Mob tells you about, from each computer.</li>
+      <li><strong>Each computer:</strong> <strong>General</strong> (name, status, the folder agents work in), <strong>Agents</strong> (on or off, models, effort, permissions, program; <a href="/configure/#settings">more</a>) and <strong>Connection</strong> (addresses, a connection test, screen quality, the shared folder). This computer has <strong>Service</strong> (mobd's status, restart, stop, start at login, update, logs, uninstall) and <strong>Devices &amp; access</strong> (paired devices, the pairing QR code, macOS permissions) instead of Connection.</li>
+    </ul>
+  </section>
+
+  <section id="keys">
+    <h2>Keyboard</h2>
+    <div class="overflow-x-auto"><table>
+      <thead><tr><th scope="col">Keys</th><th scope="col">Does</th></tr></thead>
+      <tbody>{keys.map(([k, d]) => <tr><td><kbd>{k}</kbd></td><td>{d}</td></tr>)}</tbody>
+    </table></div>
+  </section>
+</DocLayout>

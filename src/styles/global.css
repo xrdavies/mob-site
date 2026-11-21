@@ -115,6 +115,11 @@
   .doc .term code { @apply border-0 bg-transparent p-0 text-[13px] text-zinc-200; }
   .callout { @apply my-5 rounded-lg border border-amber-400/30 bg-amber-400/5 px-4 py-3 text-sm text-amber-100/90; }
 
+  /* Product screenshots (public/assets/screens, made by tools/screens/shoot.py): a window with depth. */
+  .shot { @apply my-6; }
+  .shot img { @apply h-auto w-full rounded-[12px] border border-white/10; box-shadow: 0 30px 80px -30px rgb(0 0 0 / .8), 0 0 0 1px rgb(0 0 0 / .4); }
+  .shot figcaption { @apply mt-2.5 text-[13px]; color: var(--dim); }
+
   /* AI cues */
   @media (max-width: 639px) { .caret::after { display: none; } }
   .caret::after { content: ""; display: inline-block; width: .5em; height: .8em; margin-left: .08em; background: var(--accent); animation: blink 1s steps(1) infinite; }

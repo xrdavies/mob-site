@@ -44,7 +44,7 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
       <p class="stamp"><b>08:30</b><span class="cap">A day with Mob · Tuesday</span></p>
       <h1 data-stream class="display caret mt-6 max-w-5xl text-[clamp(52px,8.5vw,124px)]">Leave the desk. <span class="text-accent-400">The work stays.</span></h1>
       <p class="mt-8 max-w-xl text-lg leading-relaxed text-[var(--dim)]">
-        mobd keeps a coding agent working on your own computer while you're out. Mob is how it reaches you: it asks, you tap, it carries on.
+        mobd keeps your agents working on your own computers while you're out: on your code, or on anything you'd do at a computer yourself. Mob is how they reach you: they ask, you tap, they carry on.
         Here's an ordinary day.
       </p>
       <div class="mt-10 flex flex-wrap items-center gap-3">
@@ -96,11 +96,11 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
           <div>
             <p class="flex items-center gap-2"><span class="live-dot"></span><span class="cap text-[var(--ok)]">Live view</span></p>
             <h3 class="mt-3 text-2xl font-medium">Watch the agent's screen. Take the wheel.</h3>
-            <p class="mt-3 text-[15px] leading-relaxed text-[var(--dim)]">See the office computer's screen live on your phone or laptop while the agent works. Switch to Control for a sign-in, a captcha or a click it can't make, then hand it back. WebRTC when it can, a WebSocket through tunnels; quality follows your connection.</p>
+            <p class="mt-3 text-[15px] leading-relaxed text-[var(--dim)]">See the office computer's screen live on your phone or laptop while the agent works. Take control for a sign-in, a captcha or a click it can't make, then hand it back. Asleep until you look, so nothing streams in the background; snapshots when the network is weak. WebRTC when it can, a WebSocket through tunnels; quality follows your connection.</p>
             <a href="/desktops/" class="mt-4 inline-block text-sm text-accent-400 hover:text-white">Desktops &amp; live view →</a>
           </div>
           <div class="overflow-hidden rounded-xl border border-[var(--line)] bg-black/40" aria-hidden="true">
-            <div class="flex items-center gap-2 border-b border-[var(--line)] px-4 py-2"><span class="live-dot"></span><span class="vcr text-[15px]">Live · Control</span><span class="vcr ml-auto text-[15px] text-[var(--dim)]">1408×792 · 30 fps</span></div>
+            <div class="flex items-center gap-2 border-b border-[var(--line)] px-4 py-2"><span class="live-dot"></span><span class="vcr text-[15px]">Live · You're in control</span><span class="vcr ml-auto text-[15px] text-[var(--dim)]">1408×792 · 30 fps</span></div>
             <div class="relative grid place-items-center bg-[#16151d] p-8">
               <div class="w-52 rounded-xl border border-[var(--line)] bg-[#1d1c26] p-4">
                 <p class="text-sm font-medium">Sign in to staging</p>
@@ -112,6 +112,23 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
             </div>
           </div>
         </article>
+        <article class="panel overflow-hidden md:col-span-3">
+          <div class="p-6">
+            <p class="cap text-accent-400">Mob Desktop</p>
+            <h3 class="mt-3 text-2xl font-medium">Every computer in one window.</h3>
+            <p class="mt-3 max-w-3xl text-[15px] leading-relaxed text-[var(--dim)]">Your Mac, another Mac, a Linux server: each with what its agents are doing. <span class="text-white">Needs you</span> collects every question and approval from every computer, answered in place. <span class="text-white">⌘K</span> finds a conversation or asks an agent on any computer. On the Mac you use, Mob Desktop sets up mobd for you.</p>
+            <a href="/desktop/" class="mt-4 inline-block text-sm text-accent-400 hover:text-white">Mob Desktop →</a>
+          </div>
+          <img src="/assets/screens/desktop-needs-you-detail.webp" width="2480" height="880" loading="lazy" class="block h-auto w-full border-t border-white/10" alt="Mob Desktop's Needs you: an approval to push a commit on This computer and one to pay for a flight on the Studio Mac, each with Approve and Deny, next to the sidebar listing every computer.">
+        </article>
+        <article class="panel overflow-hidden md:col-span-3">
+          <div class="p-6">
+            <p class="cap text-accent-400">Not only code</p>
+            <h3 class="mt-3 text-2xl font-medium">Anything you'd do at that computer.</h3>
+            <p class="mt-3 max-w-3xl text-[15px] leading-relaxed text-[var(--dim)]">The agent uses the computer's own apps and logins: book the flight and ask before paying, fill in the expense form from the receipts, make the weekly report from the CRM export and send it. You see each step, and the screen when you want.</p>
+          </div>
+          <img src="/assets/screens/desktop-screen-detail.webp" width="2336" height="840" loading="lazy" class="block h-auto w-full border-t border-white/10" alt="Mob Desktop: an agent on the Studio Mac found the cheapest morning flight to Tokyo and asks before paying ¥84,200; the side panel shows the Studio Mac's screen.">
+        </article>
         <article class="panel p-6 md:col-span-3">
           <p class="cap text-accent-400">Agents together</p>
           <h3 class="mt-3 text-2xl font-medium">Your agents ask each other.</h3>
@@ -119,7 +136,7 @@ const hour = (k: keyof typeof H) => ({ 'data-hour': k, 'data-turn': H[k].turn, '
           <a href="/collaborate/" class="mt-4 inline-block text-sm text-accent-400 hover:text-white">Agents together →</a>
         </article>
         {[
-          ['Questions and approvals', 'When the agent needs a decision or asks before a command, your phone buzzes. Answer from the notification.'],
+          ['Questions and approvals', 'When an agent needs a decision or asks before a command, your phone buzzes. Answer from the notification, or from Needs you on your laptop.'],
           ['Codex, Claude Code or Pi', 'Choose per conversation. Models, effort and permissions are set once in Mob and shared by every device.'],
           ['Side by side on Linux', 'On Linux every conversation gets its own desktop, so several run at once. Idle ones sleep.'],
           ['From anywhere', 'On the office network, or through Tailscale or Cloudflare. One computer can have a LAN and a remote address.'],
@@ -226,21 +243,21 @@ Tests: <span class="text-[var(--ok)]">48 passed</span>, 48 total</pre>
         <p class="stamp"><b>15:05</b><span class="cap">A café · Laptop</span></p>
         <h2 data-stream class="display mt-6 text-[clamp(44px,5.5vw,76px)]">Take the wheel, <span class="text-accent-400">briefly.</span></h2>
         <p class="mt-6 max-w-md text-lg leading-relaxed text-[var(--dim)]">
-          Some things need a human: a login, a captcha, one click the agent can't make. Switch to Control, take the mouse and keyboard from here, switch back.
+          Some things need a human: a login, a captcha, one click the agent can't make. Take control, use the mouse and keyboard from here, release.
         </p>
       </div>
       <div class="panel min-w-0 p-5" aria-hidden="true">
-        <div class="flex items-center gap-3"><span class="cap">Mode</span>
-          <span class="rounded-full bg-white/5 p-1 text-sm"><span class="rounded-full px-3 py-1 text-[var(--dim)]">View</span><span class="rounded-full bg-accent-400 px-3 py-1 text-white">Control</span></span>
-        </div>
-        <div class="relative mt-5 grid place-items-center rounded-xl bg-[#16151d] p-10">
+        <div class="overflow-hidden rounded-xl ring-2 ring-accent-400">
+        <div class="flex items-center gap-2 bg-accent-400 px-3 py-1.5 text-sm text-white"><span>You're in control</span><span class="ml-auto rounded-md bg-white/20 px-2 py-0.5 text-xs">Release <span class="opacity-75">Esc</span></span></div>
+        <div class="relative grid place-items-center bg-[#16151d] p-10">
           <div class="w-56 rounded-xl border border-[var(--line)] bg-[#1d1c26] p-5">
             <p class="text-sm font-medium">Verify it's you</p>
             <p class="mt-3 flex items-center gap-2 rounded-md border border-white/10 px-2 py-1.5 text-xs"><span class="size-3.5 rounded-sm bg-accent-400"></span>I'm not a robot</p>
           </div>
           <svg class="absolute bottom-12 left-[56%]" width="22" height="22" viewBox="0 0 24 24"><path d="M4 2l16 9-7 1.5L9.5 20z" fill="#fff" stroke="#0b0b0f" stroke-width="1.5"/></svg>
         </div>
-        <p class="vcr mt-4 text-[16px] text-[var(--dim)]">Keys go to the office computer · Esc to stop</p>
+        </div>
+        <p class="vcr mt-4 text-[16px] text-[var(--dim)]">Keys go to the office computer · Esc to release</p>
       </div>
     </div>
   </section>
