@@ -16,7 +16,7 @@ const sections: [string, string][] = [
         <tr><td><a href="https://code.claude.com/docs/en/quickstart" rel="noreferrer">Claude Code</a></td><td><code>curl -fsSL https://claude.ai/install.sh | bash</code>, then <code>claude</code> to sign in or use an API key</td><td><code>claude</code></td></tr>
         <tr><td><a href="https://www.npmjs.com/package/@earendil-works/pi-coding-agent" rel="noreferrer">Pi</a></td><td><code>npm install -g --ignore-scripts @earendil-works/pi-coding-agent@1.4.0</code>, then set up its model provider</td><td><code>pi</code></td></tr>
         <tr><td><a href="https://opencode.ai" rel="noreferrer">OpenCode</a></td><td><code>npm install -g opencode-ai</code>, then <code>opencode auth login</code> for your providers (its free models work without)</td><td><code>opencode</code></td></tr>
-        <tr><td><a href="https://www.npmjs.com/package/@deepseek-ai/dsh" rel="noreferrer">DeepSeek Harness</a></td><td><code>npm install -g @deepseek-ai/dsh</code> (a release candidate), then store <code>DEEPSEEK_API_KEY</code> on its web Models page</td><td><code>dsh</code></td></tr>
+        <tr><td><a href="https://www.npmjs.com/package/@deepseek-ai/dsh" rel="noreferrer">DeepSeek Harness</a></td><td><code>npm install -g @deepseek-ai/dsh</code> (a release candidate), then give it <code>DEEPSEEK_API_KEY</code>: store it on its web Models page, or set it in <code>config.json</code> as <code>{`"agents": {"dsh": {"env": {"DEEPSEEK_API_KEY": "…"}}}`}</code>, which stays on the computer</td><td><code>dsh</code></td></tr>
       </tbody>
     </table></div>
     <p>OpenCode and DeepSeek Harness are connected through the <a href="https://agentclientprotocol.com" rel="noreferrer">Agent Client Protocol</a>, and so can any agent that speaks it: name it in <code>agents</code> (<a href="#config">below</a>) and add it to <code>runners</code>. These agents finish a turn before taking the next message; adding to a running turn is for Codex and Pi.</p>
@@ -52,7 +52,7 @@ const sections: [string, string][] = [
     <ul>
       <li>the <strong>default agent</strong> for new conversations;</li>
       <li>the <strong>models</strong> offered for each agent, and its <strong>default model</strong> and <strong>effort</strong>;</li>
-      <li><strong>permissions:</strong> <em>Run without asking</em> (the default), or <em>Ask before commands and edits</em>, where the agent waits for your approval in Mob.</li>
+      <li><strong>permissions:</strong> <em>Run without asking</em> (the default), or <em>Ask before commands and edits</em>, where the agent waits for your approval in Mob. DeepSeek Harness decides on its own and cannot ask, so it always runs without asking.</li>
     </ul>
     <p>Changes apply from the next turn, without a restart. A conversation keeps its agent; its model and effort can be changed in the message box.</p>
     <p>Agents connected through the Agent Client Protocol report their own models: until you list some, chats offer all of them.</p>
@@ -81,6 +81,6 @@ const sections: [string, string][] = [
   <section id="security">
     <h2>Security</h2>
     <p class="callout"><strong>Open it on trusted networks only.</strong> Every device must pair, but plain HTTP is not encrypted. Never forward port 8080 to the internet; across networks see <a href="/remote/">Remote access</a>.</p>
-    <p>The agents run as the user that runs mobd, with that user's files and logins. With <em>Run without asking</em> they act without confirmation; choose <em>Ask before commands and edits</em> for an agent you want to supervise.</p>
+    <p>The agents run as the user that runs mobd, with that user's files and logins. With <em>Run without asking</em> they act without confirmation; choose <em>Ask before commands and edits</em> for an agent you want to supervise (not available for DeepSeek Harness).</p>
   </section>
 </DocLayout>
