@@ -163,6 +163,7 @@ mobd link         # scan: the remote address</pre>
             <li>On the office computer, <code>mobd status</code> and <code>mobd logs</code>: is mobd running?</li>
             <li><strong>LAN address:</strong> is the device on the office network? Guest Wi-Fi often keeps devices apart. On Linux, check the firewall.</li>
             <li><strong>Tailscale:</strong> is Tailscale on and connected on the device? iPhone and iPad run one VPN at a time. <code>tailscale ping</code> should show a direct path.</li>
+            <li><strong>A proxy app (Clash, Surge, V2Ray…) is on:</strong> it can't reach your tailnet. Add <code>*.ts.net</code> and <code>100.64.0.0/10</code> to its bypass list (<a href="/faq/#proxy">how</a>).</li>
             <li><strong>Away from the office on the LAN address:</strong> Mob shows <strong>LAN not reachable · Use Remote</strong>; switch to the remote address.</li>
           </ul>
         </details>

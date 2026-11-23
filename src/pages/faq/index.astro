@@ -25,6 +25,16 @@ const sections: [string, string][] = [['general', 'General'], ['problems', 'Prob
     <details class="fold"><summary>Mob says the machine needs pairing</summary><p>This device's credential was revoked, or authentication was reset on the office computer. Run <code>mobd link</code> again, choose <strong>Pair again</strong> in Mob and scan or paste the new link. Conversations are kept.</p></details>
     <details class="fold"><summary>The pairing link is “invalid, expired or already used”</summary><p>Invitations last 10 minutes and work once. Run <code>mobd link</code> again and use the new code.</p></details>
     <details class="fold"><summary>Mob can't reach mobd</summary><p>Is mobd running (<code>mobd status</code>)? Is the device on the same network, or is remote access working (<code>mobd remote</code>)? On Linux, is a firewall blocking port 8080 (<a href="/install/linux/#firewall">firewall</a>)? More in <a href="/remote/#problems">Remote access → Problems</a>.</p></details>
+    <details class="fold" id="proxy"><summary>It works on the office network, but not through Tailscale while a proxy app is on</summary>
+      <p>Proxy apps such as Clash, Surge or V2Ray send connections to their own server on the internet. Your tailnet is private: that server can't look up names like <code>office.your-tailnet.ts.net</code> or reach <code>100.x.x.x</code> addresses, so the connection fails. Mob Desktop shows “Could not reach … (Load failed)”; <code>mobd remote setup</code> fails with <code>EOF</code>. Office addresses keep working because proxy apps leave the local network alone.</p>
+      <p>Send Tailscale traffic direct, on every computer where you use Mob and on the office computer: in the proxy app's bypass list (<code>skip-proxy</code>, “Bypass domains”) add</p>
+      <pre>*.ts.net
+100.64.0.0/10</pre>
+      <p>With a TUN or “enhanced” mode, also add rules:</p>
+      <pre>DOMAIN-SUFFIX,ts.net,DIRECT
+IP-CIDR,100.64.0.0/10,DIRECT,no-resolve</pre>
+      <p>Then turn the system proxy off and on, and reopen Mob. To check: open your remote address with <code>/pair</code> at the end in Safari or Chrome; mobd answers with a short message. In a terminal that sets <code>https_proxy</code>, run <code>NO_PROXY='*' no_proxy='*' mobd remote setup</code>.</p>
+    </details>
     <details class="fold"><summary>I can chat, but there is no live view</summary><p>Mob shows the reason. On macOS, grant Screen Recording and run <code>mobd restart</code>. On Linux, <code>mobd desktops doctor</code> shows whether an H.264 encoder is available; a desktop starts with the conversation's first turn. If UDP 9527 is blocked, the live view uses a WebSocket.</p></details>
     <details class="fold"><summary>Linux: a new conversation waits and doesn't start a desktop</summary><p>Memory or disk is below its floor, or <code>maxDesktops</code> is reached. Mob shows a banner; close desktops you don't need (<strong>Close desktop</strong> in Mob, or <code>mobd desktops close</code>).</p></details>
     <details class="fold"><summary>Linux: pages show boxes instead of text</summary><p>Fonts are missing: <code>sudo apt install fonts-dejavu-core fonts-noto-cjk</code>.</p></details>
